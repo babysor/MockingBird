@@ -14,6 +14,9 @@
 
 🤩 **Easy & Awesome** effect with only newly-trained synthesizer, by reusing the pretrained encoder/vocoder
 
+
+### [DEMO VIDEO](https://www.bilibili.com/video/BV1sA411P7wM/)
+
 ## Quick Start
 
 ### 1. Install Requirements
@@ -49,7 +52,7 @@ or
 `python demo_toolbox.py`  
 
 ## TODO
-- Add demo video
-- Add support for more dataset
-- Upload pretrained model
+- [x] Add demo video
+- [ ] Add support for more dataset
+- [ ] Upload pretrained model
 - 🙏 Welcome to add more
