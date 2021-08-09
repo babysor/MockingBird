@@ -25,8 +25,11 @@
 * 安装 [ffmpeg](https://ffmpeg.org/download.html#get-packages)。
 * 运行`pip install -r requirements.txt` 来安装剩余的必要包。
 
+### 2. 使用预训练好的编码器/声码器
+下载以下模型，解压替换到本代码库的根目录
+https://github.com/CorentinJ/Real-Time-Voice-Cloning/wiki/Pretrained-models
 
-### 2. 使用 aidatatang_200zh 训练合成器
+### 3. 使用 aidatatang_200zh 训练合成器
 * 下载 adatatang_200zh 数据集并解压：确保您可以访问 *train* 文件夹中的所有 .wav
 * 使用音频和梅尔频谱图进行预处理：
 `python synthesizer_preprocess_audio.py <datasets_root>`
@@ -41,7 +44,7 @@
 > 仅供参考，我的注意力是在 18k 步之后出现的，并且在 50k 步之后损失变得低于 0.4。
 
 
-### 3. 启动工具箱
+### 4. 启动工具箱
 然后您可以尝试使用工具箱：
 `python demo_toolbox.py -d <datasets_root>`
 
