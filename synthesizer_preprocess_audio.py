@@ -1,9 +1,14 @@
-from synthesizer.preprocess import preprocess_aidatatang_200zh
+from synthesizer.preprocess import preprocess_dataset
 from synthesizer.hparams import hparams
 from utils.argutils import print_args
 from pathlib import Path
 import argparse
 
+
+recognized_datasets = [
+    "aidatatang_200zh",
+    "SLR68",
+]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -29,16 +34,14 @@ if __name__ == "__main__":
     parser.add_argument("--no_alignments", action="store_true", help=\
         "Use this option when dataset does not include alignments\
         (these are used to split long audio files into sub-utterances.)")
-    parser.add_argument("--datasets_name", type=str, default="LibriSpeech", help=\
-        "Name of the dataset directory to process.")
-    parser.add_argument("--subfolders", type=str, default="train-clean-100, train-clean-360", help=\
-        "Comma-separated list of subfolders to process inside your dataset directory")
+    parser.add_argument("--dataset", type=str, default="aidatatang_200zh", help=\
+        "Name of the dataset to process.")
     args = parser.parse_args()
 
     # Process the arguments
     if not hasattr(args, "out_dir"):
         args.out_dir = args.datasets_root.joinpath("SV2TTS", "synthesizer")
-
+    assert args.dataset in recognized_datasets, 'not surpport such dataset'
     # Create directories
     assert args.datasets_root.exists()
     args.out_dir.mkdir(exist_ok=True, parents=True)
@@ -56,5 +59,5 @@ if __name__ == "__main__":
     # Preprocess the dataset
     print_args(args, parser)
     args.hparams = hparams.parse(args.hparams)
-    # preprocess_dataset(**vars(args))
-    preprocess_aidatatang_200zh(**vars(args)) 
+
+    preprocess_dataset(**vars(args))
