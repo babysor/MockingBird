@@ -27,9 +27,10 @@
 * Install [ffmpeg](https://ffmpeg.org/download.html#get-packages).
 * Run `pip install -r requirements.txt` to install the remaining necessary packages.
 
-### 2. reuse the pretrained encoder/vocoder
-* Download the following models and extract to the root directory of this project.
+### 2. Reuse the pretrained encoder/vocoder
+* Download the following models and extract to the root directory of this project. Don't use the synthesizer
 https://github.com/CorentinJ/Real-Time-Voice-Cloning/wiki/Pretrained-models
+> Note that we need to specify the newly trained synthesizer model, since the original model is incompatible with the Chinese sympols. It means the demo_cli is not working at this moment.
 ### 3. Train synthesizer with aidatatang_200zh
 * Download aidatatang_200zh dataset and unzip: make sure you can access all .wav in *train* folder
 * Preprocess with the audios and the mel spectrograms:
