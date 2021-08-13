@@ -1,4 +1,3 @@
-import platform
 import librosa
 import numpy as np
 
@@ -68,36 +67,30 @@ def _split_on_silences_aidatatang_200zh(wav_fpath, words, hparams):
     wav = librosa.effects.trim(wav, top_db= 40, frame_length=2048, hop_length=512)[0]
     if hparams.rescale:
         wav = wav / np.abs(wav).max() * hparams.rescaling_max
+    # denoise, we may not need it here.
+    if len(wav) > hparams.sample_rate*(0.3+0.1):
+        noise_wav = np.concatenate([wav[:int(hparams.sample_rate*0.15)],
+                                    wav[-int(hparams.sample_rate*0.15):]])
+        profile = logmmse.profile_noise(noise_wav, hparams.sample_rate)
+        wav = logmmse.denoise(wav, profile, eta=0)
+
     resp = pinyin(words, style=Style.TONE3)
     res = [v[0] for v in resp if v[0].strip()]
     res = " ".join(res)
 
     return wav, res
 
-
-def preprocess_speaker_aidatatang_200zh(speaker_dir, out_dir: Path, skip_existing: bool, hparams, directory, no_alignments: bool):
-    dict_info = {}
-    transcript_dirs = directory.joinpath("transcript/aidatatang_200_zh_transcript.txt")
-    with open(transcript_dirs,"rb") as fp:
-        dict_transcript = [v.decode() for v in fp]
-    for v in dict_transcript:
-        if not v:
-            continue
-        v = v.strip().replace("\n","").split(" ")
-        dict_info[v[0]] = " ".join(v[1:])
-
+def preprocess_speaker_general(speaker_dir, out_dir: Path, skip_existing: bool, hparams, dict_info, no_alignments: bool):
     metadata = []
-    if platform.system() == "Windows":
-        split = "\\"
-    else:
-        split = "/" 
-    for wav_fpath in speaker_dir.glob("*.wav"):
-        name = str(wav_fpath).split(split)[-1]
-        key = name.split(".")[0]
-        words = dict_info.get(key)
+    wav_fpath_list = speaker_dir.glob("*.wav")
+    # Iterate over each wav
+    for wav_fpath in wav_fpath_list:
+        words = dict_info.get(wav_fpath.name.split(".")[0])
+        words = dict_info.get(wav_fpath.name) if not words else words # try with wav 
         if not words:
+            print("no wordS")
             continue
-        sub_basename = "%s_%02d" % (name, 0)
+        sub_basename = "%s_%02d" % (wav_fpath.name, 0)
         wav, text = _split_on_silences_aidatatang_200zh(wav_fpath, words, hparams)
         metadata.append(_process_utterance(wav, text, out_dir, sub_basename, 
                                               skip_existing, hparams))

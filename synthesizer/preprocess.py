@@ -6,22 +6,28 @@ from pathlib import Path
 from tqdm import tqdm
 import numpy as np
 from encoder import inference as encoder
-from synthesizer.preprocess_speaker import preprocess_speaker_aidatatang_200zh
+from synthesizer.preprocess_speaker import preprocess_speaker_general
 
 data_info = {
     "aidatatang_200zh": {
         "subfolders": ["corpus/train"],
-        "speak_func": preprocess_speaker_aidatatang_200zh
-    }
-    # TODO add more
+        "trans_filepath": "transcript/aidatatang_200_zh_transcript.txt",
+        "speak_func": preprocess_speaker_general
+    },
+    "SLR68": {
+        "subfolders": ["train"],
+        "trans_filepath": "train/TRANS.txt",
+        "speak_func": preprocess_speaker_general
+    },
 }
 
 def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
                            skip_existing: bool, hparams, no_alignments: bool,
                            dataset: str):
+    dataset_info = data_info[dataset]
     # Gather the input directories
     dataset_root = datasets_root.joinpath(dataset)
-    input_dirs = [dataset_root.joinpath(subfolder.strip()) for subfolder in data_info[dataset]["subfolders"]]
+    input_dirs = [dataset_root.joinpath(subfolder.strip()) for subfolder in dataset_info["subfolders"]]
     print("\n    ".join(map(str, ["Using data from:"] + input_dirs)))
     assert all(input_dir.exists() for input_dir in input_dirs)
     
@@ -34,9 +40,19 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
     metadata_file = metadata_fpath.open("a" if skip_existing else "w", encoding="utf-8")
 
     # Preprocess the dataset
+    dict_info = {}
+    transcript_dirs = dataset_root.joinpath(dataset_info["trans_filepath"])
+    assert transcript_dirs.exists(), str(transcript_dirs)+" not exist."
+    with open(transcript_dirs, "r", encoding="utf-8") as dict_transcript:
+        for v in dict_transcript:
+            if not v:
+                continue
+            v = v.strip().replace("\n","").replace("\t"," ").split(" ")
+            dict_info[v[0]] = " ".join(v[1:])
+
     speaker_dirs = list(chain.from_iterable(input_dir.glob("*") for input_dir in input_dirs))
-    func = partial(data_info[dataset]["speak_func"], out_dir=out_dir, skip_existing=skip_existing, 
-                   hparams=hparams, directory=dataset_root, no_alignments=no_alignments)
+    func = partial(dataset_info["speak_func"], out_dir=out_dir, skip_existing=skip_existing, 
+                   hparams=hparams, dict_info=dict_info, no_alignments=no_alignments)
     job = Pool(n_processes).imap(func, speaker_dirs)
     for speaker_metadata in tqdm(job, dataset, len(speaker_dirs), unit="speakers"):
         for metadatum in speaker_metadata:

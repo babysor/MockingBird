@@ -7,7 +7,7 @@
 ### [English](README.md)  | 中文
 
 ## 特性
-🌍 **中文** 支持普通话并使用数据集进行测试：adatatang_200zh
+🌍 **中文** 支持普通话并使用多种中文数据集进行测试：adatatang_200zh, SLR68
 
 🤩 **PyTorch** 适用于 pytorch，已在 1.9.0 版本（最新于 2021 年 8 月）中测试，GPU Tesla T4 和 GTX 2060
 
@@ -33,6 +33,7 @@ https://github.com/CorentinJ/Real-Time-Voice-Cloning/wiki/Pretrained-models
 * 下载 adatatang_200zh 数据集并解压：确保您可以访问 *train* 文件夹中的所有 .wav
 * 使用音频和梅尔频谱图进行预处理：
 `python synthesizer_preprocess_audio.py <datasets_root>`
+可以传入参数 --dataset `{dataset}` 支持 adatatang_200zh, SLR68
 
 * 预处理嵌入：
 `python synthesizer_preprocess_embeds.py <datasets_root>/SV2TTS/synthesizer`
@@ -48,8 +49,8 @@ https://github.com/CorentinJ/Real-Time-Voice-Cloning/wiki/Pretrained-models
 然后您可以尝试使用工具箱：
 `python demo_toolbox.py -d <datasets_root>`
 
-＃＃ TODO
-- 添加演示视频
-- 添加对更多数据集的支持
-- 上传预训练模型
-- 🙏 欢迎补充
+## TODO
+- [X]  添加演示视频
+- [X] 添加对更多数据集的支持
+- [ ] 上传预训练模型
+- [ ] 🙏 欢迎补充

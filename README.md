@@ -6,7 +6,7 @@
 > English | [中文](README-CN.md) 
 
 ## Features
-🌍 **Chinese** supported mandarin and tested with dataset: aidatatang_200zh
+🌍 **Chinese** supported mandarin and tested with multiple datasets: aidatatang_200zh, SLR68
 
 🤩 **PyTorch** worked for pytorch, tested in version of 1.9.0(latest in August 2021), with GPU Tesla T4 and GTX 2060
 
@@ -35,7 +35,7 @@ https://github.com/CorentinJ/Real-Time-Voice-Cloning/wiki/Pretrained-models
 * Download aidatatang_200zh dataset and unzip: make sure you can access all .wav in *train* folder
 * Preprocess with the audios and the mel spectrograms:
 `python synthesizer_preprocess_audio.py <datasets_root>`
-
+Allow parameter `--dataset {dataset}` to support adatatang_200zh, SLR68
 * Preprocess the embeddings:
 `python synthesizer_preprocess_embeds.py <datasets_root>/SV2TTS/synthesizer`
 
@@ -56,6 +56,6 @@ or
 
 ## TODO
 - [x] Add demo video
-- [ ] Add support for more dataset
+- [X] Add support for more dataset
 - [ ] Upload pretrained model
 - 🙏 Welcome to add more
