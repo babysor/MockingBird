@@ -39,6 +39,7 @@ vocoder\saved_models\pretrained\pretrained.pt
 * 使用音频和梅尔频谱图进行预处理：
 `python synthesizer_preprocess_audio.py <datasets_root>`
 可以传入参数 --dataset `{dataset}` 支持 adatatang_200zh, SLR68
+> 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
 * 预处理嵌入：
 `python synthesizer_preprocess_embeds.py <datasets_root>/SV2TTS/synthesizer`
