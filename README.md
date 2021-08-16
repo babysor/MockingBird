@@ -26,12 +26,8 @@
 * Install [PyTorch](https://pytorch.org/get-started/locally/).
 * Install [ffmpeg](https://ffmpeg.org/download.html#get-packages).
 * Run `pip install -r requirements.txt` to install the remaining necessary packages.
-
-### 2. Reuse the pretrained encoder/vocoder
-* Download the following models and extract the encoder and vocoder models to the according directory of this project. Don't use the synthesizer
-https://github.com/CorentinJ/Real-Time-Voice-Cloning/wiki/Pretrained-models
-> Note that we need to specify the newly trained synthesizer model, since the original model is incompatible with the Chinese sympols. It means the demo_cli is not working at this moment.
-### 3. Train synthesizer with your dataset
+> Note that we are using the pretrained encoder/vocoder but synthesizer, since the original model is incompatible with the Chinese sympols. It means the demo_cli is not working at this moment.
+### 2. Train synthesizer with your dataset
 * Download aidatatang_200zh or SLR68 dataset and unzip: make sure you can access all .wav in *train* folder
 * Preprocess with the audios and the mel spectrograms:
 `python synthesizer_preprocess_audio.py <datasets_root>`
@@ -48,7 +44,7 @@ Allow parameter `--dataset {dataset}` to support adatatang_200zh, SLR68
 ![step-135500-mel-spectrogram_sample_1](https://user-images.githubusercontent.com/7423248/128587255-4945faa0-5517-46ea-b173-928eff999330.png)
 > A link to my early trained model: [Baidu Yun](https://pan.baidu.com/s/10t3XycWiNIg5dN5E_bMORQ)
 Code：aid4
-### 4. Launch the Toolbox
+### 3. Launch the Toolbox
 You can then try the toolbox:
 
 `python demo_toolbox.py -d <datasets_root>`  
@@ -59,4 +55,6 @@ or
 - [x] Add demo video
 - [X] Add support for more dataset
 - [X] Upload pretrained model
+- [ ] Support parallel tacotron
+- [ ] Service orianted and docterize
 - 🙏 Welcome to add more
