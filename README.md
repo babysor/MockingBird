@@ -54,6 +54,8 @@ You can then try the toolbox:
 or  
 `python demo_toolbox.py`  
 
+> Good news🤩: Chinese Characters are supported
+
 ## TODO
 - [x] Add demo video
 - [X] Add support for more dataset
