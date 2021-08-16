@@ -19,18 +19,23 @@
 
 ### 1. 安装要求
 > 按照原始存储库测试您是否已准备好所有环境。
-**Python 3.7 或更高版本 ** 需要运行工具箱。
+**Python 3.7 或更高版本** 需要运行工具箱。
 
 * 安装 [PyTorch](https://pytorch.org/get-started/locally/)。
 * 安装 [ffmpeg](https://ffmpeg.org/download.html#get-packages)。
 * 运行`pip install -r requirements.txt` 来安装剩余的必要包。
 
 ### 2. 使用预训练好的编码器/声码器
-下载以下模型，解压替换到本代码库的根目录
-https://github.com/CorentinJ/Real-Time-Voice-Cloning/wiki/Pretrained-models
+下载[预训练模型](https://github.com/CorentinJ/Real-Time-Voice-Cloning/wiki/Pretrained-models)，解压下载内容，并复制`encoder`与`vocoder`下的`saved_models`到本代码库的相应目录下
 
-### 3. 使用 aidatatang_200zh 训练合成器
-* 下载 adatatang_200zh 数据集并解压：确保您可以访问 *train* 文件夹中的所有 .wav
+确保得到以下文件：
+```
+encoder\saved_models\pretrained.pt
+vocoder\saved_models\pretrained\pretrained.pt
+```
+
+### 3. 使用数据集训练合成器
+* 下载 数据集并解压：确保您可以访问 *train* 文件夹中的所有音频文件（如.wav）
 * 使用音频和梅尔频谱图进行预处理：
 `python synthesizer_preprocess_audio.py <datasets_root>`
 可以传入参数 --dataset `{dataset}` 支持 adatatang_200zh, SLR68
@@ -50,7 +55,8 @@ https://github.com/CorentinJ/Real-Time-Voice-Cloning/wiki/Pretrained-models
 `python demo_toolbox.py -d <datasets_root>`
 
 ## TODO
-- [X]  添加演示视频
+- [ ] 允许直接使用中文
+- [X] 添加演示视频
 - [X] 添加对更多数据集的支持
 - [ ] 上传预训练模型
 - [ ] 🙏 欢迎补充
