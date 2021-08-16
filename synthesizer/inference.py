@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Union, List
 import numpy as np
 import librosa
-
+from pypinyin import lazy_pinyin, Style
 
 class Synthesizer:
     sample_rate = hparams.sample_rate
@@ -90,6 +90,10 @@ class Synthesizer:
 
             simple_table([("Tacotron", str(tts_k) + "k"),
                         ("r", self._model.r)])
+
+        #convert chinese char to pinyin
+        list_of_pinyin = lazy_pinyin(texts, style=Style.TONE3)
+        texts = [" ".join([v for v in list_of_pinyin if v.strip()])]
 
         # Preprocess text inputs
         inputs = [text_to_sequence(text.strip(), hparams.tts_cleaner_names) for text in texts]

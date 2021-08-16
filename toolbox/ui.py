@@ -36,17 +36,8 @@ colormap = np.array([
 ], dtype=np.float) / 255 
 
 default_text = \
-    "Welcome to the toolbox! To begin, load an utterance from your datasets or record one " \
-    "yourself.\nOnce its embedding has been created, you can synthesize any text written here.\n" \
-    "The synthesizer expects to generate " \
-    "outputs that are somewhere between 5 and 12 seconds.\nTo mark breaks, write a new line. " \
-    "Each line will be treated separately.\nThen, they are joined together to make the final " \
-    "spectrogram. Use the vocoder to generate audio.\nThe vocoder generates almost in constant " \
-    "time, so it will be more time efficient for longer inputs like this one.\nOn the left you " \
-    "have the embedding projections. Load or record more utterances to see them.\nIf you have " \
-    "at least 2 or 3 utterances from a same speaker, a cluster should form.\nSynthesized " \
-    "utterances are of the same color as the speaker whose voice was used, but they're " \
-    "represented with a cross."
+    "欢迎使用工具箱, 现已支持中文输入！"
+
 
    
 class UI(QDialog):
