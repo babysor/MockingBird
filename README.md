@@ -28,11 +28,11 @@
 * Run `pip install -r requirements.txt` to install the remaining necessary packages.
 
 ### 2. Reuse the pretrained encoder/vocoder
-* Download the following models and extract to the root directory of this project. Don't use the synthesizer
+* Download the following models and extract the encoder and vocoder models to the according directory of this project. Don't use the synthesizer
 https://github.com/CorentinJ/Real-Time-Voice-Cloning/wiki/Pretrained-models
 > Note that we need to specify the newly trained synthesizer model, since the original model is incompatible with the Chinese sympols. It means the demo_cli is not working at this moment.
-### 3. Train synthesizer with aidatatang_200zh
-* Download aidatatang_200zh dataset and unzip: make sure you can access all .wav in *train* folder
+### 3. Train synthesizer with your dataset
+* Download aidatatang_200zh or SLR68 dataset and unzip: make sure you can access all .wav in *train* folder
 * Preprocess with the audios and the mel spectrograms:
 `python synthesizer_preprocess_audio.py <datasets_root>`
 Allow parameter `--dataset {dataset}` to support adatatang_200zh, SLR68
@@ -46,7 +46,8 @@ Allow parameter `--dataset {dataset}` to support adatatang_200zh, SLR68
 > FYI, my attention came after 18k steps and loss became lower than 0.4 after 50k steps.
 ![attention_step_20500_sample_1](https://user-images.githubusercontent.com/7423248/128587252-f669f05a-f411-4811-8784-222156ea5e9d.png)
 ![step-135500-mel-spectrogram_sample_1](https://user-images.githubusercontent.com/7423248/128587255-4945faa0-5517-46ea-b173-928eff999330.png)
-
+> A link to my early trained model: [Baidu Yun](https://pan.baidu.com/s/10t3XycWiNIg5dN5E_bMORQ)
+Code：aid4
 ### 4. Launch the Toolbox
 You can then try the toolbox:
 
@@ -57,5 +58,5 @@ or
 ## TODO
 - [x] Add demo video
 - [X] Add support for more dataset
-- [ ] Upload pretrained model
+- [X] Upload pretrained model
 - 🙏 Welcome to add more
