@@ -7,7 +7,7 @@ import argparse
 
 recognized_datasets = [
     "aidatatang_200zh",
-    "SLR68",
+    "magicdata",
 ]
 
 if __name__ == "__main__":
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         "Use this option when dataset does not include alignments\
         (these are used to split long audio files into sub-utterances.)")
     parser.add_argument("--dataset", type=str, default="aidatatang_200zh", help=\
-        "Name of the dataset to process.")
+        "Name of the dataset to process, allowing values: magicdata, aidatatang_200zh.")
     args = parser.parse_args()
 
     # Process the arguments

@@ -6,7 +6,7 @@
 > English | [中文](README-CN.md) 
 
 ## Features
-🌍 **Chinese** supported mandarin and tested with multiple datasets: aidatatang_200zh, SLR68
+🌍 **Chinese** supported mandarin and tested with multiple datasets: aidatatang_200zh, magicdata
 
 🤩 **PyTorch** worked for pytorch, tested in version of 1.9.0(latest in August 2021), with GPU Tesla T4 and GTX 2060
 
@@ -31,7 +31,7 @@
 * Download aidatatang_200zh or SLR68 dataset and unzip: make sure you can access all .wav in *train* folder
 * Preprocess with the audios and the mel spectrograms:
 `python synthesizer_preprocess_audio.py <datasets_root>`
-Allow parameter `--dataset {dataset}` to support adatatang_200zh, SLR68
+Allow parameter `--dataset {dataset}` to support adatatang_200zh, magicdata
 * Preprocess the embeddings:
 `python synthesizer_preprocess_embeds.py <datasets_root>/SV2TTS/synthesizer`
 
