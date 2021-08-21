@@ -24,6 +24,7 @@
 * 安装 [PyTorch](https://pytorch.org/get-started/locally/)。
 * 安装 [ffmpeg](https://ffmpeg.org/download.html#get-packages)。
 * 运行`pip install -r requirements.txt` 来安装剩余的必要包。
+* 安装 webrtcvad 用 `pip install webrtcvad`。
 
 ### 2. 使用数据集训练合成器
 * 下载 数据集并解压：确保您可以访问 *train* 文件夹中的所有音频文件（如.wav）
