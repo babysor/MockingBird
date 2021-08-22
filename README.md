@@ -35,7 +35,7 @@ Allow parameter `--dataset {dataset}` to support adatatang_200zh, magicdata
 
 > This step may encounter two problems:
 > 1. `ModuleNotFoundError: No module named'webrtcvad'`: Just `pip install webrtcvad` can solve it.
-> 2. `The paging is too small to complete the operation`: You can refer to this [article](https://blog.csdn.net/qq_17755303/article/details/112564030) and change the virtual memory to 100G (102400).
+> 2. `The paging is too small to complete the operation`: You can refer to this [video](https://www.youtube.com/watch?v=Oh6dga-Oy10&ab_channel=CodeProf) and change the virtual memory of the disk where the file is placed It is 100G (102400).(e.g.,I put the file in the D disk, I change the virtual memory of the D disk to 100G)
 
 * Preprocess the embeddings:
 `python synthesizer_preprocess_embeds.py <datasets_root>/SV2TTS/synthesizer`
