@@ -42,6 +42,14 @@ Allow parameter `--dataset {dataset}` to support adatatang_200zh, magicdata
 > FYI, my attention came after 18k steps and loss became lower than 0.4 after 50k steps.
 ![attention_step_20500_sample_1](https://user-images.githubusercontent.com/7423248/128587252-f669f05a-f411-4811-8784-222156ea5e9d.png)
 ![step-135500-mel-spectrogram_sample_1](https://user-images.githubusercontent.com/7423248/128587255-4945faa0-5517-46ea-b173-928eff999330.png)
+
+### 2.2 Use pretrained model of synthesizer
+> Thanks to the community, some models will be shared:
+
+| author | Download link | Previow Video | 
+| --- | ----------- | ----- | 
+|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ code：2021 | https://www.bilibili.com/video/BV1uh411B7AD/
+
 > A link to my early trained model: [Baidu Yun](https://pan.baidu.com/s/10t3XycWiNIg5dN5E_bMORQ)
 Code：aid4
 ### 3. Launch the Toolbox

@@ -40,7 +40,16 @@
 `python synthesizer_train.py mandarin <datasets_root>/SV2TTS/synthesizer`
 
 * 当您在训练文件夹 *synthesizer/saved_models/* 中看到注意线显示和损失满足您的需要时，请转到下一步。
-> 仅供参考，我的注意力是在 18k 步之后出现的，并且在 50k 步之后损失变得低于 0.4。
+> 仅供参考，我的注意力是在 18k 步之后出现的，并且在 50k 步之后损失变得低于 0.4
+![attention_step_20500_sample_1](https://user-images.githubusercontent.com/7423248/128587252-f669f05a-f411-4811-8784-222156ea5e9d.png)
+![step-135500-mel-spectrogram_sample_1](https://user-images.githubusercontent.com/7423248/128587255-4945faa0-5517-46ea-b173-928eff999330.png)
+
+### 2.2 使用预先训练好的合成器
+> 实在没有设备或者不想慢慢调试，可以使用网友贡献的模型(欢迎持续分享):
+
+| 作者 | 下载链接 | 效果预览 | 
+| --- | ----------- | ----- | 
+|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/
 
 ### 3. 启动工具箱
 然后您可以尝试使用工具箱：
