@@ -32,6 +32,11 @@
 * Preprocess with the audios and the mel spectrograms:
 `python synthesizer_preprocess_audio.py <datasets_root>`
 Allow parameter `--dataset {dataset}` to support adatatang_200zh, magicdata
+
+> This step may encounter two problems:
+> 1. `ModuleNotFoundError: No module named'webrtcvad'`: Just `pip install webrtcvad` can solve it.
+> 2. `The paging is too small to complete the operation`: You can refer to this [article](https://blog.csdn.net/qq_17755303/article/details/112564030) and change the virtual memory to 100G (102400).
+
 * Preprocess the embeddings:
 `python synthesizer_preprocess_embeds.py <datasets_root>/SV2TTS/synthesizer`
 
