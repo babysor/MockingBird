@@ -35,7 +35,7 @@
 
 > 這步驟可能會碰到兩個問題:
 > 1. `ModuleNotFoundError: No module named 'webrtcvad'`:只需 `pip install webrtcvad`就能解決。
-> 2. `分頁太小，無法完成操作`:可以參考這篇[文章](https://blog.csdn.net/qq_17755303/article/details/112564030)，將虛擬內存更改為100G(102400)。(例如:我將檔案存放在D槽，那就是將D槽的虛擬內存更改為100G(102400))
+> 2. `分頁太小，無法完成操作`:可以參考這篇[文章](https://blog.csdn.net/qq_17755303/article/details/112564030)，將虛擬內存更改為100G(102400)。(例如:檔案存放在D槽，則將D槽的虛擬內存更改為100G(102400))
 
 * 预处理嵌入：
 `python synthesizer_preprocess_embeds.py <datasets_root>/SV2TTS/synthesizer`
