@@ -90,13 +90,10 @@ class Synthesizer:
 
             simple_table([("Tacotron", str(tts_k) + "k"),
                         ("r", self._model.r)])
-
-        #convert chinese char to pinyin
-        list_of_pinyin = lazy_pinyin(texts, style=Style.TONE3)
-        texts = [" ".join([v for v in list_of_pinyin if v.strip()])]
+        texts = [" ".join(lazy_pinyin(v, style=Style.TONE3)) for v in texts]
 
         # Preprocess text inputs
-        inputs = [text_to_sequence(text.strip(), hparams.tts_cleaner_names) for text in texts]
+        inputs = [text_to_sequence(text, hparams.tts_cleaner_names) for text in texts]
         if not isinstance(embeddings, list):
             embeddings = [embeddings]
 
