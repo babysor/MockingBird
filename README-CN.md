@@ -32,6 +32,7 @@
 `python synthesizer_preprocess_audio.py <datasets_root>`
 可以传入参数 --dataset `{dataset}` 支持 adatatang_200zh, magicdata
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
+
 > 在這步可能會碰到兩個問題:
 > 1. `ModuleNotFoundError: No module named 'webrtcvad'`:只需 `pip install webrtcvad`就能解決。
 > 2. `分頁太小，無法完成操作`:可以參考這篇[文章](https://blog.csdn.net/qq_17755303/article/details/112564030)，將虛擬內存更改為100G(102400)。
