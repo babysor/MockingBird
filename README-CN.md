@@ -6,6 +6,8 @@
 
 ### [English](README.md)  | 中文
 
+### [DEMO VIDEO](https://www.bilibili.com/video/BV1sA411P7wM/)
+
 ## 特性
 🌍 **中文** 支持普通话并使用多种中文数据集进行测试：adatatang_200zh, magicdata
 
@@ -52,7 +54,7 @@
 
 | 作者 | 下载链接 | 效果预览 |
 | --- | ----------- | ----- |
-|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/
+|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/(暂时不可访问)
 
 ### 3. 启动工具箱
 然后您可以尝试使用工具箱：
