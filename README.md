@@ -24,6 +24,7 @@
 **Python 3.7 or higher ** is needed to run the toolbox.
 
 * Install [PyTorch](https://pytorch.org/get-started/locally/).
+> If you get an `ERROR: Could not find a version that satisfies the requirement torch==1.9.0+cu102 (from versions: 0.1.2, 0.1.2.post1, 0.1.2.post2 )` This error is probably due to a low version of python, try using 3.9 and it will install successfully
 * Install [ffmpeg](https://ffmpeg.org/download.html#get-packages).
 * Run `pip install -r requirements.txt` to install the remaining necessary packages.
 > Note that we are using the pretrained encoder/vocoder but synthesizer, since the original model is incompatible with the Chinese sympols. It means the demo_cli is not working at this moment.
