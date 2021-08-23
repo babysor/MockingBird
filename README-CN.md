@@ -34,6 +34,8 @@
 可以传入参数 --dataset `{dataset}` 支持 adatatang_200zh, magicdata
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
+>假如發生 `頁面文件太小，無法完成操作`，請參考這篇[文章](https://blog.csdn.net/qq_17755303/article/details/112564030)，將虛擬內存更改為100G(102400)，例如:档案放置D槽就更改D槽的虚拟内存
+
 * 预处理嵌入：
 `python synthesizer_preprocess_embeds.py <datasets_root>/SV2TTS/synthesizer`
 
@@ -48,8 +50,8 @@
 ### 2.2 使用预先训练好的合成器
 > 实在没有设备或者不想慢慢调试，可以使用网友贡献的模型(欢迎持续分享):
 
-| 作者 | 下载链接 | 效果预览 | 
-| --- | ----------- | ----- | 
+| 作者 | 下载链接 | 效果预览 |
+| --- | ----------- | ----- |
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/
 
 ### 3. 启动工具箱
