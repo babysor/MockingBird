@@ -8,6 +8,7 @@ import argparse
 recognized_datasets = [
     "aidatatang_200zh",
     "magicdata",
+    "aishell3"
 ]
 
 if __name__ == "__main__":
