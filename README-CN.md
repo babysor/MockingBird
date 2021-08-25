@@ -33,7 +33,7 @@
 * 下载 数据集并解压：确保您可以访问 *train* 文件夹中的所有音频文件（如.wav）
 * 使用音频和梅尔频谱图进行预处理：
 `python synthesizer_preprocess_audio.py <datasets_root>`
-可以传入参数 --dataset `{dataset}` 支持 adatatang_200zh, magicdata
+可以传入参数 --dataset `{dataset}` 支持 adatatang_200zh, magicdata, aishell3
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
 >假如發生 `頁面文件太小，無法完成操作`，請參考這篇[文章](https://blog.csdn.net/qq_17755303/article/details/112564030)，將虛擬內存更改為100G(102400)，例如:档案放置D槽就更改D槽的虚拟内存
