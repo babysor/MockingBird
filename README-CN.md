@@ -6,6 +6,8 @@
 
 ### [English](README.md)  | 中文
 
+### [DEMO VIDEO](https://www.bilibili.com/video/BV1sA411P7wM/)
+
 ## 特性
 🌍 **中文** 支持普通话并使用多种中文数据集进行测试：adatatang_200zh, magicdata
 
@@ -22,6 +24,7 @@
 **Python 3.7 或更高版本** 需要运行工具箱。
 
 * 安装 [PyTorch](https://pytorch.org/get-started/locally/)。
+> 如果在用 pip 方式安装的时候出现 `ERROR: Could not find a version that satisfies the requirement torch==1.9.0+cu102 (from versions: 0.1.2, 0.1.2.post1, 0.1.2.post2)` 这个错误可能是 python 版本过低，3.9 可以安装成功
 * 安装 [ffmpeg](https://ffmpeg.org/download.html#get-packages)。
 * 运行`pip install -r requirements.txt` 来安装剩余的必要包。
 * 安装 webrtcvad 用 `pip install webrtcvad-wheels`。
@@ -32,6 +35,8 @@
 `python synthesizer_preprocess_audio.py <datasets_root>`
 可以传入参数 --dataset `{dataset}` 支持 adatatang_200zh, magicdata
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
+
+>假如發生 `頁面文件太小，無法完成操作`，請參考這篇[文章](https://blog.csdn.net/qq_17755303/article/details/112564030)，將虛擬內存更改為100G(102400)，例如:档案放置D槽就更改D槽的虚拟内存
 
 * 预处理嵌入：
 `python synthesizer_preprocess_embeds.py <datasets_root>/SV2TTS/synthesizer`
@@ -47,9 +52,9 @@
 ### 2.2 使用预先训练好的合成器
 > 实在没有设备或者不想慢慢调试，可以使用网友贡献的模型(欢迎持续分享):
 
-| 作者 | 下载链接 | 效果预览 | 
-| --- | ----------- | ----- | 
-|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/
+| 作者 | 下载链接 | 效果预览 |
+| --- | ----------- | ----- |
+|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/(暂时不可访问)
 
 ### 3. 启动工具箱
 然后您可以尝试使用工具箱：
