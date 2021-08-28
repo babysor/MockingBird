@@ -1,5 +1,5 @@
 ## 实时语音克隆 - 中文/普通话
-![WechatIMG2968](https://user-images.githubusercontent.com/7423248/128490653-f55fefa8-f944-4617-96b8-5cc94f14f8f6.png)
+![mockingbird](https://user-images.githubusercontent.com/12797292/131216767-6eb251d6-14fc-4951-8324-2722f0cd4c63.jpg)
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
 > 该库是从仅支持英语的[Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) 分叉出来的。
@@ -9,7 +9,7 @@
 ### [DEMO VIDEO](https://www.bilibili.com/video/BV1sA411P7wM/)
 
 ## 特性
-🌍 **中文** 支持普通话并使用多种中文数据集进行测试：adatatang_200zh, magicdata
+🌍 **中文** 支持普通话并使用多种中文数据集进行测试：adatatang_200zh, magicdata, aishell3
 
 🤩 **PyTorch** 适用于 pytorch，已在 1.9.0 版本（最新于 2021 年 8 月）中测试，GPU Tesla T4 和 GTX 2060
 
@@ -55,7 +55,7 @@
 
 | 作者 | 下载链接 | 效果预览 |
 | --- | ----------- | ----- |
-|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/(暂时不可访问)
+|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/)
 
 ### 3. 启动工具箱
 然后您可以尝试使用工具箱：
