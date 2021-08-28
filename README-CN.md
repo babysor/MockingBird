@@ -18,6 +18,7 @@
 🤩 **Easy & Awesome** 仅使用新训练的合成器（synthesizer）就有良好效果，复用预训练的编码器/声码器
 
 ## 快速开始
+> 0训练新手友好版可以参考 [Quick Start (Newbie)](https://github.com/babysor/Realtime-Voice-Clone-Chinese/wiki/Quick-Start-(Newbie))
 
 ### 1. 安装要求
 > 按照原始存储库测试您是否已准备好所有环境。
