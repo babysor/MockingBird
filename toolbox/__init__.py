@@ -37,6 +37,8 @@ recognized_datasets = [
     "VCTK-Corpus/wav48",
     "aidatatang_200zh/corpus/dev",
     "aidatatang_200zh/corpus/test",
+    "aishell3/test/wav",
+    "magicdata/train",
 ]
 
 #Maximum of generated wavs to keep on memory
