@@ -42,7 +42,7 @@ if __name__ == "__main__":
     # Process the arguments
     if not hasattr(args, "out_dir"):
         args.out_dir = args.datasets_root.joinpath("SV2TTS", "synthesizer")
-    assert args.dataset in recognized_datasets, 'not surpport such dataset'
+    assert args.dataset in recognized_datasets, 'is not supported, please vote for it in https://github.com/babysor/MockingBird/issues/10'
     # Create directories
     assert args.datasets_root.exists()
     args.out_dir.mkdir(exist_ok=True, parents=True)
