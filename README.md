@@ -57,6 +57,14 @@ Allow parameter `--dataset {dataset}` to support adatatang_200zh, magicdata, ais
 
 > A link to my early trained model: [Baidu Yun](https://pan.baidu.com/s/10t3XycWiNIg5dN5E_bMORQ)
 Code：aid4
+
+### 2.3 Train vocoder (Optional)
+* Preprocess the data:
+`python vocoder_preprocess.py <datasets_root>`
+
+* Train the vocoder:
+`python vocoder_train.py mandarin <datasets_root>`
+
 ### 3. Launch the Toolbox
 You can then try the toolbox:
 

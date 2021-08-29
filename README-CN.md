@@ -56,6 +56,13 @@
 | --- | ----------- | ----- |
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/)
 
+### 2.3 训练声码器 (Optional)
+* 预处理数据:
+`python vocoder_preprocess.py <datasets_root>`
+
+* 训练声码器:
+`python vocoder_train.py mandarin <datasets_root>`
+
 ### 3. 启动工具箱
 然后您可以尝试使用工具箱：
 `python demo_toolbox.py -d <datasets_root>`
