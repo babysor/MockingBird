@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Union, List
 import numpy as np
 import librosa
+from utils import logmmse
 from pypinyin import lazy_pinyin, Style
 
 class Synthesizer:
@@ -90,8 +91,10 @@ class Synthesizer:
 
             simple_table([("Tacotron", str(tts_k) + "k"),
                         ("r", self._model.r)])
-        texts = [" ".join(lazy_pinyin(v, style=Style.TONE3)) for v in texts]
-
+        
+        print("Read " + str(texts))
+        texts = [" ".join(lazy_pinyin(v, style=Style.TONE3, neutral_tone_with_five=True)) for v in texts]
+        print("Synthesizing " + str(texts))
         # Preprocess text inputs
         inputs = [text_to_sequence(text, hparams.tts_cleaner_names) for text in texts]
         if not isinstance(embeddings, list):
@@ -143,6 +146,12 @@ class Synthesizer:
         wav = librosa.load(str(fpath), hparams.sample_rate)[0]
         if hparams.rescale:
             wav = wav / np.abs(wav).max() * hparams.rescaling_max
+        # denoise
+        if len(wav) > hparams.sample_rate*(0.3+0.1):
+            noise_wav = np.concatenate([wav[:int(hparams.sample_rate*0.15)],
+                                        wav[-int(hparams.sample_rate*0.15):]])
+            profile = logmmse.profile_noise(noise_wav, hparams.sample_rate)
+            wav = logmmse.denoise(wav, profile)
         return wav
 
     @staticmethod

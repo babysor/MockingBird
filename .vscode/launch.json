@@ -23,6 +23,16 @@
             "args": [
                 "dev", "..\\..\\chs1"
             ],
+        },
+        {
+            "name": "Python: demo box",
+            "type": "python",
+            "request": "launch",
+            "program": "demo_toolbox.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-d", "..\\..\\chs"
+            ],
         }
     ]
 }
