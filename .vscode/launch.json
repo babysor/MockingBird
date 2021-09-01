@@ -5,6 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Syn Preprocess",
+            "type": "python",
+            "request": "launch",
+            "program": "pre.py",
+            "console": "integratedTerminal",
+            "args": [
+                "D:\\ttsdata\\BZNSYP", "-d", "BZNSYP"
+            ],
+        },
+        {
             "name": "Python: Vocoder Preprocess",
             "type": "python",
             "request": "launch",

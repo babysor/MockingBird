@@ -12,7 +12,8 @@ import argparse
 recognized_datasets = [
     "aidatatang_200zh",
     "magicdata",
-    "aishell3"
+    "aishell3",
+    "BZNSYP"
 ]
 
 if __name__ == "__main__":
@@ -40,8 +41,8 @@ if __name__ == "__main__":
     parser.add_argument("--no_alignments", action="store_true", help=\
         "Use this option when dataset does not include alignments\
         (these are used to split long audio files into sub-utterances.)")
-    parser.add_argument("--dataset", type=str, default="aidatatang_200zh", help=\
-        "Name of the dataset to process, allowing values: magicdata, aidatatang_200zh, aishell3.")
+    parser.add_argument("-d","--dataset", type=str, default="aidatatang_200zh", help=\
+        "Name of the dataset to process, allowing values: magicdata, aidatatang_200zh, aishell3, BZNSYP.")
     parser.add_argument("-e", "--encoder_model_fpath", type=Path, default="encoder/saved_models/pretrained.pt", help=\
         "Path your trained encoder model.")
     args = parser.parse_args()

@@ -33,7 +33,8 @@
 * Download aidatatang_200zh or other dataset and unzip: make sure you can access all .wav in *train* folder
 * Preprocess with the audios and the mel spectrograms:
 `python pre.py <datasets_root>`
-Allow parameter `--dataset {dataset}` to support adatatang_200zh, magicdata, aishell3
+
+Allowing parameter `--dataset {dataset}` to support adatatang_200zh, magicdata, aishell3, BZNSYP
 
 >If it happens `the page file is too small to complete the operation`, please refer to this [video](https://www.youtube.com/watch?v=Oh6dga-Oy10&ab_channel=CodeProf) and change the virtual memory to 100G (102400), for example : When the file is placed in the D disk, the virtual memory of the D disk is changed.
 

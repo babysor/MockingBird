@@ -6,7 +6,8 @@ from pathlib import Path
 from tqdm import tqdm
 import numpy as np
 from encoder import inference as encoder
-from synthesizer.preprocess_speaker import preprocess_speaker_general
+from synthesizer.preprocess_speaker import preprocess_speaker_general, preprocess_speaker_bznsyp
+from synthesizer.preprocess_transcript import preprocess_transcript_bznsyp
 
 data_info = {
     "aidatatang_200zh": {
@@ -23,6 +24,12 @@ data_info = {
         "subfolders": ["train/wav"],
         "trans_filepath": "train/content.txt",
         "speak_func": preprocess_speaker_general
+    },
+    "BZNSYP":{
+        "subfolders": ["Wave"],
+        "trans_filepath": "ProsodyLabeling/000001-010000.txt",
+        "speak_func": preprocess_speaker_bznsyp,
+        "transcript_func": preprocess_transcript_bznsyp,
     },
 }
 
@@ -49,11 +56,15 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
     transcript_dirs = dataset_root.joinpath(dataset_info["trans_filepath"])
     assert transcript_dirs.exists(), str(transcript_dirs)+" not exist."
     with open(transcript_dirs, "r", encoding="utf-8") as dict_transcript:
-        for v in dict_transcript:
-            if not v:
-                continue
-            v = v.strip().replace("\n","").replace("\t"," ").split(" ")
-            dict_info[v[0]] = " ".join(v[1:])
+        # process with specific function for your dataset 
+        if "transcript_func" in dataset_info:
+            dataset_info["transcript_func"](dict_info, dict_transcript)
+        else:
+            for v in dict_transcript:
+                if not v:
+                    continue
+                v = v.strip().replace("\n","").replace("\t"," ").split(" ")
+                dict_info[v[0]] = " ".join(v[1:])
 
     speaker_dirs = list(chain.from_iterable(input_dir.glob("*") for input_dir in input_dirs))
     func = partial(dataset_info["speak_func"], out_dir=out_dir, skip_existing=skip_existing, 
