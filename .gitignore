@@ -16,3 +16,5 @@
 *.wav
 *.sh
 synthesizer/saved_models/*
+vocoder/saved_models/*
+!vocoder/saved_models/pretrained/*
