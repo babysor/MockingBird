@@ -18,3 +18,5 @@
 synthesizer/saved_models/*
 vocoder/saved_models/*
 !vocoder/saved_models/pretrained/*
+.vscode/settings.json
+.DS_Store

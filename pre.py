@@ -12,14 +12,14 @@ import argparse
 recognized_datasets = [
     "aidatatang_200zh",
     "magicdata",
-    "aishell3"
+    "aishell3",
+    "mozilla"
 ]
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Preprocesses audio files from datasets, encodes them as mel spectrograms "
-                    "and writes them to  the disk. Audio files are also saved, to be used by the "
-                    "vocoder for training.",
+        "and writes them to  the disk. Audio files are also saved, to be used by the "
+        "vocoder for training.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("datasets_root", type=Path, help=\
@@ -64,9 +64,9 @@ if __name__ == "__main__":
                 "use --no_trim to disable this error message.")
     encoder_model_fpath = args.encoder_model_fpath
     del args.no_trim, args.encoder_model_fpath
-   
+
     args.hparams = hparams.parse(args.hparams)
 
     preprocess_dataset(**vars(args))
-    
-    create_embeddings(synthesizer_root=args.out_dir, n_processes=args.n_processes, encoder_model_fpath=encoder_model_fpath)    
+
+    create_embeddings(synthesizer_root=args.out_dir, n_processes=args.n_processes, encoder_model_fpath=encoder_model_fpath)
