@@ -1,7 +1,8 @@
 from toolbox.ui import UI
 from encoder import inference as encoder
 from synthesizer.inference import Synthesizer
-from vocoder import inference as vocoder
+from vocoder import inference as rnn_vocoder
+from hifigan import inference as gan_vocoder
 from pathlib import Path
 from time import perf_counter as timer
 from toolbox.utterance import Utterance
@@ -12,6 +13,9 @@ import torch
 import librosa
 import re
 from audioread.exceptions import NoBackendError
+
+# 默认使用wavernn
+vocoder = rnn_vocoder
 
 # Use this directory structure for your datasets, or modify it to fit your needs
 recognized_datasets = [
@@ -353,10 +357,20 @@ class Toolbox:
         self.ui.set_loading(0)
            
     def init_vocoder(self):
+
+        global vocoder
         model_fpath = self.ui.current_vocoder_fpath
         # Case of Griffin-lim
         if model_fpath is None:
             return 
+        
+
+        # Sekect vocoder based on model name
+        if model_fpath.name[0] == "g":
+            vocoder = gan_vocoder
+            self.ui.log("vocoder is hifigan")
+        else:
+            vocoder = rnn_vocoder
     
         self.ui.log("Loading the vocoder %s... " % model_fpath)
         self.ui.set_loading(1)
