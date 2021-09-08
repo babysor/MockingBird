@@ -8,13 +8,13 @@
 ### [DEMO VIDEO](https://www.bilibili.com/video/BV1sA411P7wM/)
 
 ## 特性
-🌍 **中文** 支持普通话并使用多种中文数据集进行测试：adatatang_200zh, magicdata, aishell3
+🌍 **中文** 支持普通话并使用多种中文数据集进行测试：adatatang_200zh, magicdata, aishell3， biaobei，MozillaCommonVoice 等
 
 🤩 **PyTorch** 适用于 pytorch，已在 1.9.0 版本（最新于 2021 年 8 月）中测试，GPU Tesla T4 和 GTX 2060
 
-🌍 **Windows + Linux** 在修复 nits 后在 Windows 操作系统和 linux 操作系统中进行测试
+🌍 **Windows + Linux** 可在 Windows 操作系统和 linux 操作系统中运行（苹果系统M1版也有社区成功运行案例）
 
-🤩 **Easy & Awesome** 仅使用新训练的合成器（synthesizer）就有良好效果，复用预训练的编码器/声码器
+🤩 **Easy & Awesome** 仅需下载或新训练合成器（synthesizer）就有良好效果，复用预训练的编码器/声码器，或实时的HiFi-GAN作为vocoder
 
 ## 快速开始
 > 0训练新手友好版可以参考 [Quick Start (Newbie)](https://github.com/babysor/Realtime-Voice-Clone-Chinese/wiki/Quick-Start-(Newbie))
@@ -49,9 +49,10 @@
 ### 2.2 使用预先训练好的合成器
 > 实在没有设备或者不想慢慢调试，可以使用网友贡献的模型(欢迎持续分享):
 
-| 作者 | 下载链接 | 效果预览 |
-| --- | ----------- | ----- |
-|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/)
+| 作者 | 下载链接 | 效果预览 | 信息 | 
+| --- | ----------- | ----- | ----- | 
+|@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing [百度盘链接](https://pan.baidu.com/s/1vSYXO4wsLyjnF3Unl-Xoxg) 提取码：1024  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps 台湾口音
+|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/ | 150k steps 旧版需根据[issue](https://github.com/babysor/MockingBird/issues/37)修复
 
 ### 2.3 训练声码器 (Optional)
 * 预处理数据:
@@ -66,20 +67,15 @@
 
 > Good news🤩: 可直接使用中文
 
-## TODO
-- [X] 允许直接使用中文
-- [X] 添加演示视频
-- [X] 添加对更多数据集的支持
-- [X] 上传预训练模型
-- [ ] 支持parallel tacotron
-- [ ] 服务化与容器化
-- [ ] 🙏 欢迎补充
+## Release Note
+2021.9.8 新增Hifi-GAN Vocoder支持
 
 ## 引用及论文
 > 该库一开始从仅支持英语的[Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) 分叉出来的，鸣谢作者。
 
 | URL | Designation | 标题 | 实现源码 |
 | --- | ----------- | ----- | --------------------- |
+| [2010.05646](https://arxiv.org/abs/2010.05646) | HiFi-GAN (vocoder)| Generative Adversarial Networks for Efficient and High Fidelity Speech Synthesis | 本代码库 |
 |[**1806.04558**](https://arxiv.org/pdf/1806.04558.pdf) | **SV2TTS** | **Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis** | This repo |
 |[1802.08435](https://arxiv.org/pdf/1802.08435.pdf) | WaveRNN (vocoder) | Efficient Neural Audio Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN) |
 |[1703.10135](https://arxiv.org/pdf/1703.10135.pdf) | Tacotron (synthesizer) | Tacotron: Towards End-to-End Speech Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN)
