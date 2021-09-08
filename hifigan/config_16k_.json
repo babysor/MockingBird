@@ -27,11 +27,5 @@
     "fmax": 7600,
     "fmax_for_loss": null,
 
-    "num_workers": 4,
-
-    "dist_config": {
-        "dist_backend": "nccl",
-        "dist_url": "tcp://localhost:54321",
-        "world_size": 1
-    }
+    "num_workers": 4
 }

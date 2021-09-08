@@ -71,28 +71,3 @@ def infer_waveform(mel, progress_callback=None):
 
     return audio
 
-
-
-# if __name__ == "__main__":
-
-#     mel = np.load("./mel-T0055G0184S0349.wav_00.npy")
-#     # mel = torch.FloatTensor(mel.T).to(device)
-#     # mel = mel.unsqueeze(0)
-    
-#     load_model("../../../TTS/Vocoder/outputs/hifi-gan/models/g_00930000")
-#     audio = infer_waveform(mel)
-
-#     sf.write("b.wav", audio, samplerate=16000)
-
-
-    # with torch.no_grad():
-    #     y_g_hat = generator(mel)
-    #     audio = y_g_hat.squeeze()
-
-
-    # audio = audio.cpu().numpy()
-    # sf.write("a.wav", audio, samplerate=16000)
-
-
-# import IPython.display as ipd
-# ipd.Audio(audio, rate=16000)
