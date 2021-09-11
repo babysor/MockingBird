@@ -5,6 +5,7 @@ import argparse
 
 
 if __name__ == "__main__":
+    print("This method is deprecaded and will not be longer supported, please use 'pre.py'")
     parser = argparse.ArgumentParser(
         description="Creates embeddings for the synthesizer from the LibriSpeech utterances.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
