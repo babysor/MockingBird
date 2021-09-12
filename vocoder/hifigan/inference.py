@@ -1,15 +1,12 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import glob
 import os
-import argparse
 import json
 import torch
-import numpy as np
 from scipy.io.wavfile import write
-from hifigan.env import AttrDict
-from hifigan.meldataset import mel_spectrogram, MAX_WAV_VALUE, load_wav
-from hifigan.models import Generator
+from vocoder.hifigan.env import AttrDict
+from vocoder.hifigan.meldataset import mel_spectrogram, MAX_WAV_VALUE, load_wav
+from vocoder.hifigan.models import Generator
 import soundfile as sf
 
 
@@ -31,7 +28,7 @@ def load_model(weights_fpath, verbose=True):
     if verbose:
         print("Building hifigan")
 
-    with open("./hifigan/config_16k_.json") as f:
+    with open("./vocoder/hifigan/config_16k_.json") as f:
         data = f.read()
     json_config = json.loads(data)
     h = AttrDict(json_config)

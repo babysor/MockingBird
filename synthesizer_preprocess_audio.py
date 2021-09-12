@@ -12,6 +12,7 @@ recognized_datasets = [
 ]
 
 if __name__ == "__main__":
+    print("This method is deprecaded and will not be longer supported, please use 'pre.py'")
     parser = argparse.ArgumentParser(
         description="Preprocesses audio files from datasets, encodes them as mel spectrograms "
                     "and writes them to  the disk. Audio files are also saved, to be used by the "

@@ -1,38 +1,39 @@
 {
-    // 使用 IntelliSense 了解相关属性。 
-    // 悬停以查看现有属性的描述。
-    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python: Vocoder Preprocess",
-            "type": "python",
-            "request": "launch",
-            "program": "vocoder_preprocess.py",
-            "console": "integratedTerminal",
-            "args": [
-                "..\\..\\chs1"
-            ],
-        },
-        {
-            "name": "Python: Vocoder Train",
-            "type": "python",
-            "request": "launch",
-            "program": "vocoder_train.py",
-            "console": "integratedTerminal",
-            "args": [
-                "dev", "..\\..\\chs1"
-            ],
-        },
-        {
-            "name": "Python: demo box",
-            "type": "python",
-            "request": "launch",
-            "program": "demo_toolbox.py",
-            "console": "integratedTerminal",
-            "args": [
-                "-d", "..\\..\\chs"
-            ],
-        }
-    ]
+  // 使用 IntelliSense 了解相关属性。
+  // 悬停以查看现有属性的描述。
+  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Web",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/web/app.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: Vocoder Preprocess",
+      "type": "python",
+      "request": "launch",
+      "program": "vocoder_preprocess.py",
+      "console": "integratedTerminal",
+      "args": ["..\\..\\chs1"]
+    },
+    {
+      "name": "Python: Vocoder Train",
+      "type": "python",
+      "request": "launch",
+      "program": "vocoder_train.py",
+      "console": "integratedTerminal",
+      "args": ["dev", "..\\..\\chs1"]
+    },
+    {
+      "name": "Python: demo box",
+      "type": "python",
+      "request": "launch",
+      "program": "demo_toolbox.py",
+      "console": "integratedTerminal",
+      "args": ["-d", "..\\..\\chs"]
+    }
+  ]
 }

@@ -1,13 +1,13 @@
-from vocoder.models.fatchord_version import WaveRNN
+from vocoder.wavernn.models.fatchord_version import WaveRNN
 from vocoder.vocoder_dataset import VocoderDataset, collate_vocoder
 from vocoder.distribution import discretized_mix_logistic_loss
 from vocoder.display import stream, simple_table
-from vocoder.gen_wavernn import gen_testset
+from vocoder.wavernn.gen_wavernn import gen_testset
 from torch.utils.data import DataLoader
 from pathlib import Path
 from torch import optim
 import torch.nn.functional as F
-import vocoder.hparams as hp
+import vocoder.wavernn.hparams as hp
 import numpy as np
 import time
 import torch

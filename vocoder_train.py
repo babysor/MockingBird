@@ -1,5 +1,5 @@
 from utils.argutils import print_args
-from vocoder.train import train
+from vocoder.wavernn.train import train
 from pathlib import Path
 import argparse
 
