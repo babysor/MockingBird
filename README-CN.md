@@ -49,8 +49,8 @@
 ### 2.2 使用预先训练好的合成器
 > 实在没有设备或者不想慢慢调试，可以使用网友贡献的模型(欢迎持续分享):
 
-| 作者 | 下载链接 | 效果预览 | 信息 | 
-| --- | ----------- | ----- | ----- | 
+| 作者 | 下载链接 | 效果预览 | 信息 |
+| --- | ----------- | ----- | ----- |
 |@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing [百度盘链接](https://pan.baidu.com/s/1vSYXO4wsLyjnF3Unl-Xoxg) 提取码：1024  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps 台湾口音
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/ | 150k steps 旧版需根据[issue](https://github.com/babysor/MockingBird/issues/37)修复
 
@@ -80,3 +80,65 @@
 |[1802.08435](https://arxiv.org/pdf/1802.08435.pdf) | WaveRNN (vocoder) | Efficient Neural Audio Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN) |
 |[1703.10135](https://arxiv.org/pdf/1703.10135.pdf) | Tacotron (synthesizer) | Tacotron: Towards End-to-End Speech Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN)
 |[1710.10467](https://arxiv.org/pdf/1710.10467.pdf) | GE2E (encoder)| Generalized End-To-End Loss for Speaker Verification | 本代码库 |
+
+## 常見問題(FQ&A)
+### 1.數據集哪裡下載?
+[adatatang_200zh](http://www.openslr.org/62/)、[magicdata](http://www.openslr.org/68/)、[aishell3](http://www.openslr.org/93/)
+> 解壓 adatatang_200zh 後，還需將 `aidatatang_200zh\corpus\train`下的檔案全選解壓縮
+
+### 2.`<datasets_root>`是什麼意思?
+假如數據集存放在 `D:\data\adatatang_200zh`，那麼 `<datasets_root>`就是 `D:\data`
+
+### 3.訓練模型顯存不足
+訓練合成器時：將 `synthesizer/hparams.py`中的batch_size參數調小
+```
+//調整前
+tts_schedule = [(2,  1e-3,  20_000,  12),   # Progressive training schedule
+                (2,  5e-4,  40_000,  12),   # (r, lr, step, batch_size)
+                (2,  2e-4,  80_000,  12),   #
+                (2,  1e-4, 160_000,  12),   # r = reduction factor (# of mel frames
+                (2,  3e-5, 320_000,  12),   #     synthesized for each decoder iteration)
+                (2,  1e-5, 640_000,  12)],  # lr = learning rate
+//調整後
+tts_schedule = [(2,  1e-3,  20_000,  8),   # Progressive training schedule
+                (2,  5e-4,  40_000,  8),   # (r, lr, step, batch_size)
+                (2,  2e-4,  80_000,  8),   #
+                (2,  1e-4, 160_000,  8),   # r = reduction factor (# of mel frames
+                (2,  3e-5, 320_000,  8),   #     synthesized for each decoder iteration)
+                (2,  1e-5, 640_000,  8)],  # lr = learning rate
+```
+
+聲碼器-預處理數據集時：將 `synthesizer/hparams.py`中的batch_size參數調小
+```
+//調整前
+### Data Preprocessing
+        max_mel_frames = 900,
+        rescale = True,
+        rescaling_max = 0.9,
+        synthesis_batch_size = 16,                  # For vocoder preprocessing and inference.
+//調整後
+### Data Preprocessing
+        max_mel_frames = 900,
+        rescale = True,
+        rescaling_max = 0.9,
+        synthesis_batch_size = 8,                  # For vocoder preprocessing and inference.
+```
+
+聲碼器-訓練聲碼器時：將 `vocoder/wavernn/hparams.py`中的batch_size參數調小
+```
+//調整前
+# Training
+voc_batch_size = 100
+voc_lr = 1e-4
+voc_gen_at_checkpoint = 5
+voc_pad = 2
+//調整後
+# Training
+voc_batch_size = 6
+voc_lr = 1e-4
+voc_gen_at_checkpoint = 5
+voc_pad =2
+```
+
+### 4.碰到`RuntimeError: Error(s) in loading state_dict for Tacotron: size mismatch for encoder.embedding.weight: copying a param with shape torch.Size([70, 512]) from checkpoint, the shape in current model is torch.Size([75, 512]).`
+請參照 issue #37
