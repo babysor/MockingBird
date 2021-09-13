@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser.add_argument("datasets_root", type=str, help= \
         "Path to the directory containing your SV2TTS directory. Specifying --syn_dir or --voc_dir "
         "will take priority over this argument.")
-    parser.add_argument("--vocoder_type", type=str, default="wavernn", help= \
+    parser.add_argument("vocoder_type", type=str, default="wavernn", help= \
         "Choose the vocoder type for train. Defaults to wavernn"
         "Now, Support <hifigan> and <wavernn> for choose")
     parser.add_argument("--syn_dir", type=str, default=argparse.SUPPRESS, help= \
