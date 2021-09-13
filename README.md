@@ -61,8 +61,11 @@ Code：aid4
 * Preprocess the data:
 `python vocoder_preprocess.py <datasets_root>`
 
-* Train the vocoder:
+* Train the wavernn vocoder:
 `python vocoder_train.py mandarin <datasets_root>`
+
+* Train the hifigan vocoder
+`python vocoder_train.py mandarin <datasets_root> hifigan`
 
 ### 3. Launch the Toolbox
 You can then try the toolbox:
