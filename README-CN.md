@@ -82,17 +82,14 @@
 |[1710.10467](https://arxiv.org/pdf/1710.10467.pdf) | GE2E (encoder)| Generalized End-To-End Loss for Speaker Verification | 本代码库 |
 
 ## 常見問題(FQ&A)
-1.數據集哪裡下載?
-
+#### 1.數據集哪裡下載?
 [adatatang_200zh](http://www.openslr.org/62/)、[magicdata](http://www.openslr.org/68/)、[aishell3](http://www.openslr.org/93/)
 > 解壓 adatatang_200zh 後，還需將 `aidatatang_200zh\corpus\train`下的檔案全選解壓縮
 
-2.`<datasets_root>`是什麼意思?
-
+#### 2.`<datasets_root>`是什麼意思?
 假如數據集存放在 `D:\data\adatatang_200zh`，那麼 `<datasets_root>`就是 `D:\data`
 
-3.訓練模型顯存不足
-
+#### 3.訓練模型顯存不足
 訓練合成器時：將 `synthesizer/hparams.py`中的batch_size參數調小
 ```
 //調整前
@@ -144,6 +141,5 @@ voc_gen_at_checkpoint = 5
 voc_pad =2
 ```
 
-* 4.碰到`RuntimeError: Error(s) in loading state_dict for Tacotron: size mismatch for encoder.embedding.weight: copying a param with shape torch.Size([70, 512]) from checkpoint, the shape in current model is torch.Size([75, 512]).`
-
+#### 4.碰到`RuntimeError: Error(s) in loading state_dict for Tacotron: size mismatch for encoder.embedding.weight: copying a param with shape torch.Size([70, 512]) from checkpoint, the shape in current model is torch.Size([75, 512]).`
 請參照 issue #37
