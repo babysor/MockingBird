@@ -91,7 +91,7 @@ or
 > After unzip aidatatang_200zh, you need to unzip all the files under `aidatatang_200zh\corpus\train`
 
 #### 2.What is`<datasets_root>`?
-If the dataset is stored in `D:\data\adatatang_200zh`,then `<datasets_root>` is`D:\data`
+If the dataset is stored in `D:\data\aidatatang_200zh`,then `<datasets_root>` is`D:\data`
 
 #### 3.Not enough VRAM
 Train the synthesizer：adjust the batch_size in `synthesizer/hparams.py`

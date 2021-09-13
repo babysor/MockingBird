@@ -87,7 +87,7 @@
 > 解壓 aidatatang_200zh 後，還需將 `aidatatang_200zh\corpus\train`下的檔案全選解壓縮
 
 #### 2.`<datasets_root>`是什麼意思?
-假如數據集存放在 `D:\data\adatatang_200zh`，那麼 `<datasets_root>`就是 `D:\data`
+假如數據集存放在 `D:\data\aidatatang_200zh`，那麼 `<datasets_root>`就是 `D:\data`
 
 #### 3.訓練模型顯存不足
 訓練合成器時：將 `synthesizer/hparams.py`中的batch_size參數調小
