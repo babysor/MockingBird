@@ -8,7 +8,7 @@
 ### [DEMO VIDEO](https://www.bilibili.com/video/BV1sA411P7wM/)
 
 ## 特性
-🌍 **中文** 支持普通话并使用多种中文数据集进行测试：adatatang_200zh, magicdata, aishell3， biaobei，MozillaCommonVoice 等
+🌍 **中文** 支持普通话并使用多种中文数据集进行测试：aidatatang_200zh, magicdata, aishell3， biaobei，MozillaCommonVoice 等
 
 🤩 **PyTorch** 适用于 pytorch，已在 1.9.0 版本（最新于 2021 年 8 月）中测试，GPU Tesla T4 和 GTX 2060
 
@@ -33,7 +33,7 @@
 * 下载 数据集并解压：确保您可以访问 *train* 文件夹中的所有音频文件（如.wav）
 * 进行音频和梅尔频谱图预处理：
 `python pre.py <datasets_root>`
-可以传入参数 --dataset `{dataset}` 支持 adatatang_200zh, magicdata, aishell3
+可以传入参数 --dataset `{dataset}` 支持 aidatatang_200zh, magicdata, aishell3
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
 >假如發生 `頁面文件太小，無法完成操作`，請參考這篇[文章](https://blog.csdn.net/qq_17755303/article/details/112564030)，將虛擬內存更改為100G(102400)，例如:档案放置D槽就更改D槽的虚拟内存
@@ -83,8 +83,8 @@
 
 ## 常見問題(FQ&A)
 #### 1.數據集哪裡下載?
-[adatatang_200zh](http://www.openslr.org/62/)、[magicdata](http://www.openslr.org/68/)、[aishell3](http://www.openslr.org/93/)
-> 解壓 adatatang_200zh 後，還需將 `aidatatang_200zh\corpus\train`下的檔案全選解壓縮
+[aidatatang_200zh](http://www.openslr.org/62/)、[magicdata](http://www.openslr.org/68/)、[aishell3](http://www.openslr.org/93/)
+> 解壓 aidatatang_200zh 後，還需將 `aidatatang_200zh\corpus\train`下的檔案全選解壓縮
 
 #### 2.`<datasets_root>`是什麼意思?
 假如數據集存放在 `D:\data\adatatang_200zh`，那麼 `<datasets_root>`就是 `D:\data`
