@@ -86,8 +86,7 @@ or
 |[1710.10467](https://arxiv.org/pdf/1710.10467.pdf) | GE2E (encoder)| Generalized End-To-End Loss for Speaker Verification | This repo |
 
 ## F Q&A
-**1.Where can I download the dataset?**
-
+#### 1.Where can I download the dataset?
 [adatatang_200zh](http://www.openslr.org/62/)、[magicdata](http://www.openslr.org/68/)、[aishell3](http://www.openslr.org/93/)
 > After unzip adatatang_200zh, you need to unzip all the files under `aidatatang_200zh\corpus\train`
 
