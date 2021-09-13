@@ -86,14 +86,17 @@ or
 |[1710.10467](https://arxiv.org/pdf/1710.10467.pdf) | GE2E (encoder)| Generalized End-To-End Loss for Speaker Verification | This repo |
 
 ## F Q&A
-* 1.Where can I download the dataset?
+1.Where can I download the dataset?
+
 [adatatang_200zh](http://www.openslr.org/62/)、[magicdata](http://www.openslr.org/68/)、[aishell3](http://www.openslr.org/93/)
 > After unzip adatatang_200zh, you need to unzip all the files under `aidatatang_200zh\corpus\train`
 
-* 2.What is`<datasets_root>`?
+2.What is`<datasets_root>`?
+
 If the dataset is stored in `D:\data\adatatang_200zh`,then `<datasets_root>` is`D:\data`
 
-* 3.Not enough VRAM
+3.Not enough VRAM
+
 Train the synthesizer：adjust the batch_size in `synthesizer/hparams.py`
 ```
 //Before
@@ -145,5 +148,6 @@ voc_gen_at_checkpoint = 5
 voc_pad =2
 ```
 
-* 4.If it happens `RuntimeError: Error(s) in loading state_dict for Tacotron: size mismatch for encoder.embedding.weight: copying a param with shape torch.Size([70, 512]) from checkpoint, the shape in current model is torch.Size([75, 512]).`
+4.If it happens `RuntimeError: Error(s) in loading state_dict for Tacotron: size mismatch for encoder.embedding.weight: copying a param with shape torch.Size([70, 512]) from checkpoint, the shape in current model is torch.Size([75, 512]).`
+
 Please refer to issue #37
