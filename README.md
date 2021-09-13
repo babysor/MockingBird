@@ -146,4 +146,4 @@ voc_pad =2
 ```
 
 #### 4.If it happens `RuntimeError: Error(s) in loading state_dict for Tacotron: size mismatch for encoder.embedding.weight: copying a param with shape torch.Size([70, 512]) from checkpoint, the shape in current model is torch.Size([75, 512]).`
-Please refer to issue #37
+Please refer to issue [#37](https://github.com/babysor/MockingBird/issues/37)
