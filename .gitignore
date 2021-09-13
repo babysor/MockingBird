@@ -17,4 +17,5 @@
 *.sh
 synthesizer/saved_models/*
 vocoder/saved_models/*
+cp_hifigan/*
 !vocoder/saved_models/pretrained/*

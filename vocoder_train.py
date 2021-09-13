@@ -1,7 +1,10 @@
 from utils.argutils import print_args
 from vocoder.wavernn.train import train
+from vocoder.hifigan.train import train as train_hifigan
+from vocoder.hifigan.env import AttrDict
 from pathlib import Path
 import argparse
+import json
 
 
 if __name__ == "__main__":
@@ -18,6 +21,9 @@ if __name__ == "__main__":
     parser.add_argument("datasets_root", type=str, help= \
         "Path to the directory containing your SV2TTS directory. Specifying --syn_dir or --voc_dir "
         "will take priority over this argument.")
+    parser.add_argument("--vocoder_type", type=str, default="wavernn", help= \
+        "Choose the vocoder type for train. Defaults to wavernn"
+        "Now, Support <hifigan> and <wavernn> for choose")
     parser.add_argument("--syn_dir", type=str, default=argparse.SUPPRESS, help= \
         "Path to the synthesizer directory that contains the ground truth mel spectrograms, "
         "the wavs and the embeds. Defaults to <datasets_root>/SV2TTS/synthesizer/.")
@@ -37,9 +43,9 @@ if __name__ == "__main__":
         "model.")
     parser.add_argument("-f", "--force_restart", action="store_true", help= \
         "Do not load any saved model and restart from scratch.")
+    parser.add_argument("--config", type=str, default="vocoder/hifigan/config_16k_.json")
     args = parser.parse_args()
 
-    # Process the arguments
     if not hasattr(args, "syn_dir"):
         args.syn_dir = Path(args.datasets_root, "SV2TTS", "synthesizer")
     args.syn_dir = Path(args.syn_dir)
@@ -50,7 +56,16 @@ if __name__ == "__main__":
     args.models_dir = Path(args.models_dir)
     args.models_dir.mkdir(exist_ok=True)
 
-    # Run the training
     print_args(args, parser)
-    train(**vars(args))
-    
+
+    # Process the arguments
+    if args.vocoder_type == "wavernn":
+        # Run the training wavernn
+        train(**vars(args))
+    elif args.vocoder_type == "hifigan":
+        with open(args.config) as f:
+            json_config = json.load(f)
+        h = AttrDict(json_config)
+        train_hifigan(0, args, h)
+
+        
