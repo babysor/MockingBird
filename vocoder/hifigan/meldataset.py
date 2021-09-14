@@ -84,8 +84,8 @@ def get_dataset_filelist(a):
     files = os.listdir(a.input_wavs_dir)
     random.shuffle(files)
     files = [os.path.join(a.input_wavs_dir, f) for f in files]
-    training_files = files[: -500]
-    validation_files = files[-500: ]
+    training_files = files[: -int(len(files)*0.05)]
+    validation_files = files[-int(len(files)*0.05): ]
 
     return training_files, validation_files
 

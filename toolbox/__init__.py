@@ -361,9 +361,10 @@ class Toolbox:
         # Sekect vocoder based on model name
         if model_fpath.name[0] == "g":
             vocoder = gan_vocoder
-            self.ui.log("vocoder is hifigan")
+            self.ui.log("set hifigan as vocoder")
         else:
             vocoder = rnn_vocoder
+            self.ui.log("set wavernn as vocoder")
     
         self.ui.log("Loading the vocoder %s... " % model_fpath)
         self.ui.set_loading(1)

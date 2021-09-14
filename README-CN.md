@@ -58,8 +58,11 @@
 * 预处理数据:
 `python vocoder_preprocess.py <datasets_root>`
 
-* 训练声码器:
+* 训练wavernn声码器:
 `python vocoder_train.py mandarin <datasets_root>`
+
+* 训练hifigan声码器:
+`python vocoder_train.py mandarin <datasets_root> hifigan`
 
 ### 3. 启动工具箱
 然后您可以尝试使用工具箱：
