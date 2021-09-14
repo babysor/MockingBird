@@ -33,7 +33,7 @@
 * Download aidatatang_200zh or other dataset and unzip: make sure you can access all .wav in *train* folder
 * Preprocess with the audios and the mel spectrograms:
 `python pre.py <datasets_root>`
-Allow parameter `--dataset {dataset}` to support adatatang_200zh, magicdata, aishell3
+Allow parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata, aishell3
 
 >If it happens `the page file is too small to complete the operation`, please refer to this [video](https://www.youtube.com/watch?v=Oh6dga-Oy10&ab_channel=CodeProf) and change the virtual memory to 100G (102400), for example : When the file is placed in the D disk, the virtual memory of the D disk is changed.
 
@@ -50,7 +50,7 @@ Allow parameter `--dataset {dataset}` to support adatatang_200zh, magicdata, ais
 > Thanks to the community, some models will be shared:
 
 | author | Download link | Preview Video | Info |
-| --- | ----------- | ----- |----- | 
+| --- | ----------- | ----- |----- |
 |@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing [Baidu Pan](https://pan.baidu.com/s/1vSYXO4wsLyjnF3Unl-Xoxg) Code：1024  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps with local accent of Taiwan
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ code：2021 | https://www.bilibili.com/video/BV1uh411B7AD/
 
@@ -84,3 +84,69 @@ or
 |[1802.08435](https://arxiv.org/pdf/1802.08435.pdf) | WaveRNN (vocoder) | Efficient Neural Audio Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN) |
 |[1703.10135](https://arxiv.org/pdf/1703.10135.pdf) | Tacotron (synthesizer) | Tacotron: Towards End-to-End Speech Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN)
 |[1710.10467](https://arxiv.org/pdf/1710.10467.pdf) | GE2E (encoder)| Generalized End-To-End Loss for Speaker Verification | This repo |
+
+## F Q&A
+#### 1.Where can I download the dataset?
+[aidatatang_200zh](http://www.openslr.org/62/)、[magicdata](http://www.openslr.org/68/)、[aishell3](http://www.openslr.org/93/)
+> After unzip aidatatang_200zh, you need to unzip all the files under `aidatatang_200zh\corpus\train`
+
+#### 2.What is`<datasets_root>`?
+If the dataset path is `D:\data\aidatatang_200zh`,then `<datasets_root>` is`D:\data`
+
+#### 3.Not enough VRAM
+Train the synthesizer：adjust the batch_size in `synthesizer/hparams.py`
+```
+//Before
+tts_schedule = [(2,  1e-3,  20_000,  12),   # Progressive training schedule
+                (2,  5e-4,  40_000,  12),   # (r, lr, step, batch_size)
+                (2,  2e-4,  80_000,  12),   #
+                (2,  1e-4, 160_000,  12),   # r = reduction factor (# of mel frames
+                (2,  3e-5, 320_000,  12),   #     synthesized for each decoder iteration)
+                (2,  1e-5, 640_000,  12)],  # lr = learning rate
+//After
+tts_schedule = [(2,  1e-3,  20_000,  8),   # Progressive training schedule
+                (2,  5e-4,  40_000,  8),   # (r, lr, step, batch_size)
+                (2,  2e-4,  80_000,  8),   #
+                (2,  1e-4, 160_000,  8),   # r = reduction factor (# of mel frames
+                (2,  3e-5, 320_000,  8),   #     synthesized for each decoder iteration)
+                (2,  1e-5, 640_000,  8)],  # lr = learning rate
+```
+
+Train Vocoder-Preprocess the data：adjust the batch_size in `synthesizer/hparams.py`
+```
+//Before
+### Data Preprocessing
+        max_mel_frames = 900,
+        rescale = True,
+        rescaling_max = 0.9,
+        synthesis_batch_size = 16,                  # For vocoder preprocessing and inference.
+//After
+### Data Preprocessing
+        max_mel_frames = 900,
+        rescale = True,
+        rescaling_max = 0.9,
+        synthesis_batch_size = 8,                  # For vocoder preprocessing and inference.
+```
+
+Train Vocoder-Train the vocoder：adjust the batch_size in `vocoder/wavernn/hparams.py`
+```
+//Before
+# Training
+voc_batch_size = 100
+voc_lr = 1e-4
+voc_gen_at_checkpoint = 5
+voc_pad = 2
+
+//After
+# Training
+voc_batch_size = 6
+voc_lr = 1e-4
+voc_gen_at_checkpoint = 5
+voc_pad =2
+```
+
+#### 4.If it happens `RuntimeError: Error(s) in loading state_dict for Tacotron: size mismatch for encoder.embedding.weight: copying a param with shape torch.Size([70, 512]) from checkpoint, the shape in current model is torch.Size([75, 512]).`
+Please refer to issue [#37](https://github.com/babysor/MockingBird/issues/37)
+
+#### 5. How to improve CPU and GPU occupancy rate?
+Adjust the batch_size as appropriate to improve
