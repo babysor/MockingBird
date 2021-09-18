@@ -15,3 +15,5 @@ multiprocess
 numba
 webrtcvad; platform_system != "Windows"
 pypinyin
+flask
+gevent
