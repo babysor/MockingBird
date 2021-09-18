@@ -28,8 +28,7 @@ if __name__ == "__main__":
         "Path to the output directory that will contain the mel spectrograms, the audios and the "
         "embeds. Defaults to <datasets_root>/SV2TTS/synthesizer/")
     parser.add_argument("-n", "--n_processes", type=int, default=1, help=\
-        "Number of processes in parallel.An encoder is created for each, so you may need to lower "
-        "this value on GPUs with low memory. Set it to 1 if CUDA is unhappy")
+        "Number of processes in parallel.")
     parser.add_argument("-s", "--skip_existing", action="store_true", help=\
         "Whether to overwrite existing files with the same name. Useful if the preprocessing was "
         "interrupted. ")
@@ -40,10 +39,13 @@ if __name__ == "__main__":
     parser.add_argument("--no_alignments", action="store_true", help=\
         "Use this option when dataset does not include alignments\
         (these are used to split long audio files into sub-utterances.)")
-    parser.add_argument("--dataset", type=str, default="aidatatang_200zh", help=\
+    parser.add_argument("-d", "--dataset", type=str, default="aidatatang_200zh", help=\
         "Name of the dataset to process, allowing values: magicdata, aidatatang_200zh, aishell3.")
     parser.add_argument("-e", "--encoder_model_fpath", type=Path, default="encoder/saved_models/pretrained.pt", help=\
         "Path your trained encoder model.")
+    parser.add_argument("-ne", "--n_processes_embed", type=int, default=1, help=\
+        "Number of processes in parallel.An encoder is created for each, so you may need to lower "
+        "this value on GPUs with low memory. Set it to 1 if CUDA is unhappy")
     args = parser.parse_args()
 
     # Process the arguments
@@ -69,4 +71,4 @@ if __name__ == "__main__":
 
     preprocess_dataset(**vars(args))
     
-    create_embeddings(synthesizer_root=args.out_dir, n_processes=args.n_processes, encoder_model_fpath=encoder_model_fpath)    
+    create_embeddings(synthesizer_root=args.out_dir, n_processes=args.n_processes_embed, encoder_model_fpath=encoder_model_fpath)    
