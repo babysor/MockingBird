@@ -17,3 +17,5 @@ webrtcvad; platform_system != "Windows"
 pypinyin
 flask
 gevent
+flask_wtf
+flask_cors
