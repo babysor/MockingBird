@@ -36,17 +36,17 @@
 
 			<!-- 波形绘制区域 -->
 			<div class="pd recpower">
-				<div style="height:40px;width:100%;background:#999;position:relative;">
-					<div class="recpowerx" style="height:40px;background:#0B1;position:absolute;"></div>
+				<div style="height:40px;width:100%;background:#fff;position:relative;">
+					<div class="recpowerx" style="height:40px;background:#ff3295;position:absolute;"></div>
 					<div class="recpowert" style="padding-left:50px; line-height:40px; position: relative;"></div>
 				</div>
 			</div>
 			<div class="pd waveBox" style="height:100px;">
 				<div style="border:1px solid #ccc;display:inline-block; width: 100%; height: 100px;">
-					<div style="height:100px; width: 100%; background-color: rgb(148, 199, 148); position: relative;left: 0px;top: 0px;z-index: 10;"
+					<div style="height:100px; width: 100%; background-color: #FE76B8; position: relative;left: 0px;top: 0px;z-index: 10;"
 						class="recwave"></div>
 					<div
-						style="background-color: transparent;position: relative;top: -80px;left: 30%;z-index: 20;font-size: 48px;color: rgba(120,120,120,0.5);">
+						style="background-color: transparent;position: relative;top: -80px;left: 30%;z-index: 20;font-size: 48px;color: #fff;">
 						音频预览</div>
 				</div>
 			</div>
@@ -75,7 +75,7 @@
 			wave = null;
 			recBlob = null;
 			var newRec = Recorder({
-				type: "wav", bitRate: 16 
+				type: "wav", bitRate: 16, sampleRate: 16000
 				, onProcess: function (buffers, powerLevel, bufferDuration, bufferSampleRate, newBufferIdx, asyncEnd) {
 					//录音实时回调，大约1秒调用12次本回调
 					document.querySelector(".recpowerx").style.width = powerLevel + "%";
@@ -194,7 +194,7 @@
 
 			//本例子假设使用原始XMLHttpRequest请求方式，实际使用中自行调整为自己的请求方式
 			//录音结束时拿到了blob文件对象，可以用FileReader读取出内容，或者用FormData上传
-			var api = "http://127.0.0.1:9494/api/synthesize";
+			var api = "http://127.0.0.1:8080/api/synthesize";
 
 			reclog("开始上传到" + api + "，请求稍后...");
 
@@ -277,7 +277,7 @@
 			var div = document.createElement("div");
 			var elem = document.querySelector(".reclog");
 			elem.insertBefore(div, elem.firstChild);
-			div.innerHTML = '<div style="color:' + (!color ? "" : color == 1 ? "red" : color == 2 ? "#0b1" : color) + '">[' + t + ']' + s + '</div>';
+			div.innerHTML = '<div style="color:' + (!color ? "" : color == 1 ? "red" : color == 2 ? "#FE76B8" : color) + '">[' + t + ']' + s + '</div>';
 		};
 		window.onerror = function (message, url, lineNo, columnNo, error) {
 			reclog('<span style="color:red">【Uncaught Error】' + message + '<pre>' + "at:" + lineNo + ":" + columnNo + " url:" + url + "\n" + (error && error.stack || "不能获得错误堆栈") + '</pre></span>');
@@ -312,7 +312,7 @@
 
 		a {
 			text-decoration: none;
-			color: #06c;
+			color: #FE76B8;
 		}
 
 		a:hover {
@@ -340,7 +340,7 @@
 			cursor: pointer;
 			border: none;
 			border-radius: 3px;
-			background: rgb(19, 172, 5);
+			background: #FE76B8;
 			color: #fff;
 			padding: 0 15px;
 			margin: 3px 20px 3px 0;
@@ -351,7 +351,7 @@
 		}
 
 		.btns button:active {
-			background: rgb(162, 214, 147);
+			background: #fd54a6
 		}
 
 		.pd {
@@ -361,7 +361,7 @@
 		.lb {
 			display: inline-block;
 			vertical-align: middle;
-			background: #00940e;
+			background: #ff3d9b;
 			color: #fff;
 			font-size: 14px;
 			padding: 2px 8px;

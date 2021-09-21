@@ -16,6 +16,6 @@ numba
 webrtcvad; platform_system != "Windows"
 pypinyin
 flask
-gevent
 flask_wtf
 flask_cors
+gevent==21.8.0
