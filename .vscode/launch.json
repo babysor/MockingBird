@@ -8,7 +8,7 @@
       "name": "Python: Web",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}/web/app.py",
+      "program": "web.py",
       "console": "integratedTerminal"
     },
     {
