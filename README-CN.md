@@ -69,6 +69,8 @@
 ### 3.1 启动Web程序：
 `python web.py`
 运行成功后在浏览器打开地址, 默认为 `http://localhost:8080`
+<img width="578" alt="bd64cd80385754afa599e3840504f45" src="https://user-images.githubusercontent.com/7423248/134275205-c95e6bd8-4f41-4eb5-9143-0390627baee1.png">
+
 > 注：目前界面比较buggy, 
 > * 第一次点击`录制`要等待几秒浏览器正常启动录音，否则会有重音
 > * 录制结束不要再点`录制`而是`停止`
@@ -78,6 +80,7 @@
 ### 3.2 启动工具箱：
 `python demo_toolbox.py -d <datasets_root>`
 > 请指定一个可用的数据集文件路径，如果有支持的数据集则会自动加载供调试，也同时会作为手动录制音频的存储目录。
+<img width="1042" alt="d48ea37adf3660e657cfb047c10edbc" src="https://user-images.githubusercontent.com/7423248/134275227-c1ddf154-f118-4b77-8949-8c4c7daf25f0.png">
 
 ## Release Note
 2021.9.8 新增Hifi-GAN Vocoder支持
