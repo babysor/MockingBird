@@ -14,6 +14,7 @@
 
 🤩 **Easy & Awesome** effect with only newly-trained synthesizer, by reusing the pretrained encoder/vocoder
 
+🌍 **Webserver Ready** to serve your result with remote calling
 
 ### [DEMO VIDEO](https://www.bilibili.com/video/BV1sA411P7wM/)
 
@@ -29,24 +30,20 @@
 * Run `pip install -r requirements.txt` to install the remaining necessary packages.
 * Install webrtcvad `pip install webrtcvad-wheels`(If you need)
 > Note that we are using the pretrained encoder/vocoder but synthesizer, since the original model is incompatible with the Chinese sympols. It means the demo_cli is not working at this moment.
-### 2. Train synthesizer with your dataset
-* Download aidatatang_200zh or other dataset and unzip: make sure you can access all .wav in *train* folder
+### 2. Prepare your models
+You can either train your models or use existing ones:
+#### 2.1. Train synthesizer with your dataset
+* Download dataset and unzip: make sure you can access all .wav in folder
 * Preprocess with the audios and the mel spectrograms:
 `python pre.py <datasets_root>`
-Allow parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata, aishell3
-
->If it happens `the page file is too small to complete the operation`, please refer to this [video](https://www.youtube.com/watch?v=Oh6dga-Oy10&ab_channel=CodeProf) and change the virtual memory to 100G (102400), for example : When the file is placed in the D disk, the virtual memory of the D disk is changed.
-
+Allowing parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata, aishell3, etc.
 
 * Train the synthesizer:
 `python synthesizer_train.py mandarin <datasets_root>/SV2TTS/synthesizer`
 
 * Go to next step when you see attention line show and loss meet your need in training folder *synthesizer/saved_models/*.
-> FYI, my attention came after 18k steps and loss became lower than 0.4 after 50k steps.
-![attention_step_20500_sample_1](https://user-images.githubusercontent.com/7423248/128587252-f669f05a-f411-4811-8784-222156ea5e9d.png)
-![step-135500-mel-spectrogram_sample_1](https://user-images.githubusercontent.com/7423248/128587255-4945faa0-5517-46ea-b173-928eff999330.png)
 
-### 2.2 Use pretrained model of synthesizer
+#### 2.2 Use pretrained model of synthesizer
 > Thanks to the community, some models will be shared:
 
 | author | Download link | Preview Video | Info |
@@ -54,10 +51,8 @@ Allow parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata, ai
 |@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing [Baidu Pan](https://pan.baidu.com/s/1vSYXO4wsLyjnF3Unl-Xoxg) Code：1024  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps with local accent of Taiwan
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ code：2021 | https://www.bilibili.com/video/BV1uh411B7AD/
 
-> A link to my early trained model: [Baidu Yun](https://pan.baidu.com/s/10t3XycWiNIg5dN5E_bMORQ)
-Code：aid4
-
-### 2.3 Train vocoder (Optional)
+#### 2.3 Train vocoder (Optional)
+> note: vocoder has little difference in effect, so you may not need to train a new one.
 * Preprocess the data:
 `python vocoder_preprocess.py <datasets_root>`
 
@@ -67,15 +62,13 @@ Code：aid4
 * Train the hifigan vocoder
 `python vocoder_train.py mandarin <datasets_root> hifigan`
 
-### 3. Launch the Toolbox
+### 3. Launch
+#### 3.1 Using the web server
+You can then try to run:`python web.py` and open it in browser, default as `http://localhost:8080`
+
+#### 3.2 Using the Toolbox
 You can then try the toolbox:
-
 `python demo_toolbox.py -d <datasets_root>`
-or
-`python demo_toolbox.py`
-
-> Good news🤩: Chinese Characters are supported
-
 
 ## Reference
 > This repository is forked from [Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) which only support English.
@@ -153,3 +146,12 @@ Please refer to issue [#37](https://github.com/babysor/MockingBird/issues/37)
 
 #### 5. How to improve CPU and GPU occupancy rate?
 Adjust the batch_size as appropriate to improve
+
+
+#### 6. What if it happens `the page file is too small to complete the operation`
+Please refer to this [video](https://www.youtube.com/watch?v=Oh6dga-Oy10&ab_channel=CodeProf) and change the virtual memory to 100G (102400), for example : When the file is placed in the D disk, the virtual memory of the D disk is changed.
+
+#### 7. When should I stop during training?
+FYI, my attention came after 18k steps and loss became lower than 0.4 after 50k steps.
+![attention_step_20500_sample_1](https://user-images.githubusercontent.com/7423248/128587252-f669f05a-f411-4811-8784-222156ea5e9d.png)
+![step-135500-mel-spectrogram_sample_1](https://user-images.githubusercontent.com/7423248/128587255-4945faa0-5517-46ea-b173-928eff999330.png)
