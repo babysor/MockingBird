@@ -53,7 +53,9 @@
 #### 2.3训练声码器 (可选)
 对效果影响不大，已经预置3款，如果希望自己训练可以参考以下命令。
 * 预处理数据:
-`python vocoder_preprocess.py <datasets_root>`
+`python vocoder_preprocess.py <datasets_root> -m <synthesizer_model_path>`
+> `<datasets_root>`替换为你的数据集目录，`<synthesizer_model_path>`替换为一个你最好的synthesizer模型目录，例如 *sythensizer\saved_mode\xxx*
+
 
 * 训练wavernn声码器:
 `python vocoder_train.py <trainid> <datasets_root>`

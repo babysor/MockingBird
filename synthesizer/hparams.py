@@ -41,7 +41,7 @@ hparams = HParams(
         tts_lstm_dims = 1024,
         tts_postnet_K = 5,
         tts_num_highways = 4,
-        tts_dropout = 0.5,
+        tts_dropout = 0.2,
         tts_cleaner_names = ["basic_cleaners"],
         tts_stop_threshold = -3.4,                  # Value below which audio generation ends.
                                                     # For example, for a range of [-4, 4], this
@@ -52,7 +52,7 @@ hparams = HParams(
         tts_schedule = [(2,  1e-3,  20_000,  24),   # Progressive training schedule
                         (2,  5e-4,  40_000,  24),   # (r, lr, step, batch_size)
                         (2,  2e-4,  80_000,  24),   #
-                        (2,  1e-4, 160_000,  24),   # r = reduction factor (# of mel frames
+                        (2,  3e-6, 160_000,  36),   # r = reduction factor (# of mel frames
                         (2,  3e-5, 320_000,  24),   #     synthesized for each decoder iteration)
                         (2,  1e-5, 640_000,  24)],  # lr = learning rate
 
