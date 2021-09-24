@@ -24,7 +24,7 @@ def time_string():
     return datetime.now().strftime("%Y-%m-%d %H:%M")
 
 def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
-         backup_every: int, force_restart:bool, hparams):
+         backup_every: int, log_every:int, force_restart:bool, hparams):
 
     syn_dir = Path(syn_dir)
     models_dir = Path(models_dir)
@@ -216,6 +216,9 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                 msg = f"| Epoch: {epoch}/{epochs} ({i}/{steps_per_epoch}) | Loss: {loss_window.average:#.4} | {1./time_window.average:#.2} steps/s | Step: {k}k | "
                 stream(msg)
 
+                if log_every != 0 and step % log_every == 0 :
+                    sw.add_scalar("training/loss", loss_window.average, step)
+
                 # Backup or save model as appropriate
                 if backup_every != 0 and step % backup_every == 0 : 
                     backup_fpath = Path("{}/{}_{}k.pt".format(str(weights_fpath.parent), run_id, k))
@@ -225,7 +228,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                     # Must save latest optimizer state to ensure that resuming training
                     # doesn't produce artifacts
                     model.save(weights_fpath, optimizer)
-                    sw.add_scalar("training/loss", loss_window.average, step)
+                    
 
                 # Evaluate model to generate samples
                 epoch_eval = hparams.tts_eval_interval == -1 and i == steps_per_epoch  # If epoch is done
@@ -239,8 +242,8 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                             mel_prediction = np_now(m2_hat[sample_idx]).T[:mel_length]
                             target_spectrogram = np_now(mels[sample_idx]).T[:mel_length]
                             attention_len = mel_length // model.r
-                            eval_loss = F.mse_loss(mel_prediction, target_spectrogram)
-                            sw.add_scalar("validing/loss", eval_loss.item(), step)
+                            # eval_loss = F.mse_loss(mel_prediction, target_spectrogram)
+                            # sw.add_scalar("validing/loss", eval_loss.item(), step)
                             eval_model(attention=np_now(attention[sample_idx][:, :attention_len]),
                                        mel_prediction=mel_prediction,
                                        target_spectrogram=target_spectrogram,
@@ -250,7 +253,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                                        mel_output_dir=mel_output_dir,
                                        wav_dir=wav_dir,
                                        sample_num=sample_idx + 1,
-                                       loss=eval_loss,
+                                       loss=loss,
                                        hparams=hparams,
                                        sw=sw)
 
