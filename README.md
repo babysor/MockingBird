@@ -54,7 +54,8 @@ Allowing parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata,
 #### 2.3 Train vocoder (Optional)
 > note: vocoder has little difference in effect, so you may not need to train a new one.
 * Preprocess the data:
-`python vocoder_preprocess.py <datasets_root>`
+`python vocoder_preprocess.py <datasets_root> -m <synthesizer_model_path>`
+> `<datasets_root>` replace with your dataset root，`<synthesizer_model_path>`replace with directory of your best trained models of sythensizer, e.g. *sythensizer\saved_mode\xxx*
 
 * Train the wavernn vocoder:
 `python vocoder_train.py mandarin <datasets_root>`

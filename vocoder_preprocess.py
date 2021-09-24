@@ -16,8 +16,8 @@ if __name__ == "__main__":
     parser.add_argument("datasets_root", type=str, help=\
         "Path to the directory containing your SV2TTS directory. If you specify both --in_dir and "
         "--out_dir, this argument won't be used.")
-    parser.add_argument("--model_dir", type=str, 
-                        default="synthesizer/saved_models/train3/", help=\
+    parser.add_argument("-m", "--model_dir", type=str, 
+                        default="synthesizer/saved_models/mandarin/", help=\
         "Path to the pretrained model directory.")
     parser.add_argument("-i", "--in_dir", type=str, default=argparse.SUPPRESS, help= \
         "Path to the synthesizer directory that contains the mel spectrograms, the wavs and the "
