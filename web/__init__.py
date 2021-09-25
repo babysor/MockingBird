@@ -1,7 +1,7 @@
-import os
+from web.api import api_blueprint
 from pathlib import Path
 from gevent import pywsgi as wsgi
-from flask import Flask, jsonify, Response, request, render_template
+from flask import Flask, jsonify, Response, request, render_template, url_for
 from synthesizer.inference import Synthesizer
 from encoder import inference as encoder
 from vocoder.hifigan import inference as gan_vocoder
@@ -17,8 +17,9 @@ from flask_wtf import CSRFProtect
 def webApp():
     # Init and load config
     app = Flask(__name__, instance_relative_config=True)
-
     app.config.from_object("web.config.default")
+    app.config['RESTPLUS_MASK_SWAGGER'] = False
+    app.register_blueprint(api_blueprint)
 
     CORS(app) #允许跨域，注释掉此行则禁止跨域请求
     csrf = CSRFProtect(app)
@@ -29,11 +30,7 @@ def webApp():
     # 3. load melspetron of audio
     # 4. inference by audio + text + models(encoder, vocoder, synthesizer)
     # 5. export result
-    audio_samples = []
-    AUDIO_SAMPLES_DIR = app.config.get("AUDIO_SAMPLES_DIR")
-    if os.path.isdir(AUDIO_SAMPLES_DIR):
-        audio_samples = list(Path(AUDIO_SAMPLES_DIR).glob("*.wav"))
-    print("Loaded samples: " + str(len(audio_samples)))
+    
     # enc_models_dir = "encoder/saved_models"
     # voc_models_di = "vocoder/saved_models"
     # encoders = list(Path(enc_models_dir).glob("*.pt"))
@@ -46,24 +43,6 @@ def webApp():
     synthesizers_cache = {}
     encoder.load_model(Path("encoder/saved_models/pretrained.pt"))
     gan_vocoder.load_model(Path("vocoder/saved_models/pretrained/g_hifigan.pt"))
-
-    # TODO: move to utils
-    def generate(wav_path):
-        with open(wav_path, "rb") as fwav:
-            data = fwav.read(1024)
-            while data:
-                yield data
-                data = fwav.read(1024)
-
-    @app.route("/api/audios", methods=["GET"])
-    def audios():
-        return jsonify(
-            {"data": list(a.name for a in audio_samples), "total": len(audio_samples)}
-        )
-
-    @app.route("/api/audios/<name>", methods=["GET"])
-    def audio_play(name):
-        return Response(generate(AUDIO_SAMPLES_DIR + name), mimetype="audio/x-wav")
 
     @app.route("/api/models", methods=["GET"])
     def models():
@@ -160,7 +139,7 @@ def webApp():
     print(f"Web server: http://{host}:{port}")
     server = wsgi.WSGIServer((host, port), app)
     server.serve_forever()
-
+    
     return app
 
 if __name__ == "__main__":

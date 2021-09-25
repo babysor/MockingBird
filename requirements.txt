@@ -19,3 +19,4 @@ flask
 flask_wtf
 flask_cors
 gevent==21.8.0
+flask_restx

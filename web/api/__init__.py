@@ -5,11 +5,10 @@ from .audio import api as audio
 api_blueprint = Blueprint('api', __name__, url_prefix='/api')
 
 api = Api(
-    api_blueprint,
+    app=api_blueprint,
     title='Mocking Bird',
     version='1.0',
-    description='My API',
-    doc='/doc'
+    description='My API'
 )
 
 api.add_namespace(audio)
