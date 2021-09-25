@@ -91,6 +91,14 @@ def save_attention(attn, path) :
     plt.close(fig)
 
 
+def save_and_trace_attention(attn, path, sw, step):
+    fig = plt.figure(figsize=(12, 6))
+    plt.imshow(attn.T, interpolation='nearest', aspect='auto')
+    fig.savefig(f'{path}.png', bbox_inches='tight')
+    sw.add_figure('attention', fig, step)
+    plt.close(fig)
+
+
 def save_spectrogram(M, path, length=None) :
     M = np.flip(M, axis=0)
     if length : M = M[:, :length]
