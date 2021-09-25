@@ -41,7 +41,7 @@ hparams = HParams(
         tts_lstm_dims = 1024,
         tts_postnet_K = 5,
         tts_num_highways = 4,
-        tts_dropout = 0.2,
+        tts_dropout = 0.5,
         tts_cleaner_names = ["basic_cleaners"],
         tts_stop_threshold = -3.4,                  # Value below which audio generation ends.
                                                     # For example, for a range of [-4, 4], this
