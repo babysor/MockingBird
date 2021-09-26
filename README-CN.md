@@ -84,8 +84,31 @@
 
 <img width="1042" alt="d48ea37adf3660e657cfb047c10edbc" src="https://user-images.githubusercontent.com/7423248/134275227-c1ddf154-f118-4b77-8949-8c4c7daf25f0.png">
 
-## Release Note
-2021.9.8 新增Hifi-GAN Vocoder支持
+## 文件结构（目标读者：开发者）
+├─archived_untest_files 废弃文件
+├─encoder encoder模型
+│  ├─data_objects
+│  └─saved_models 预训练好的模型
+├─samples 样例语音
+├─synthesizer  synthesizer模型
+│  ├─models
+│  ├─saved_models 预训练好的模型
+│  └─utils 工具类库
+├─toolbox 图形化工具箱
+├─utils 工具类库
+├─vocoder  vocoder模型（目前包含hifi-gan、wavrnn）
+│  ├─hifigan
+│  ├─saved_models 预训练好的模型
+│  └─wavernn
+└─web
+    ├─api
+    │  └─Web端接口
+    ├─config
+    │  └─ Web端配置文件
+    ├─static 前端静态脚本
+    │  └─js 
+    ├─templates 前端模板
+    └─__init__.py Web端入口文件
 
 ## 引用及论文
 > 该库一开始从仅支持英语的[Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) 分叉出来的，鸣谢作者。
