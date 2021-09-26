@@ -1,14 +1,14 @@
 from web.api import api_blueprint
 from pathlib import Path
 from gevent import pywsgi as wsgi
-from flask import Flask, jsonify, Response, request, render_template, url_for
+from flask import Flask, Response, request, render_template
 from synthesizer.inference import Synthesizer
 from encoder import inference as encoder
 from vocoder.hifigan import inference as gan_vocoder
 from vocoder.wavernn import inference as rnn_vocoder
 import numpy as np
 import re
-from scipy.io.wavfile import write, read
+from scipy.io.wavfile import write
 import io
 import base64
 from flask_cors import CORS
@@ -21,39 +21,15 @@ def webApp():
     app.config['RESTPLUS_MASK_SWAGGER'] = False
     app.register_blueprint(api_blueprint)
 
-    CORS(app) #允许跨域，注释掉此行则禁止跨域请求
+    # CORS(app) #允许跨域，注释掉此行则禁止跨域请求
     csrf = CSRFProtect(app)
     csrf.init_app(app)
-    # API For Non-Trainer
-    # 1. list sample audio files
-    # 2. record / upload / select audio files
-    # 3. load melspetron of audio
-    # 4. inference by audio + text + models(encoder, vocoder, synthesizer)
-    # 5. export result
-    
-    # enc_models_dir = "encoder/saved_models"
-    # voc_models_di = "vocoder/saved_models"
-    # encoders = list(Path(enc_models_dir).glob("*.pt"))
-    # vocoders = list(Path(voc_models_di).glob("**/*.pt"))
+   
     syn_models_dirt = "synthesizer/saved_models"
     synthesizers = list(Path(syn_models_dirt).glob("**/*.pt"))
-    # print("Loaded encoder models: " + str(len(encoders)))
-    # print("Loaded vocoder models: " + str(len(vocoders)))
-    print("Loaded synthesizer models: " + str(len(synthesizers)))
     synthesizers_cache = {}
     encoder.load_model(Path("encoder/saved_models/pretrained.pt"))
     gan_vocoder.load_model(Path("vocoder/saved_models/pretrained/g_hifigan.pt"))
-
-    @app.route("/api/models", methods=["GET"])
-    def models():
-        return jsonify(
-            {
-                # "encoder": list(e.name for e in encoders),
-                # "vocoder": list(e.name for e in vocoders),
-                "synthesizers": 
-                    list({"name": e.name, "path": str(e)} for e in synthesizers),
-            }
-        )
 
     def pcm2float(sig, dtype='float32'):
         """Convert PCM signal to floating point with a range from -1 to 1.
