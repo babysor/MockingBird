@@ -85,6 +85,7 @@
 <img width="1042" alt="d48ea37adf3660e657cfb047c10edbc" src="https://user-images.githubusercontent.com/7423248/134275227-c1ddf154-f118-4b77-8949-8c4c7daf25f0.png">
 
 ## 文件结构（目标读者：开发者）
+```
 ├─archived_untest_files 废弃文件
 ├─encoder encoder模型
 │  ├─data_objects
@@ -109,6 +110,7 @@
     │  └─js 
     ├─templates 前端模板
     └─__init__.py Web端入口文件
+```
 
 ## 引用及论文
 > 该库一开始从仅支持英语的[Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) 分叉出来的，鸣谢作者。
