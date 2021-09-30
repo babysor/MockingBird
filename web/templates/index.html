@@ -4,8 +4,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-	<link rel="shortcut icon" type="image/png"
-		href="https://cdn.jsdelivr.net/gh/xiangyuecn/Recorder@latest/assets/icon.png">
+	<link rel="shortcut icon" type="image/png" href="../static/img/bird-sm.png">
 
 	<title>MockingBird Web Server</title>
 
@@ -24,45 +23,54 @@
 	<div class="main">
 
 		<div class="mainBox">
-			<div class="pd btns">
+			<div class="title" >
+				<div style="width: 15%;float: left;margin-left: 5%;">
+					<img src="../static/img/bird.png" style="width: 100%;border-radius:50%;"></img>
+				</div>
+				<div style="width: 80% ;height: 15%;; margin-left: 15%;overflow: hidden;">
+					<div style="margin-left: 5%;margin-top: 15px;font-size: xx-large;font-weight: bolder;">
+						拟声鸟工具箱
+					</div>
+					<div style="margin-left: 5%;margin-top: 3px;font-size: large;">
+						<a href="https://github.com/babysor/MockingBird" target="_blank">https://github.com/babysor/MockingBird</a>
+					</div>
+				</div>
+			</div>	
+
+			<div  style="margin-left: 5%;margin-top: 50px;width: 90%;">
+				<div style="font-size: larger;font-weight: bolder;">请输入中文</div>
+				<textarea  id="user_input_text"
+					style="border:1px solid #ccc; width: 100%; height: 100px; font-size: 15px; margin-top: 10px;"></textarea>
+			</div>
+			
+			<div class="pd btns" style="margin-left: 5%;margin-top: 20px;width: 90%; text-align:right;">
 				<!-- <div>
 				<button onclick="recOpen()" style="margin-right:10px">打开录音,请求权限</button>
 				<button onclick="recClose()" style="margin-right:0">关闭录音,释放资源</button>
 			</div> -->
-				<button onclick="recStart()" style="margin-left:100px">录制</button>
-				<button onclick="recStop()" style="margin-left:100px">停止</button>
-				<button onclick="recPlay()" style="margin-left:100px">播放</button>
+				<button onclick="recStart()" >录制</button>
+				<button onclick="recStop()">停止</button>
+				<button onclick="recPlay()" >播放</button>
+				<button onclick="recUpload()" >上传</button>
 			</div>
 
 			<!-- 波形绘制区域 -->
-			<div class="pd recpower">
+			<!-- <div class="pd recpower">
 				<div style="height:40px;width:100%;background:#fff;position:relative;">
 					<div class="recpowerx" style="height:40px;background:#ff3295;position:absolute;"></div>
 					<div class="recpowert" style="padding-left:50px; line-height:40px; position: relative;"></div>
 				</div>
-			</div>
-			<div class="pd waveBox" style="height:100px;">
+			</div> -->
+			<!-- <div class="pd waveBox" style="height:100px;">
 				<div style="border:1px solid #ccc;display:inline-block; width: 100%; height: 100px;">
-					<div style="height:100px; width: 100%; background-color: #FE76B8; position: relative;left: 0px;top: 0px;z-index: 10;"
+					<div style="height:100px; width: 100%; background-color: #5da1f5; position: relative;left: 0px;top: 0px;z-index: 10;"
 						class="recwave"></div>
 					<div
 						style="background-color: transparent;position: relative;top: -80px;left: 30%;z-index: 20;font-size: 48px;color: #fff;">
 						音频预览</div>
 				</div>
-			</div>
-			<div>
-				<div>请输入文本：</div>
-				<input type="text" id="user_input_text"
-					style="border:1px solid #ccc; width: 100%; height: 20px; font-size: 18px;" />
-			</div>
-			<div class="pd btns">
-				<button onclick="recUpload()" style="margin-left: 300px; margin-top: 15px;">上传</button>
-			</div>
-		</div>
-
-		<!-- 日志输出区域 -->
-		<div class="mainBox">
-			<div class="reclog"></div>
+			</div> -->
+			<div class="reclog" style="margin-left: 5%;margin-top: 20px;width: 90%;"></div>
 		</div>
 	</div>
 
@@ -78,11 +86,11 @@
 				type: "wav", bitRate: 16, sampleRate: 16000
 				, onProcess: function (buffers, powerLevel, bufferDuration, bufferSampleRate, newBufferIdx, asyncEnd) {
 					//录音实时回调，大约1秒调用12次本回调
-					document.querySelector(".recpowerx").style.width = powerLevel + "%";
-					document.querySelector(".recpowert").innerText = bufferDuration + " / " + powerLevel;
+					// document.querySelector(".recpowerx").style.width = powerLevel + "%";
+					// document.querySelector(".recpowert").innerText = bufferDuration + " / " + powerLevel;
 
 					//可视化图形绘制
-					wave.input(buffers[buffers.length - 1], powerLevel, bufferSampleRate);
+					// wave.input(buffers[buffers.length - 1], powerLevel, bufferSampleRate);
 				}
 			});
 
@@ -93,7 +101,7 @@
 				rec = newRec;
 
 				//此处创建这些音频可视化图形绘制浏览器支持妥妥的
-				wave = Recorder.FrequencyHistogramView({ elem: ".recwave" });
+				// wave = Recorder.FrequencyHistogramView({ elem: ".recwave" });
 
 				reclog("已打开录音，可以点击录制开始录音了", 2);
 			}, function (msg, isUserNotAllow) {//用户拒绝未授权或不支持
@@ -194,7 +202,7 @@
 
 			//本例子假设使用原始XMLHttpRequest请求方式，实际使用中自行调整为自己的请求方式
 			//录音结束时拿到了blob文件对象，可以用FileReader读取出内容，或者用FormData上传
-			var api = "http://127.0.0.1:8080/api/synthesize";
+			var api = "/api/synthesize";
 
 			reclog("开始上传到" + api + "，请求稍后...");
 
@@ -277,7 +285,7 @@
 			var div = document.createElement("div");
 			var elem = document.querySelector(".reclog");
 			elem.insertBefore(div, elem.firstChild);
-			div.innerHTML = '<div style="color:' + (!color ? "" : color == 1 ? "red" : color == 2 ? "#FE76B8" : color) + '">[' + t + ']' + s + '</div>';
+			div.innerHTML = '<div style="color:' + (!color ? "" : color == 1 ? "#327de8" : color == 2 ? "#5da1f5" : color) + '">[' + t + ']' + s + '</div>';
 		};
 		window.onerror = function (message, url, lineNo, columnNo, error) {
 			reclog('<span style="color:red">【Uncaught Error】' + message + '<pre>' + "at:" + lineNo + ":" + columnNo + " url:" + url + "\n" + (error && error.stack || "不能获得错误堆栈") + '</pre></span>');
@@ -312,11 +320,11 @@
 
 		a {
 			text-decoration: none;
-			color: #FE76B8;
+			color: #327de8;
 		}
 
 		a:hover {
-			color: #f00;
+			color: #5da1f5;
 		}
 
 		.main {
@@ -330,7 +338,7 @@
 			padding: 12px;
 			border-radius: 6px;
 			background: #fff;
-			--border: 1px solid #f60;
+			--border: 1px solid #327de8;
 			box-shadow: 2px 2px 3px #aaa;
 		}
 
@@ -340,10 +348,11 @@
 			cursor: pointer;
 			border: none;
 			border-radius: 3px;
-			background: #FE76B8;
+			background: #327de8;
 			color: #fff;
 			padding: 0 15px;
-			margin: 3px 20px 3px 0;
+			margin: 3px 10px 3px 0;
+			width: 70px;
 			line-height: 36px;
 			height: 36px;
 			overflow: hidden;
@@ -351,9 +360,12 @@
 		}
 
 		.btns button:active {
-			background: #fd54a6
+			background: #5da1f5
 		}
 
+		.btns button:hover {
+			background: #5da1f5
+		}
 		.pd {
 			padding: 0 0 6px 0;
 		}
@@ -361,7 +373,7 @@
 		.lb {
 			display: inline-block;
 			vertical-align: middle;
-			background: #ff3d9b;
+			background: #327de8;
 			color: #fff;
 			font-size: 14px;
 			padding: 2px 8px;
