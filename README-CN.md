@@ -73,7 +73,7 @@
 ### 3.1 启动Web程序：
 `python web.py`
 运行成功后在浏览器打开地址, 默认为 `http://localhost:8080`
-<img width="578" alt="bd64cd80385754afa599e3840504f45" src="https://user-images.githubusercontent.com/7423248/134275205-c95e6bd8-4f41-4eb5-9143-0390627baee1.png">
+![123](https://user-images.githubusercontent.com/12797292/135494044-ae59181c-fe3a-406f-9c7d-d21d12fdb4cb.png)
 > 注：目前界面比较buggy, 
 > * 第一次点击`录制`要等待几秒浏览器正常启动录音，否则会有重音
 > * 录制结束不要再点`录制`而是`停止`

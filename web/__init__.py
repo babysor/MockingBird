@@ -13,6 +13,7 @@ import io
 import base64
 from flask_cors import CORS
 from flask_wtf import CSRFProtect
+import webbrowser
 
 def webApp():
     # Init and load config
@@ -112,10 +113,11 @@ def webApp():
 
     host = app.config.get("HOST")
     port = app.config.get("PORT")
-    print(f"Web server: http://{host}:{port}")
+    web_address = 'http://{}:{}'.format(host, port)
+    print(f"Web server:" + web_address)
+    webbrowser.open(web_address)
     server = wsgi.WSGIServer((host, port), app)
     server.serve_forever()
-    
     return app
 
 if __name__ == "__main__":
