@@ -9,6 +9,7 @@ from vocoder.wavernn import inference as rnn_vocoder
 import numpy as np
 import re
 from scipy.io.wavfile import write
+import librosa
 import io
 import base64
 from flask_cors import CORS
@@ -30,6 +31,7 @@ def webApp():
     synthesizers = list(Path(syn_models_dirt).glob("**/*.pt"))
     synthesizers_cache = {}
     encoder.load_model(Path("encoder/saved_models/pretrained.pt"))
+    # rnn_vocoder.load_model(Path("vocoder/saved_models/pretrained/pretrained.pt"))
     gan_vocoder.load_model(Path("vocoder/saved_models/pretrained/g_hifigan.pt"))
 
     def pcm2float(sig, dtype='float32'):
@@ -66,7 +68,6 @@ def webApp():
     @app.route("/api/synthesize", methods=["POST"])
     def synthesize():
         # TODO Implementation with json to support more platform
-
         # Load synthesizer
         if "synt_path" in request.form:
             synt_path = request.form["synt_path"]
@@ -80,10 +81,16 @@ def webApp():
             current_synt = synthesizers_cache[synt_path]
         print("using synthesizer model: " + str(synt_path))
         # Load input wav
-        wav_base64 = request.form["upfile_b64"]
-        wav = base64.b64decode(bytes(wav_base64, 'utf-8'))
-        wav = pcm2float(np.frombuffer(wav, dtype=np.int16), dtype=np.float32)
-        encoder_wav = encoder.preprocess_wav(wav, 16000)
+        if "upfile_b64" in request.form:
+            wav_base64 = request.form["upfile_b64"]
+            wav = base64.b64decode(bytes(wav_base64, 'utf-8'))
+            wav = pcm2float(np.frombuffer(wav, dtype=np.int16), dtype=np.float32)
+            sample_rate = Synthesizer.sample_rate
+        else:
+            wav, sample_rate,  = librosa.load(request.files['file'])
+        write("temp.wav", sample_rate, wav) #Make sure we get the correct wav
+        
+        encoder_wav = encoder.preprocess_wav(wav, sample_rate)
         embed, _, _ = encoder.embed_utterance(encoder_wav, return_partials=True)
         
         # Load input text
@@ -100,6 +107,7 @@ def webApp():
         embeds = [embed] * len(texts)
         specs = current_synt.synthesize_spectrograms(texts, embeds)
         spec = np.concatenate(specs, axis=1)
+        # wav = rnn_vocoder.infer_waveform(spec)
         wav = gan_vocoder.infer_waveform(spec)
 
         # Return cooked wav

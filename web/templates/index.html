@@ -38,22 +38,37 @@
 			</div>	
 
 			<div  style="margin-left: 5%;margin-top: 50px;width: 90%;">
-				<div style="font-size: larger;font-weight: bolder;">请输入中文</div>
+				<div style="font-size: larger;font-weight: bolder;">1. 请输入中文</div>
 				<textarea  id="user_input_text"
 					style="border:1px solid #ccc; width: 100%; height: 100px; font-size: 15px; margin-top: 10px;"></textarea>
 			</div>
-			
-			<div class="pd btns" style="margin-left: 5%;margin-top: 20px;width: 90%; text-align:right;">
+			<div class="pd btns" style="margin-left: 5%;margin-top: 20px;width: 90%; ">
 				<!-- <div>
 				<button onclick="recOpen()" style="margin-right:10px">打开录音,请求权限</button>
 				<button onclick="recClose()" style="margin-right:0">关闭录音,释放资源</button>
 			</div> -->
+				<div style="font-size: larger;font-weight: bolder;">2. 请直接录音，点击停止结束</div>
 				<button onclick="recStart()" >录制</button>
 				<button onclick="recStop()">停止</button>
 				<button onclick="recPlay()" >播放</button>
-				<button onclick="recUpload()" >上传</button>
 			</div>
-
+			<div class="pd btns" style="margin-left: 5%;margin-top: 20px;width: 90%; ">
+				<div style="font-size: larger;font-weight: bolder;">或上传音频</div>
+				<input type="file" id="fileInput" accept=".wav" />
+				<label for="fileInput">选择音频</label>
+				<div id="audio1"></div>
+			</div>
+			<div class="pd btns" style="margin-left: 5%;margin-top: 20px;width: 90%; ">
+				<div style="font-size: larger;font-weight: bolder;">3. 选择Synthesizer模型</div>
+				<span class="box">
+					<select id="select">
+					</select>
+				</span>
+			</div>
+			<div class="pd btns" style="margin-left: 5%;margin-top: 20px;width: 90%; text-align:right;">
+				<button id="upload" onclick="recUpload()">上传合成</button>
+			</div>
+			
 			<!-- 波形绘制区域 -->
 			<!-- <div class="pd recpower">
 				<div style="height:40px;width:100%;background:#fff;position:relative;">
@@ -76,6 +91,37 @@
 
 
 	<script>
+
+		$("#fileInput").change(function(){
+			var file = $("#fileInput").get(0).files;
+			if (file.length > 0) {
+				var path = URL.createObjectURL(file[0]);
+				var audio = document.createElement('audio');
+				audio.src = path;
+				audio.controls = true;
+				$('#audio1').empty().append(audio); 
+			}
+		});
+		
+		fetch("/api/synthesizers", {
+			method: 'get',
+			headers: {
+				"X-CSRFToken": "{{ csrf_token() }}"
+			}
+		}).then(function (res) {
+			if (!res.ok) throw Error(res.statusText);
+			return res.json();
+		}).then(function (data) {
+			for (var synt of data) {
+				var option = document.createElement('option');
+				option.text = synt.name
+				option.value = synt.path
+				$("#select").append(option);
+			}
+		}).catch(function (err) {
+			console.log('Error: ' + err.message);
+		})
+
 		var rec, wave, recBlob;
 		/**调用open打开录音请求好录音权限**/
 		var recOpen = function () {//一般在显示出录音按钮或相关的录音界面时进行此方法调用，后面用户点击开始录音时就能畅通无阻了
@@ -194,9 +240,15 @@
 
 		/**上传**/
 		function recUpload() {
-			var blob = recBlob;
+			var blob
+			var loadedAudios = $("#fileInput").get(0).files
+			if (loadedAudios.length > 0) {
+				blob = loadedAudios[0];
+			} else {
+				blob = recBlob;
+			}
 			if (!blob) {
-				reclog("请先录音，然后停止后再上传", 1);
+				reclog("请先录音或选择音频，然后停止后再上传", 1);
 				return;
 			};
 
@@ -211,15 +263,18 @@
 				var csrftoken = "{{ csrf_token() }}";
 				var user_input_text = document.getElementById("user_input_text");
 				var input_text = user_input_text.value;
-				var postData = "";
-				postData += "mime=" + encodeURIComponent(blob.type);//告诉后端，这个录音是什么格式的，可能前后端都固定的mp3可以不用写
-				postData += "&upfile_b64=" + encodeURIComponent((/.+;\s*base64\s*,\s*(.+)$/i.exec(reader.result) || [])[1]) //录音文件内容，后端进行base64解码成二进制
-				postData += "&text=" + encodeURIComponent(input_text);
+				var postData = new FormData();
+				postData.append("text", input_text)
+				postData.append("file", blob)
+				var sel = document.getElementById("select");
+				var path = sel.options[sel.selectedIndex].value;
+				if (!!path) {
+					postData.append("synt_path", path);
+				}
 
 				fetch(api, {
 					method: 'post',
 					headers: {
-						"Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
 						"X-CSRFToken": csrftoken
 					},
 					body: postData
@@ -338,7 +393,6 @@
 			padding: 12px;
 			border-radius: 6px;
 			background: #fff;
-			--border: 1px solid #327de8;
 			box-shadow: 2px 2px 3px #aaa;
 		}
 
@@ -348,7 +402,7 @@
 			cursor: pointer;
 			border: none;
 			border-radius: 3px;
-			background: #327de8;
+			background: #5698c3;
 			color: #fff;
 			padding: 0 15px;
 			margin: 3px 10px 3px 0;
@@ -357,6 +411,13 @@
 			height: 36px;
 			overflow: hidden;
 			vertical-align: middle;
+		}
+
+		.btns #upload {
+			background: #5698c3;
+			color: #fff;
+			width: 100px;
+			height: 42px;
 		}
 
 		.btns button:active {
@@ -378,6 +439,68 @@
 			font-size: 14px;
 			padding: 2px 8px;
 			border-radius: 99px;
+		}
+
+		#fileInput {
+			width: 0.1px;
+			height: 0.1px;
+			opacity: 0;
+			overflow: hidden;
+			position: absolute;
+			z-index: -1;
+		}
+		#fileInput + label {
+			padding: 0 15px;
+			border-radius: 4px;
+			color: white;
+			background-color: #5698c3;
+			display: inline-block;
+			width: 70px;
+			line-height: 36px;
+			height: 36px;
+		}
+		#fileInput + label {
+			cursor: pointer; /* "hand" cursor */
+		}
+		#fileInput:focus + label,
+		#fileInput + label:hover {
+			background-color: #5da1f5;
+		}
+
+		.box select {
+			background-color: #5698c3;
+			color: white;
+			padding: 8px;
+			width: 120px;
+			border: none;
+			border-radius: 4px;
+			font-size: 0.5em;
+			outline: none;
+			margin: 3px 10px 3px 0;
+		}
+
+		.box::before {
+			content: "\f13a";
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: 20%;
+			height: 100%;
+			text-align: center;
+			font-size: 28px;
+			line-height: 45px;
+			color: rgba(255, 255, 255, 0.5);
+			background-color: rgba(255, 255, 255, 0.1);
+			pointer-events: none;
+		}
+
+		.box:hover::before {
+			color: rgba(255, 255, 255, 0.6);
+			background-color: rgba(255, 255, 255, 0.2);
+		}
+
+		.box select option {
+			padding: 30px;
 		}
 	</style>
 
