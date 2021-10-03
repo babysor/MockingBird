@@ -85,7 +85,11 @@ You can then try the toolbox:
 
 ## F Q&A
 #### 1.Where can I download the dataset?
-[aidatatang_200zh](http://www.openslr.org/62/)、[magicdata](http://www.openslr.org/68/)、[aishell3](http://www.openslr.org/93/)
+| Dataset | Original Source | Alternative Sources |
+| --- | ----------- | ---------------|
+| aidatatang_200zh | [OpenSLR](http://www.openslr.org/62/) | [Google Drive](https://drive.google.com/file/d/110A11KZoVe7vy6kXlLb6zVPLb_J91I_t/view?usp=sharing) |
+| magicdata | [OpenSLR](http://www.openslr.org/68/) | [Google Drive (Dev set)](https://drive.google.com/file/d/1g5bWRUSNH68ycC6eNvtwh07nX3QhOOlo/view?usp=sharing) |
+| aishell3 | [OpenSLR](https://www.openslr.org/93/) | [Google Drive](https://drive.google.com/file/d/1shYp_o4Z0X0cZSKQDtFirct2luFUwKzZ/view?usp=sharing) |
 > After unzip aidatatang_200zh, you need to unzip all the files under `aidatatang_200zh\corpus\train`
 
 #### 2.What is`<datasets_root>`?
