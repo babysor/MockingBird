@@ -16,7 +16,7 @@
 
 🌍 **Webserver Ready** to serve your result with remote calling
 
-### [DEMO VIDEO](https://www.bilibili.com/video/BV1sA411P7wM/)
+### [DEMO VIDEO](https://www.bilibili.com/video/BV17Q4y1B7mY/)
 
 ## Quick Start
 

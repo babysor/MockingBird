@@ -5,7 +5,7 @@
 
 ### [English](README.md)  | 中文
 
-### [DEMO VIDEO](https://www.bilibili.com/video/BV1sA411P7wM/)
+### [DEMO VIDEO](https://www.bilibili.com/video/BV17Q4y1B7mY/)
 
 ## 特性
 🌍 **中文** 支持普通话并使用多种中文数据集进行测试：aidatatang_200zh, magicdata, aishell3， biaobei，MozillaCommonVoice 等
