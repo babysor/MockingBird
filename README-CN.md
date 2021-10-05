@@ -127,7 +127,11 @@
 
 ## 常見問題(FQ&A)
 #### 1.數據集哪裡下載?
-[aidatatang_200zh](http://www.openslr.org/62/)、[magicdata](http://www.openslr.org/68/)、[aishell3](http://www.openslr.org/93/)
+| 数据集 | OpenSLR地址 | 其他源 (Google Drive, Baidu网盘等) |
+| --- | ----------- | ---------------|
+| aidatatang_200zh | [OpenSLR](http://www.openslr.org/62/) | [Google Drive](https://drive.google.com/file/d/110A11KZoVe7vy6kXlLb6zVPLb_J91I_t/view?usp=sharing) |
+| magicdata | [OpenSLR](http://www.openslr.org/68/) | [Google Drive (Dev set)](https://drive.google.com/file/d/1g5bWRUSNH68ycC6eNvtwh07nX3QhOOlo/view?usp=sharing) |
+| aishell3 | [OpenSLR](https://www.openslr.org/93/) | [Google Drive](https://drive.google.com/file/d/1shYp_o4Z0X0cZSKQDtFirct2luFUwKzZ/view?usp=sharing) |
 > 解壓 aidatatang_200zh 後，還需將 `aidatatang_200zh\corpus\train`下的檔案全選解壓縮
 
 #### 2.`<datasets_root>`是什麼意思?
