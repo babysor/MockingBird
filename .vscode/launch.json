@@ -34,6 +34,14 @@
       "program": "demo_toolbox.py",
       "console": "integratedTerminal",
       "args": ["-d","..\\..\\chs"]
-    }
+    },
+    {
+      "name": "Python: Synth Train",
+      "type": "python",
+      "request": "launch",
+      "program": "synthesizer_train.py",
+      "console": "integratedTerminal",
+      "args": ["my_run", "..\\"]
+    },
   ]
 }
