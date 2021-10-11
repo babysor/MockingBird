@@ -421,6 +421,8 @@ class UI(QDialog):
         self.app = QApplication(sys.argv)
         super().__init__(None)
         self.setWindowTitle("SV2TTS toolbox")
+        self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
+        self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
         
         
         ## Main layouts
