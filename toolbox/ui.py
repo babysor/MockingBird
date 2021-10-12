@@ -576,10 +576,14 @@ class UI(QDialog):
         self.seed_textbox = QLineEdit()
         self.seed_textbox.setMaximumWidth(80)
         layout_seed.addWidget(self.seed_textbox, 0, 1)
+        layout_seed.addWidget(QLabel("Style#:(0~9)"), 0, 2)
+        self.style_idx_textbox = QLineEdit("-1")
+        self.style_idx_textbox.setMaximumWidth(80)
+        layout_seed.addWidget(self.style_idx_textbox, 0, 3)
         self.trim_silences_checkbox = QCheckBox("Enhance vocoder output")
         self.trim_silences_checkbox.setToolTip("When checked, trims excess silence in vocoder output."
             " This feature requires `webrtcvad` to be installed.")
-        layout_seed.addWidget(self.trim_silences_checkbox, 0, 2, 1, 2)
+        layout_seed.addWidget(self.trim_silences_checkbox, 0, 4, 1, 2)
         gen_layout.addLayout(layout_seed)
 
         self.loading_bar = QProgressBar()

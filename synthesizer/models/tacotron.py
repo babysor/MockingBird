@@ -3,8 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from pathlib import Path
-from typing import Union
+from synthesizer.models.global_style_token import GlobalStyleToken
 
 
 class HighwayNetwork(nn.Module):
@@ -338,6 +337,7 @@ class Tacotron(nn.Module):
         self.encoder = Encoder(embed_dims, num_chars, encoder_dims,
                                encoder_K, num_highways, dropout)
         self.encoder_proj = nn.Linear(encoder_dims + speaker_embedding_size, decoder_dims, bias=False)
+        self.gst = GlobalStyleToken()
         self.decoder = Decoder(n_mels, encoder_dims, decoder_dims, lstm_dims,
                                dropout, speaker_embedding_size)
         self.postnet = CBHG(postnet_K, n_mels, postnet_dims,
@@ -358,11 +358,11 @@ class Tacotron(nn.Module):
     def r(self, value):
         self.decoder.r = self.decoder.r.new_tensor(value, requires_grad=False)
 
-    def forward(self, x, m, speaker_embedding):
+    def forward(self, texts, mels, speaker_embedding):
         device = next(self.parameters()).device  # use same device as parameters
 
         self.step += 1
-        batch_size, _, steps  = m.size()
+        batch_size, _, steps  = mels.size()
 
         # Initialise all hidden states and pack into tuple
         attn_hidden = torch.zeros(batch_size, self.decoder_dims, device=device)
@@ -383,7 +383,12 @@ class Tacotron(nn.Module):
 
         # SV2TTS: Run the encoder with the speaker embedding
         # The projection avoids unnecessary matmuls in the decoder loop
-        encoder_seq = self.encoder(x, speaker_embedding)
+        encoder_seq = self.encoder(texts, speaker_embedding)
+        # put after encoder 
+        if self.gst is not None:
+            style_embed = self.gst(speaker_embedding) 
+            style_embed = style_embed.expand_as(encoder_seq)
+            encoder_seq = encoder_seq + style_embed
         encoder_seq_proj = self.encoder_proj(encoder_seq)
 
         # Need a couple of lists for outputs
@@ -391,10 +396,10 @@ class Tacotron(nn.Module):
 
         # Run the decoder loop
         for t in range(0, steps, self.r):
-            prenet_in = m[:, :, t - 1] if t > 0 else go_frame
+            prenet_in = mels[:, :, t - 1] if t > 0 else go_frame
             mel_frames, scores, hidden_states, cell_states, context_vec, stop_tokens = \
                 self.decoder(encoder_seq, encoder_seq_proj, prenet_in,
-                             hidden_states, cell_states, context_vec, t, x)
+                             hidden_states, cell_states, context_vec, t, texts)
             mel_outputs.append(mel_frames)
             attn_scores.append(scores)
             stop_outputs.extend([stop_tokens] * self.r)
@@ -414,7 +419,7 @@ class Tacotron(nn.Module):
 
         return mel_outputs, linear, attn_scores, stop_outputs
 
-    def generate(self, x, speaker_embedding=None, steps=2000):
+    def generate(self, x, speaker_embedding=None, steps=200, style_idx=0):
         self.eval()
         device = next(self.parameters()).device  # use same device as parameters
 
@@ -440,6 +445,18 @@ class Tacotron(nn.Module):
         # SV2TTS: Run the encoder with the speaker embedding
         # The projection avoids unnecessary matmuls in the decoder loop
         encoder_seq = self.encoder(x, speaker_embedding)
+
+        # put after encoder 
+        if self.gst is not None and style_idx >= 0 and style_idx < 10:
+            gst_embed = self.gst.stl.embed.cpu().data.numpy()  #[0, number_token]
+            gst_embed = np.tile(gst_embed, (1, 8))
+            scale = np.zeros(512)
+            scale[:] = 0.3
+            speaker_embedding = (gst_embed[style_idx] * scale).astype(np.float32)
+            speaker_embedding = torch.from_numpy(np.tile(speaker_embedding, (x.shape[0], 1))).to(device)
+        style_embed = self.gst(speaker_embedding)
+        style_embed = style_embed.expand_as(encoder_seq)
+        encoder_seq = encoder_seq + style_embed
         encoder_seq_proj = self.encoder_proj(encoder_seq)
 
         # Need a couple of lists for outputs
@@ -494,7 +511,7 @@ class Tacotron(nn.Module):
         # Use device of model params as location for loaded state
         device = next(self.parameters()).device
         checkpoint = torch.load(str(path), map_location=device)
-        self.load_state_dict(checkpoint["model_state"])
+        self.load_state_dict(checkpoint["model_state"], strict=False)
 
         if "optimizer_state" in checkpoint and optimizer is not None:
             optimizer.load_state_dict(checkpoint["optimizer_state"])
