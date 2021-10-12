@@ -26,6 +26,11 @@ data_info = {
         "trans_filepath": "train/content.txt",
         "speak_func": preprocess_speaker_general,
         "transcript_func": preprocess_transcript_aishell3,
+    },
+    "data_aishell":{
+        "subfolders": ["wav/train"],
+        "trans_filepath": "transcript/aishell_transcript_v0.8.txt",
+        "speak_func": preprocess_speaker_general
     }
 }
 
