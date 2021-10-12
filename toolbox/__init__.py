@@ -71,6 +71,7 @@ class Toolbox:
 
         # Initialize the events and the interface
         self.ui = UI()
+        self.style_idx = 0
         self.reset_ui(enc_models_dir, syn_models_dir, voc_models_dir, seed)
         self.setup_events()
         self.ui.start()
@@ -233,7 +234,7 @@ class Toolbox:
         texts = processed_texts
         embed = self.ui.selected_utterance.embed
         embeds = [embed] * len(texts)
-        specs = self.synthesizer.synthesize_spectrograms(texts, embeds)
+        specs = self.synthesizer.synthesize_spectrograms(texts, embeds, style_idx=int(self.ui.style_idx_textbox.text()))
         breaks = [spec.shape[1] for spec in specs]
         spec = np.concatenate(specs, axis=1)
         

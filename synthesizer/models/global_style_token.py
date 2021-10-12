@@ -90,7 +90,7 @@ class STL(nn.Module):
         keys = tFunctional.tanh(self.embed).unsqueeze(0).expand(N, -1, -1)  # [N, token_num, E // num_heads]
         style_embed = self.attention(query, keys)
 
-        return style_embed, keys
+        return style_embed
 
 
 class MultiHeadAttention(nn.Module):
