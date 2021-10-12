@@ -17,7 +17,7 @@
       "request": "launch",
       "program": "vocoder_preprocess.py",
       "console": "integratedTerminal",
-      "args": ["..\\..\\chs1"]
+      "args": ["..\\audiodata"]
     },
     {
       "name": "Python: Vocoder Train",
@@ -25,7 +25,7 @@
       "request": "launch",
       "program": "vocoder_train.py",
       "console": "integratedTerminal",
-      "args": ["dev", "..\\..\\chs1"]
+      "args": ["dev", "..\\audiodata"]
     },
     {
       "name": "Python: Demo Box",
@@ -33,7 +33,15 @@
       "request": "launch",
       "program": "demo_toolbox.py",
       "console": "integratedTerminal",
-      "args": ["-d","..\\..\\chs"]
-    }
+      "args": ["-d","..\\audiodata"]
+    },
+    {
+      "name": "Python: Synth Train",
+      "type": "python",
+      "request": "launch",
+      "program": "synthesizer_train.py",
+      "console": "integratedTerminal",
+      "args": ["my_run", "..\\"]
+    },
   ]
 }
