@@ -8,7 +8,7 @@
 ### [DEMO VIDEO](https://www.bilibili.com/video/BV17Q4y1B7mY/)
 
 ## 特性
-🌍 **中文** 支持普通话并使用多种中文数据集进行测试：aidatatang_200zh, magicdata, aishell3， biaobei，MozillaCommonVoice 等
+🌍 **中文** 支持普通话并使用多种中文数据集进行测试：aidatatang_200zh, magicdata, aishell3, biaobei, MozillaCommonVoice, data_aishell 等
 
 🤩 **PyTorch** 适用于 pytorch，已在 1.9.0 版本（最新于 2021 年 8 月）中测试，GPU Tesla T4 和 GTX 2060
 
@@ -36,7 +36,7 @@
 * 进行音频和梅尔频谱图预处理：
 `python pre.py <datasets_root> -d {dataset} -n {number}`
 可传入参数：
-* -d`{dataset}` 指定数据集，支持 aidatatang_200zh, magicdata, aishell3, 不传默认为aidatatang_200zh
+* -d`{dataset}` 指定数据集，支持 aidatatang_200zh, magicdata, aishell3, data_aishell, 不传默认为aidatatang_200zh
 * -n `{number}` 指定并行数，CPU 11770k + 32GB实测10没有问题
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
@@ -135,6 +135,7 @@
 | aidatatang_200zh | [OpenSLR](http://www.openslr.org/62/) | [Google Drive](https://drive.google.com/file/d/110A11KZoVe7vy6kXlLb6zVPLb_J91I_t/view?usp=sharing) |
 | magicdata | [OpenSLR](http://www.openslr.org/68/) | [Google Drive (Dev set)](https://drive.google.com/file/d/1g5bWRUSNH68ycC6eNvtwh07nX3QhOOlo/view?usp=sharing) |
 | aishell3 | [OpenSLR](https://www.openslr.org/93/) | [Google Drive](https://drive.google.com/file/d/1shYp_o4Z0X0cZSKQDtFirct2luFUwKzZ/view?usp=sharing) |
+| data_aishell | [OpenSLR](https://www.openslr.org/33/) |  |
 > 解壓 aidatatang_200zh 後，還需將 `aidatatang_200zh\corpus\train`下的檔案全選解壓縮
 
 #### 2.`<datasets_root>`是什麼意思?

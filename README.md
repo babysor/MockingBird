@@ -6,7 +6,7 @@
 > English | [中文](README-CN.md)
 
 ## Features
-🌍 **Chinese** supported mandarin and tested with multiple datasets: aidatatang_200zh, magicdata, aishell3, and etc.
+🌍 **Chinese** supported mandarin and tested with multiple datasets: aidatatang_200zh, magicdata, aishell3, data_aishell, and etc.
 
 🤩 **PyTorch** worked for pytorch, tested in version of 1.9.0(latest in August 2021), with GPU Tesla T4 and GTX 2060
 
@@ -36,7 +36,7 @@ You can either train your models or use existing ones:
 * Download dataset and unzip: make sure you can access all .wav in folder
 * Preprocess with the audios and the mel spectrograms:
 `python pre.py <datasets_root>`
-Allowing parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata, aishell3, etc.
+Allowing parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata, aishell3, data_aishell, etc.If this parameter is not passed, the default dataset will be aidatatang_200zh.
 
 * Train the synthesizer:
 `python synthesizer_train.py mandarin <datasets_root>/SV2TTS/synthesizer`
@@ -91,6 +91,7 @@ You can then try the toolbox:
 | aidatatang_200zh | [OpenSLR](http://www.openslr.org/62/) | [Google Drive](https://drive.google.com/file/d/110A11KZoVe7vy6kXlLb6zVPLb_J91I_t/view?usp=sharing) |
 | magicdata | [OpenSLR](http://www.openslr.org/68/) | [Google Drive (Dev set)](https://drive.google.com/file/d/1g5bWRUSNH68ycC6eNvtwh07nX3QhOOlo/view?usp=sharing) |
 | aishell3 | [OpenSLR](https://www.openslr.org/93/) | [Google Drive](https://drive.google.com/file/d/1shYp_o4Z0X0cZSKQDtFirct2luFUwKzZ/view?usp=sharing) |
+| data_aishell | [OpenSLR](https://www.openslr.org/33/) |  |
 > After unzip aidatatang_200zh, you need to unzip all the files under `aidatatang_200zh\corpus\train`
 
 #### 2.What is`<datasets_root>`?
