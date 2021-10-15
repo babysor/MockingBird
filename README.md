@@ -49,7 +49,7 @@ Allowing parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata,
 | author | Download link | Preview Video | Info |
 | --- | ----------- | ----- |----- |
 | @myself | https://pan.baidu.com/s/1VHSKIbxXQejtxi2at9IrpA  [Baidu](https://pan.baidu.com/s/1VHSKIbxXQejtxi2at9IrpA ) code：i183  |  | 200k steps only trained by aidatatang_200zh
-|@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing [Baidu Pan](https://pan.baidu.com/s/1vSYXO4wsLyjnF3Unl-Xoxg) Code：1024  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps with local accent of Taiwan
+|@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing https://u.teknik.io/AYxWf.pt  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps with local accent of Taiwan
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ code：2021 | https://www.bilibili.com/video/BV1uh411B7AD/
 
 #### 2.3 Train vocoder (Optional)
