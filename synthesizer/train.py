@@ -93,7 +93,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                      speaker_embedding_size=hparams.speaker_embedding_size).to(device)
 
     # Initialize the optimizer
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), amsgrad=True)
 
     # Load the weights
     if force_restart or not weights_fpath.exists():
@@ -146,7 +146,6 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                 continue
 
         model.r = r
-
         # Begin the training
         simple_table([(f"Steps with r={r}", str(training_steps // 1000) + "k Steps"),
                       ("Batch Size", batch_size),
@@ -155,6 +154,8 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
 
         for p in optimizer.param_groups:
             p["lr"] = lr
+        if hparams.tts_finetune_layers is not None and len(hparams.tts_finetune_layers) > 0:
+            model.finetune_partial(hparams.tts_finetune_layers)
 
         data_loader = DataLoader(dataset,
                                  collate_fn=collate_synthesizer,

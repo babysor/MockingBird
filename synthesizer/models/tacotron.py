@@ -419,7 +419,7 @@ class Tacotron(nn.Module):
 
         return mel_outputs, linear, attn_scores, stop_outputs
 
-    def generate(self, x, speaker_embedding=None, steps=200, style_idx=0):
+    def generate(self, x, speaker_embedding=None, steps=300, style_idx=0):
         self.eval()
         device = next(self.parameters()).device  # use same device as parameters
 
@@ -495,6 +495,15 @@ class Tacotron(nn.Module):
     def init_model(self):
         for p in self.parameters():
             if p.dim() > 1: nn.init.xavier_uniform_(p)
+
+    def finetune_partial(self, whitelist_layers):
+        self.zero_grad()
+        for name, child in self.named_children():
+            if name in whitelist_layers:
+                print("Trainable Layer: %s" % name)
+                print("Trainable Parameters: %.3f" % sum([np.prod(p.size()) for p in child.parameters()]))
+                for param in child.parameters():
+                    param.requires_grad = False
 
     def get_step(self):
         return self.step.data.item()
