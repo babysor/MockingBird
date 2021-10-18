@@ -5,7 +5,7 @@
 
 ### [English](README.md)  | 中文
 
-### [DEMO VIDEO](https://www.bilibili.com/video/BV17Q4y1B7mY/)
+### [DEMO VIDEO](https://www.bilibili.com/video/BV17Q4y1B7mY/) | [Wiki教程](https://github.com/babysor/MockingBird/wiki/Quick-Start-(Newbie)) ｜ [训练教程](https://vaj2fgg8yn.feishu.cn/docs/doccn7kAbr3SJz0KM0SIDJ0Xnhd)
 
 ## 特性
 🌍 **中文** 支持普通话并使用多种中文数据集进行测试：aidatatang_200zh, magicdata, aishell3, biaobei, MozillaCommonVoice, data_aishell 等
@@ -18,6 +18,7 @@
 
 🌍 **Webserver Ready** 可伺服你的训练结果，供远程调用
 
+## 开始
 ### 1. 安装要求
 > 按照原始存储库测试您是否已准备好所有环境。
 **Python 3.7 或更高版本** 需要运行工具箱。
