@@ -234,7 +234,8 @@ class Toolbox:
         texts = processed_texts
         embed = self.ui.selected_utterance.embed
         embeds = [embed] * len(texts)
-        specs = self.synthesizer.synthesize_spectrograms(texts, embeds, style_idx=int(self.ui.slider.value()))
+        min_token = int(self.ui.token_slider.value())
+        specs = self.synthesizer.synthesize_spectrograms(texts, embeds, style_idx=int(self.ui.style_slider.value()), min_stop_token=min_token)
         breaks = [spec.shape[1] for spec in specs]
         spec = np.concatenate(specs, axis=1)
         
