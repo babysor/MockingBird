@@ -496,6 +496,15 @@ class Tacotron(nn.Module):
         for p in self.parameters():
             if p.dim() > 1: nn.init.xavier_uniform_(p)
 
+    def finetune_partial(self, whitelist_layers):
+        self.zero_grad()
+        for name, child in self.named_children():
+            if name in whitelist_layers:
+                print("Trainable Layer: %s" % name)
+                print("Trainable Parameters: %.3f" % sum([np.prod(p.size()) for p in child.parameters()]))
+                for param in child.parameters():
+                    param.requires_grad = False
+
     def get_step(self):
         return self.step.data.item()
 
