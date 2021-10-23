@@ -419,7 +419,7 @@ class Tacotron(nn.Module):
 
         return mel_outputs, linear, attn_scores, stop_outputs
 
-    def generate(self, x, speaker_embedding=None, steps=300, style_idx=0):
+    def generate(self, x, speaker_embedding=None, steps=200, style_idx=0, min_stop_token=5):
         self.eval()
         device = next(self.parameters()).device  # use same device as parameters
 
@@ -454,9 +454,9 @@ class Tacotron(nn.Module):
             scale[:] = 0.3
             speaker_embedding = (gst_embed[style_idx] * scale).astype(np.float32)
             speaker_embedding = torch.from_numpy(np.tile(speaker_embedding, (x.shape[0], 1))).to(device)
-        style_embed = self.gst(speaker_embedding)
-        style_embed = style_embed.expand_as(encoder_seq)
-        encoder_seq = encoder_seq + style_embed
+            style_embed = self.gst(speaker_embedding)
+            style_embed = style_embed.expand_as(encoder_seq)
+            encoder_seq = encoder_seq + style_embed
         encoder_seq_proj = self.encoder_proj(encoder_seq)
 
         # Need a couple of lists for outputs
@@ -472,7 +472,7 @@ class Tacotron(nn.Module):
             attn_scores.append(scores)
             stop_outputs.extend([stop_tokens] * self.r)
             # Stop the loop when all stop tokens in batch exceed threshold
-            if (stop_tokens > 0.5).all() and t > 10: break
+            if (stop_tokens * 10 > min_stop_token).all() and t > 10: break
 
         # Concat the mel outputs into sequence
         mel_outputs = torch.cat(mel_outputs, dim=2)
