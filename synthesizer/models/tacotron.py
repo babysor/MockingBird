@@ -456,7 +456,10 @@ class Tacotron(nn.Module):
                 scale[:] = 0.3
                 speaker_embedding = (gst_embed[style_idx] * scale).astype(np.float32)
                 speaker_embedding = torch.from_numpy(np.tile(speaker_embedding, (x.shape[0], 1))).to(device)
-            style_embed = self.gst(speaker_embedding)
+                style_embed = speaker_embedding.unsqueeze(dim=1)
+            else:
+                style_embed = self.gst(speaker_embedding)
+
             style_embed = style_embed.expand_as(encoder_seq)
             encoder_seq = torch.cat((encoder_seq, style_embed), 2)
         encoder_seq_proj = self.encoder_proj(encoder_seq)
