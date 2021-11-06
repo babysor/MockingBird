@@ -70,7 +70,7 @@ class Synthesizer:
 
     def synthesize_spectrograms(self, texts: List[str],
                                 embeddings: Union[np.ndarray, List[np.ndarray]],
-                                return_alignments=False, style_idx=0, min_stop_token=5):
+                                return_alignments=False, style_idx=0, min_stop_token=5, steps=2000):
         """
         Synthesizes mel spectrograms from texts and speaker embeddings.
 
@@ -125,7 +125,7 @@ class Synthesizer:
             speaker_embeddings = torch.tensor(speaker_embeds).float().to(self.device)
 
             # Inference
-            _, mels, alignments = self._model.generate(chars, speaker_embeddings, style_idx=style_idx, min_stop_token=min_stop_token)
+            _, mels, alignments = self._model.generate(chars, speaker_embeddings, style_idx=style_idx, min_stop_token=min_stop_token, steps=steps)
             mels = mels.detach().cpu().numpy()
             for m in mels:
                 # Trim silence from end of each spectrogram
