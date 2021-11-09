@@ -60,7 +60,7 @@ class Encoder(nn.Module):
             idx = 1
 
         # Start by making a copy of each speaker embedding to match the input text length
-        # The output of this has size (batch_size, num_chars * tts_embed_dims)
+        # The output of this has size (batch_size, num_chars * speaker_embedding_size)
         speaker_embedding_size = speaker_embedding.size()[idx]
         e = speaker_embedding.repeat_interleave(num_chars, dim=idx)
 
