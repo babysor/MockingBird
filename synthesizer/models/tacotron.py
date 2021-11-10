@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from synthesizer.models.global_style_token import GlobalStyleToken
 from synthesizer.gst_hyperparameters import GSTHyperparameters as gst_hp
+from synthesizer.hparams import hparams
 
 
 class HighwayNetwork(nn.Module):
@@ -255,12 +256,14 @@ class Decoder(nn.Module):
         self.prenet = PreNet(n_mels, fc1_dims=prenet_dims[0], fc2_dims=prenet_dims[1],
                              dropout=dropout)
         self.attn_net = LSA(decoder_dims)
-        self.attn_rnn = nn.GRUCell(encoder_dims + prenet_dims[1] + speaker_embedding_size + gst_hp.E, decoder_dims)
-        self.rnn_input = nn.Linear(encoder_dims  + decoder_dims + speaker_embedding_size + gst_hp.E, lstm_dims)
+        if hparams.use_gst:
+            speaker_embedding_size += gst_hp.E
+        self.attn_rnn = nn.GRUCell(encoder_dims + prenet_dims[1] + speaker_embedding_size, decoder_dims)
+        self.rnn_input = nn.Linear(encoder_dims  + decoder_dims + speaker_embedding_size, lstm_dims)
         self.res_rnn1 = nn.LSTMCell(lstm_dims, lstm_dims)
         self.res_rnn2 = nn.LSTMCell(lstm_dims, lstm_dims)
         self.mel_proj = nn.Linear(lstm_dims, n_mels * self.max_r, bias=False)
-        self.stop_proj = nn.Linear(encoder_dims + speaker_embedding_size + lstm_dims + gst_hp.E, 1)
+        self.stop_proj = nn.Linear(encoder_dims + speaker_embedding_size + lstm_dims, 1)
 
     def zoneout(self, prev, current, p=0.1):
         device = next(self.parameters()).device  # Use same device as parameters
@@ -337,8 +340,11 @@ class Tacotron(nn.Module):
         self.speaker_embedding_size = speaker_embedding_size
         self.encoder = Encoder(embed_dims, num_chars, encoder_dims,
                                encoder_K, num_highways, dropout)
-        self.encoder_proj = nn.Linear(encoder_dims + speaker_embedding_size + gst_hp.E, decoder_dims, bias=False)
-        self.gst = GlobalStyleToken(speaker_embedding_size)
+        project_dims = encoder_dims + speaker_embedding_size
+        if hparams.use_gst: 
+            project_dims += gst_hp.E
+            self.gst = GlobalStyleToken(speaker_embedding_size)
+        self.encoder_proj = nn.Linear(project_dims, decoder_dims, bias=False)
         self.decoder = Decoder(n_mels, encoder_dims, decoder_dims, lstm_dims,
                                dropout, speaker_embedding_size)
         self.postnet = CBHG(postnet_K, n_mels, postnet_dims,
@@ -387,13 +393,16 @@ class Tacotron(nn.Module):
         go_frame = torch.zeros(batch_size, self.n_mels, device=device)
 
         # Need an initial context vector
-        context_vec = torch.zeros(batch_size, self.encoder_dims + self.speaker_embedding_size + gst_hp.E, device=device)
+        size = self.encoder_dims + self.speaker_embedding_size
+        if hparams.use_gst:
+            size += gst_hp.E
+        context_vec = torch.zeros(batch_size, size, device=device)
 
         # SV2TTS: Run the encoder with the speaker embedding
         # The projection avoids unnecessary matmuls in the decoder loop
         encoder_seq = self.encoder(texts, speaker_embedding)
         # put after encoder 
-        if self.gst is not None:
+        if hparams.use_gst and self.gst is not None:
             style_embed = self.gst(speaker_embedding, speaker_embedding) # for training, speaker embedding can represent both style inputs and referenced
             # style_embed = style_embed.expand_as(encoder_seq)
             # encoder_seq = torch.cat((encoder_seq, style_embed), 2)
@@ -449,14 +458,17 @@ class Tacotron(nn.Module):
         go_frame = torch.zeros(batch_size, self.n_mels, device=device)
 
         # Need an initial context vector
-        context_vec = torch.zeros(batch_size, self.encoder_dims + self.speaker_embedding_size + gst_hp.E, device=device)
+        size = self.encoder_dims + self.speaker_embedding_size
+        if hparams.use_gst:
+            size += gst_hp.E
+        context_vec = torch.zeros(batch_size, size, device=device)
 
         # SV2TTS: Run the encoder with the speaker embedding
         # The projection avoids unnecessary matmuls in the decoder loop
         encoder_seq = self.encoder(x, speaker_embedding)
 
         # put after encoder 
-        if self.gst is not None:
+        if hparams.use_gst and self.gst is not None:
             if style_idx >= 0 and style_idx < 10:
                 gst_embed = self.gst.stl.embed.cpu().data.numpy()  #[0, number_token]
                 gst_embed = np.tile(gst_embed, (1, 8))

@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch.nn.functional as tFunctional
 from synthesizer.gst_hyperparameters import GSTHyperparameters as hp
+from synthesizer.hparams import hparams
 
 
 class GlobalStyleToken(nn.Module):
@@ -20,7 +21,7 @@ class GlobalStyleToken(nn.Module):
     def forward(self, inputs, speaker_embedding=None):
         enc_out = self.encoder(inputs)
         # concat speaker_embedding according to https://github.com/mozilla/TTS/blob/master/TTS/tts/layers/gst_layers.py
-        if speaker_embedding is not None:
+        if hparams.use_ser_for_gst and speaker_embedding is not None:
             enc_out = torch.cat([enc_out, speaker_embedding], dim=-1)
         style_embed = self.stl(enc_out)
 
@@ -87,7 +88,7 @@ class STL(nn.Module):
         d_q = hp.E // 2
         d_k = hp.E // hp.num_heads
         # self.attention = MultiHeadAttention(hp.num_heads, d_model, d_q, d_v)
-        if speaker_embedding_dim:
+        if hparams.use_ser_for_gst and speaker_embedding_dim is not None:
             d_q += speaker_embedding_dim
         self.attention = MultiHeadAttention(query_dim=d_q, key_dim=d_k, num_units=hp.E, num_heads=hp.num_heads)
 
