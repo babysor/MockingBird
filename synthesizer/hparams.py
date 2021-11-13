@@ -92,5 +92,5 @@ hparams = HParams(
         silence_min_duration_split = 0.4,           # Duration in seconds of a silence for an utterance to be split
         utterance_min_duration = 1.6,               # Duration in seconds below which utterances are discarded
         use_gst = True,                             # Whether to use global style token    
-        use_ser_for_gst = False,                     # Whether to use speaker embedding referenced for global style token  
+        use_ser_for_gst = True,                     # Whether to use speaker embedding referenced for global style token  
         )
