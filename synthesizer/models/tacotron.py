@@ -343,8 +343,9 @@ class Tacotron(nn.Module):
         project_dims = encoder_dims + speaker_embedding_size
         if hparams.use_gst: 
             project_dims += gst_hp.E
-            self.gst = GlobalStyleToken(speaker_embedding_size)
         self.encoder_proj = nn.Linear(project_dims, decoder_dims, bias=False)
+        if hparams.use_gst: 
+            self.gst = GlobalStyleToken(speaker_embedding_size)
         self.decoder = Decoder(n_mels, encoder_dims, decoder_dims, lstm_dims,
                                dropout, speaker_embedding_size)
         self.postnet = CBHG(postnet_K, n_mels, postnet_dims,
