@@ -62,7 +62,7 @@ class Synthesizer:
                                stop_threshold=hparams.tts_stop_threshold,
                                speaker_embedding_size=hparams.speaker_embedding_size).to(self.device)
 
-        self._model.load(self.model_fpath)
+        self._model.load(self.model_fpath, self.device)
         self._model.eval()
 
         if self.verbose:
