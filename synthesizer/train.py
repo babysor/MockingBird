@@ -111,7 +111,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
 
     else:
         print("\nLoading weights at %s" % weights_fpath)
-        model.load(weights_fpath, optimizer)
+        model.load(weights_fpath, device, optimizer)
         print("Tacotron weights loaded from step %d" % model.step)
     
     # Initialize the dataset
