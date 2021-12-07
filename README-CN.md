@@ -32,13 +32,21 @@
 ### 2. 准备预训练模型
 考虑训练您自己专属的模型或者下载社区他人训练好的模型:
 > 近期创建了[知乎专题](https://www.zhihu.com/column/c_1425605280340504576) 将不定期更新炼丹小技巧or心得，也欢迎提问
-#### 2.1 使用数据集自己训练合成器模型（与2.2二选一）
+#### 2.1 使用数据集自己训练encoder模型 (可选)
+
+* 进行音频和梅尔频谱图预处理：
+`python encoder_preprocess.py <datasets_root>`
+使用`-d {dataset}` 指定数据集，支持 librispeech_other，voxceleb1，aidatatang_200zh，使用逗号分割处理多数据集。
+* 训练encoder: `python encoder_train.py my_run <datasets_root>/SV2TTS/encoder`
+> 训练encoder使用了visdom。你可以加上`-no_visdom`禁用visdom，但是有可视化会更好。在单独的命令行/进程中运行"visdom"来启动visdom服务器。
+
+#### 2.2 使用数据集自己训练合成器模型（与2.3二选一）
 * 下载 数据集并解压：确保您可以访问 *train* 文件夹中的所有音频文件（如.wav）
 * 进行音频和梅尔频谱图预处理：
 `python pre.py <datasets_root> -d {dataset} -n {number}`
 可传入参数：
-* -d`{dataset}` 指定数据集，支持 aidatatang_200zh, magicdata, aishell3, data_aishell, 不传默认为aidatatang_200zh
-* -n `{number}` 指定并行数，CPU 11770k + 32GB实测10没有问题
+* `-d {dataset}` 指定数据集，支持 aidatatang_200zh, magicdata, aishell3, data_aishell, 不传默认为aidatatang_200zh
+* `-n {number}` 指定并行数，CPU 11770k + 32GB实测10没有问题
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
 * 训练合成器：
@@ -46,7 +54,7 @@
 
 * 当您在训练文件夹 *synthesizer/saved_models/* 中看到注意线显示和损失满足您的需要时，请转到`启动程序`一步。
 
-#### 2.2使用社区预先训练好的合成器（与2.1二选一）
+#### 2.3使用社区预先训练好的合成器（与2.2二选一）
 > 当实在没有设备或者不想慢慢调试，可以使用社区贡献的模型(欢迎持续分享):
 
 | 作者 | 下载链接 | 效果预览 | 信息 |
@@ -56,7 +64,7 @@
 |@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing [百度盘链接](https://pan.baidu.com/s/1vSYXO4wsLyjnF3Unl-Xoxg) 提取码：1024  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps 台湾口音需切换到tag v0.0.1使用
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/ | 150k steps 注意：根据[issue](https://github.com/babysor/MockingBird/issues/37)修复 并切换到tag v0.0.1使用
 
-#### 2.3训练声码器 (可选)
+#### 2.4训练声码器 (可选)
 对效果影响不大，已经预置3款，如果希望自己训练可以参考以下命令。
 * 预处理数据:
 `python vocoder_preprocess.py <datasets_root> -m <synthesizer_model_path>`

@@ -32,7 +32,16 @@
 > Note that we are using the pretrained encoder/vocoder but synthesizer, since the original model is incompatible with the Chinese sympols. It means the demo_cli is not working at this moment.
 ### 2. Prepare your models
 You can either train your models or use existing ones:
-#### 2.1. Train synthesizer with your dataset
+
+#### 2.1 Train encoder with your dataset (Optional)
+
+* Preprocess with the audios and the mel spectrograms:
+`python encoder_preprocess.py <datasets_root>` Allowing parameter `--dataset {dataset}` to support the datasets you want to preprocess. Only the train set of these datasets will be used. Possible names: librispeech_other, voxceleb1, voxceleb2. Use comma to sperate multiple datasets.
+
+* Train the encoder: `python encoder_train.py my_run <datasets_root>/SV2TTS/encoder`
+> For training, the encoder uses visdom. You can disable it with `--no_visdom`, but it's nice to have. Run "visdom" in a separate CLI/process to start your visdom server.
+
+#### 2.2 Train synthesizer with your dataset
 * Download dataset and unzip: make sure you can access all .wav in folder
 * Preprocess with the audios and the mel spectrograms:
 `python pre.py <datasets_root>`
@@ -43,7 +52,7 @@ Allowing parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata,
 
 * Go to next step when you see attention line show and loss meet your need in training folder *synthesizer/saved_models/*.
 
-#### 2.2 Use pretrained model of synthesizer
+#### 2.3 Use pretrained model of synthesizer
 > Thanks to the community, some models will be shared:
 
 | author | Download link | Preview Video | Info |
@@ -53,7 +62,7 @@ Allowing parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata,
 |@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing https://u.teknik.io/AYxWf.pt  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps with local accent of Taiwan, only works under version 0.0.1
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ code：2021 | https://www.bilibili.com/video/BV1uh411B7AD/ | only works under version 0.0.1
 
-#### 2.3 Train vocoder (Optional)
+#### 2.4 Train vocoder (Optional)
 > note: vocoder has little difference in effect, so you may not need to train a new one.
 * Preprocess the data:
 `python vocoder_preprocess.py <datasets_root> -m <synthesizer_model_path>`
