@@ -73,6 +73,7 @@ def collate_synthesizer(batch):
 
     # Speaker embedding (SV2TTS)
     embeds = [x[2] for x in batch]
+    embeds = np.stack(embeds)
 
     # Index (for vocoder preprocessing)
     indices = [x[3] for x in batch]
