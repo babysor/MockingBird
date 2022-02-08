@@ -21,6 +21,10 @@ if __name__ == '__main__':
                         help="Directory containing saved synthesizer models")
     parser.add_argument("-v", "--voc_models_dir", type=Path, default="vocoder/saved_models", 
                         help="Directory containing saved vocoder models")
+    parser.add_argument("-ex", "--extractor_models_dir", type=Path, default="ppg_extractor/saved_models", 
+                        help="Directory containing saved extrator models")
+    parser.add_argument("-cv", "--convertor_models_dir", type=Path, default="ppg2mel/saved_models", 
+                        help="Directory containing saved convert models")
     parser.add_argument("--cpu", action="store_true", help=\
         "If True, processing is done on CPU, even when a GPU is available.")
     parser.add_argument("--seed", type=int, default=None, help=\

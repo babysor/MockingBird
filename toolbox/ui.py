@@ -326,8 +326,16 @@ class UI(QDialog):
     def current_vocoder_fpath(self):
         return self.vocoder_box.itemData(self.vocoder_box.currentIndex())
 
+    @property
+    def current_extractor_fpath(self):
+        return self.extractor_box.itemData(self.extractor_box.currentIndex())
+
+    @property
+    def current_convertor_fpath(self):
+        return self.convertor_box.itemData(self.convertor_box.currentIndex())
+
     def populate_models(self, encoder_models_dir: Path, synthesizer_models_dir: Path, 
-                        vocoder_models_dir: Path):
+                        vocoder_models_dir: Path, extractor_models_dir: Path, convertor_models_dir: Path):
         # Encoder
         encoder_fpaths = list(encoder_models_dir.glob("*.pt"))
         if len(encoder_fpaths) == 0:
@@ -344,7 +352,19 @@ class UI(QDialog):
         vocoder_fpaths = list(vocoder_models_dir.glob("**/*.pt"))
         vocoder_items = [(f.stem, f) for f in vocoder_fpaths] + [("Griffin-Lim", None)]
         self.repopulate_box(self.vocoder_box, vocoder_items)
+
+        # Extractor
+        extractor_fpaths = list(extractor_models_dir.glob("*.pt"))
+        if len(extractor_fpaths) == 0:
+            self.log("No extractor models found in %s" % extractor_fpaths)
+        self.repopulate_box(self.extractor_box, [(f.stem, f) for f in extractor_fpaths])
         
+        # Convertor
+        convertor_fpaths = list(convertor_models_dir.glob("*.pth"))
+        if len(convertor_fpaths) == 0:
+            self.log("No convertor models found in %s" % convertor_fpaths)
+        self.repopulate_box(self.convertor_box, [(f.stem, f) for f in convertor_fpaths])
+
     @property
     def selected_utterance(self):
         return self.utterance_history.itemData(self.utterance_history.currentIndex())
@@ -469,7 +489,7 @@ class UI(QDialog):
         source_groupbox = QGroupBox('Source(源音频)')
         source_layout = QGridLayout()
         source_groupbox.setLayout(source_layout)
-        browser_layout.addWidget(source_groupbox, i, 0, 1, 4)
+        browser_layout.addWidget(source_groupbox, i, 0, 1, 5)
 
         self.dataset_box = QComboBox()
         source_layout.addWidget(QLabel("Dataset(数据集):"), i, 0)
@@ -510,12 +530,14 @@ class UI(QDialog):
         browser_layout.addWidget(self.play_button, i, 2)
         self.stop_button = QPushButton("Stop(暂停)")
         browser_layout.addWidget(self.stop_button, i, 3)
+        self.load_soruce_button = QPushButton("Select(选择为被转换的语音输入)")
+        browser_layout.addWidget(self.load_soruce_button, i, 4)
 
         i += 1
         model_groupbox = QGroupBox('Models(模型选择)')
         model_layout = QHBoxLayout()
         model_groupbox.setLayout(model_layout)
-        browser_layout.addWidget(model_groupbox, i, 0, 1, 4)
+        browser_layout.addWidget(model_groupbox, i, 0, 2, 5)
 
         # Model and audio output selection
         self.encoder_box = QComboBox()
@@ -527,7 +549,13 @@ class UI(QDialog):
         self.vocoder_box = QComboBox()
         model_layout.addWidget(QLabel("Vocoder:"))
         model_layout.addWidget(self.vocoder_box)
-        
+    
+        self.extractor_box = QComboBox()
+        model_layout.addWidget(QLabel("Extractor:"))
+        model_layout.addWidget(self.extractor_box)
+        self.convertor_box = QComboBox()
+        model_layout.addWidget(QLabel("Convertor:"))
+        model_layout.addWidget(self.convertor_box)
 
         #Replay & Save Audio
         i = 0
@@ -579,6 +607,11 @@ class UI(QDialog):
         layout.addWidget(self.synthesize_button)
         self.vocode_button = QPushButton("Vocode only")
         layout.addWidget(self.vocode_button)
+        gen_layout.addLayout(layout)
+
+        layout = QHBoxLayout()
+        self.convert_button = QPushButton("Extract and Convert")
+        layout.addWidget(self.convert_button)
         gen_layout.addLayout(layout)
 
         layout_seed = QGridLayout()

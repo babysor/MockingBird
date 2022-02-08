@@ -71,6 +71,24 @@ class ResBlock2(torch.nn.Module):
         for l in self.convs:
             remove_weight_norm(l)
 
+class InterpolationBlock(torch.nn.Module):
+    def __init__(self, scale_factor, mode='nearest', align_corners=None, downsample=False):
+        super(InterpolationBlock, self).__init__()
+        self.downsample = downsample
+        self.scale_factor = scale_factor
+        self.mode = mode
+        self.align_corners = align_corners
+    
+    def forward(self, x):
+        outputs = torch.nn.functional.interpolate(
+            x,
+            size=x.shape[-1] * self.scale_factor \
+                if not self.downsample else x.shape[-1] // self.scale_factor,
+            mode=self.mode,
+            align_corners=self.align_corners,
+            recompute_scale_factor=False
+        )
+        return outputs
 
 class Generator(torch.nn.Module):
     def __init__(self, h):
@@ -82,14 +100,27 @@ class Generator(torch.nn.Module):
         resblock = ResBlock1 if h.resblock == '1' else ResBlock2
 
         self.ups = nn.ModuleList()
-        for i, (u, k) in enumerate(zip(h.upsample_rates, h.upsample_kernel_sizes)):
-#             self.ups.append(weight_norm(
-#                 ConvTranspose1d(h.upsample_initial_channel//(2**i), h.upsample_initial_channel//(2**(i+1)),
-#                                 k, u, padding=(k-u)//2)))
-            self.ups.append(weight_norm(ConvTranspose1d(h.upsample_initial_channel//(2**i), 
-                h.upsample_initial_channel//(2**(i+1)),
-                k, u, padding=(u//2 + u%2), output_padding=u%2)))
-
+#         for i, (u, k) in enumerate(zip(h.upsample_rates, h.upsample_kernel_sizes)):
+# #             self.ups.append(weight_norm(
+# #                 ConvTranspose1d(h.upsample_initial_channel//(2**i), h.upsample_initial_channel//(2**(i+1)),
+# #                                 k, u, padding=(k-u)//2)))
+        if h.sampling_rate == 24000:
+            for i, (u, k) in enumerate(zip(h.upsample_rates, h.upsample_kernel_sizes)):
+                self.ups.append(
+                    torch.nn.Sequential(
+                        InterpolationBlock(u),
+                        weight_norm(torch.nn.Conv1d(
+                            h.upsample_initial_channel//(2**i),
+                            h.upsample_initial_channel//(2**(i+1)),
+                            k, padding=(k-1)//2,
+                        ))
+                    )
+                )
+        else:
+            for i, (u, k) in enumerate(zip(h.upsample_rates, h.upsample_kernel_sizes)):
+                self.ups.append(weight_norm(ConvTranspose1d(h.upsample_initial_channel//(2**i), 
+                    h.upsample_initial_channel//(2**(i+1)),
+                    k, u, padding=(u//2 + u%2), output_padding=u%2)))
         self.resblocks = nn.ModuleList()
         for i in range(len(self.ups)):
             ch = h.upsample_initial_channel//(2**(i+1))
@@ -121,7 +152,10 @@ class Generator(torch.nn.Module):
     def remove_weight_norm(self):
         print('Removing weight norm...')
         for l in self.ups:
-            remove_weight_norm(l)
+            if self.h.sampling_rate == 24000:
+                remove_weight_norm(l[-1])
+            else:
+                remove_weight_norm(l)
         for l in self.resblocks:
             l.remove_weight_norm()
         remove_weight_norm(self.conv_pre)

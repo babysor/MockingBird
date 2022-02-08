@@ -3,12 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import json
 import torch
-from scipy.io.wavfile import write
 from vocoder.hifigan.env import AttrDict
-from vocoder.hifigan.meldataset import mel_spectrogram, MAX_WAV_VALUE, load_wav
 from vocoder.hifigan.models import Generator
-import soundfile as sf
-
 
 generator = None       # type: Generator
 _device = None
@@ -22,13 +18,13 @@ def load_checkpoint(filepath, device):
     return checkpoint_dict
 
 
-def load_model(weights_fpath, verbose=True):
+def load_model(weights_fpath, config_fpath="./vocoder/saved_models/pretrained/config.json", verbose=True):
     global generator, _device
 
     if verbose:
         print("Building hifigan")
 
-    with open("./vocoder/hifigan/config_16k_.json") as f:
+    with open(config_fpath) as f:
         data = f.read()
     json_config = json.loads(data)
     h = AttrDict(json_config)
