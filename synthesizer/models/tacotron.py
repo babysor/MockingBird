@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from synthesizer.models.global_style_token import GlobalStyleToken
+from synthesizer.gst_hyperparameters import GSTHyperparameters as gst_hp
+from synthesizer.hparams import hparams
 
 
 class HighwayNetwork(nn.Module):
@@ -59,7 +61,7 @@ class Encoder(nn.Module):
             idx = 1
 
         # Start by making a copy of each speaker embedding to match the input text length
-        # The output of this has size (batch_size, num_chars * tts_embed_dims)
+        # The output of this has size (batch_size, num_chars * speaker_embedding_size)
         speaker_embedding_size = speaker_embedding.size()[idx]
         e = speaker_embedding.repeat_interleave(num_chars, dim=idx)
 
@@ -125,7 +127,7 @@ class CBHG(nn.Module):
         # Although we `_flatten_parameters()` on init, when using DataParallel
         # the model gets replicated, making it no longer guaranteed that the
         # weights are contiguous in GPU memory. Hence, we must call it again
-        self._flatten_parameters()
+        self.rnn.flatten_parameters()
 
         # Save these for later
         residual = x
@@ -212,7 +214,7 @@ class LSA(nn.Module):
         self.attention = None
 
     def init_attention(self, encoder_seq_proj):
-        device = next(self.parameters()).device  # use same device as parameters
+        device = encoder_seq_proj.device  # use same device as parameters
         b, t, c = encoder_seq_proj.size()
         self.cumulative = torch.zeros(b, t, device=device)
         self.attention = torch.zeros(b, t, device=device)
@@ -254,16 +256,17 @@ class Decoder(nn.Module):
         self.prenet = PreNet(n_mels, fc1_dims=prenet_dims[0], fc2_dims=prenet_dims[1],
                              dropout=dropout)
         self.attn_net = LSA(decoder_dims)
+        if hparams.use_gst:
+            speaker_embedding_size += gst_hp.E
         self.attn_rnn = nn.GRUCell(encoder_dims + prenet_dims[1] + speaker_embedding_size, decoder_dims)
-        self.rnn_input = nn.Linear(encoder_dims + decoder_dims + speaker_embedding_size, lstm_dims)
+        self.rnn_input = nn.Linear(encoder_dims  + decoder_dims + speaker_embedding_size, lstm_dims)
         self.res_rnn1 = nn.LSTMCell(lstm_dims, lstm_dims)
         self.res_rnn2 = nn.LSTMCell(lstm_dims, lstm_dims)
         self.mel_proj = nn.Linear(lstm_dims, n_mels * self.max_r, bias=False)
         self.stop_proj = nn.Linear(encoder_dims + speaker_embedding_size + lstm_dims, 1)
 
-    def zoneout(self, prev, current, p=0.1):
-        device = next(self.parameters()).device  # Use same device as parameters
-        mask = torch.zeros(prev.size(), device=device).bernoulli_(p)
+    def zoneout(self, prev, current, device, p=0.1):
+        mask = torch.zeros(prev.size(),device=device).bernoulli_(p)
         return prev * mask + current * (1 - mask)
 
     def forward(self, encoder_seq, encoder_seq_proj, prenet_in,
@@ -271,7 +274,7 @@ class Decoder(nn.Module):
 
         # Need this for reshaping mels
         batch_size = encoder_seq.size(0)
-
+        device = encoder_seq.device
         # Unpack the hidden and cell states
         attn_hidden, rnn1_hidden, rnn2_hidden = hidden_states
         rnn1_cell, rnn2_cell = cell_states
@@ -297,7 +300,7 @@ class Decoder(nn.Module):
         # Compute first Residual RNN
         rnn1_hidden_next, rnn1_cell = self.res_rnn1(x, (rnn1_hidden, rnn1_cell))
         if self.training:
-            rnn1_hidden = self.zoneout(rnn1_hidden, rnn1_hidden_next)
+            rnn1_hidden = self.zoneout(rnn1_hidden, rnn1_hidden_next,device=device)
         else:
             rnn1_hidden = rnn1_hidden_next
         x = x + rnn1_hidden
@@ -305,7 +308,7 @@ class Decoder(nn.Module):
         # Compute second Residual RNN
         rnn2_hidden_next, rnn2_cell = self.res_rnn2(x, (rnn2_hidden, rnn2_cell))
         if self.training:
-            rnn2_hidden = self.zoneout(rnn2_hidden, rnn2_hidden_next)
+            rnn2_hidden = self.zoneout(rnn2_hidden, rnn2_hidden_next, device=device)
         else:
             rnn2_hidden = rnn2_hidden_next
         x = x + rnn2_hidden
@@ -336,8 +339,12 @@ class Tacotron(nn.Module):
         self.speaker_embedding_size = speaker_embedding_size
         self.encoder = Encoder(embed_dims, num_chars, encoder_dims,
                                encoder_K, num_highways, dropout)
-        self.encoder_proj = nn.Linear(encoder_dims + speaker_embedding_size, decoder_dims, bias=False)
-        self.gst = GlobalStyleToken()
+        project_dims = encoder_dims + speaker_embedding_size
+        if hparams.use_gst: 
+            project_dims += gst_hp.E
+        self.encoder_proj = nn.Linear(project_dims, decoder_dims, bias=False)
+        if hparams.use_gst: 
+            self.gst = GlobalStyleToken(speaker_embedding_size)
         self.decoder = Decoder(n_mels, encoder_dims, decoder_dims, lstm_dims,
                                dropout, speaker_embedding_size)
         self.postnet = CBHG(postnet_K, n_mels, postnet_dims,
@@ -357,9 +364,16 @@ class Tacotron(nn.Module):
     @r.setter
     def r(self, value):
         self.decoder.r = self.decoder.r.new_tensor(value, requires_grad=False)
+    
+    @staticmethod
+    def _concat_speaker_embedding(outputs, speaker_embeddings):
+        speaker_embeddings_ = speaker_embeddings.expand(
+            outputs.size(0), outputs.size(1), -1)
+        outputs = torch.cat([outputs, speaker_embeddings_], dim=-1)
+        return outputs
 
     def forward(self, texts, mels, speaker_embedding):
-        device = next(self.parameters()).device  # use same device as parameters
+        device = texts.device  # use same device as parameters
 
         self.step += 1
         batch_size, _, steps  = mels.size()
@@ -379,16 +393,20 @@ class Tacotron(nn.Module):
         go_frame = torch.zeros(batch_size, self.n_mels, device=device)
 
         # Need an initial context vector
-        context_vec = torch.zeros(batch_size, self.encoder_dims + self.speaker_embedding_size, device=device)
+        size = self.encoder_dims + self.speaker_embedding_size
+        if hparams.use_gst:
+            size += gst_hp.E
+        context_vec = torch.zeros(batch_size, size, device=device)
 
         # SV2TTS: Run the encoder with the speaker embedding
         # The projection avoids unnecessary matmuls in the decoder loop
         encoder_seq = self.encoder(texts, speaker_embedding)
         # put after encoder 
-        if self.gst is not None:
-            style_embed = self.gst(speaker_embedding) 
-            style_embed = style_embed.expand_as(encoder_seq)
-            encoder_seq = encoder_seq + style_embed
+        if hparams.use_gst and self.gst is not None:
+            style_embed = self.gst(speaker_embedding, speaker_embedding) # for training, speaker embedding can represent both style inputs and referenced
+            # style_embed = style_embed.expand_as(encoder_seq)
+            # encoder_seq = torch.cat((encoder_seq, style_embed), 2)
+            encoder_seq = self._concat_speaker_embedding(encoder_seq, style_embed)
         encoder_seq_proj = self.encoder_proj(encoder_seq)
 
         # Need a couple of lists for outputs
@@ -419,9 +437,9 @@ class Tacotron(nn.Module):
 
         return mel_outputs, linear, attn_scores, stop_outputs
 
-    def generate(self, x, speaker_embedding=None, steps=200, style_idx=0):
+    def generate(self, x, speaker_embedding=None, steps=2000, style_idx=0, min_stop_token=5):
         self.eval()
-        device = next(self.parameters()).device  # use same device as parameters
+        device = x.device  # use same device as parameters
 
         batch_size, _  = x.size()
 
@@ -440,23 +458,30 @@ class Tacotron(nn.Module):
         go_frame = torch.zeros(batch_size, self.n_mels, device=device)
 
         # Need an initial context vector
-        context_vec = torch.zeros(batch_size, self.encoder_dims + self.speaker_embedding_size, device=device)
+        size = self.encoder_dims + self.speaker_embedding_size
+        if hparams.use_gst:
+            size += gst_hp.E
+        context_vec = torch.zeros(batch_size, size, device=device)
 
         # SV2TTS: Run the encoder with the speaker embedding
         # The projection avoids unnecessary matmuls in the decoder loop
         encoder_seq = self.encoder(x, speaker_embedding)
 
         # put after encoder 
-        if self.gst is not None and style_idx >= 0 and style_idx < 10:
-            gst_embed = self.gst.stl.embed.cpu().data.numpy()  #[0, number_token]
-            gst_embed = np.tile(gst_embed, (1, 8))
-            scale = np.zeros(512)
-            scale[:] = 0.3
-            speaker_embedding = (gst_embed[style_idx] * scale).astype(np.float32)
-            speaker_embedding = torch.from_numpy(np.tile(speaker_embedding, (x.shape[0], 1))).to(device)
-        style_embed = self.gst(speaker_embedding)
-        style_embed = style_embed.expand_as(encoder_seq)
-        encoder_seq = encoder_seq + style_embed
+        if hparams.use_gst and self.gst is not None:
+            if style_idx >= 0 and style_idx < 10:
+                query = torch.zeros(1, 1, self.gst.stl.attention.num_units)
+                if device.type == 'cuda':
+                    query = query.cuda()
+                gst_embed = torch.tanh(self.gst.stl.embed)
+                key = gst_embed[style_idx].unsqueeze(0).expand(1, -1, -1)
+                style_embed = self.gst.stl.attention(query, key)
+            else:
+                speaker_embedding_style = torch.zeros(speaker_embedding.size()[0], 1, self.speaker_embedding_size).to(device)
+                style_embed = self.gst(speaker_embedding_style, speaker_embedding)
+            encoder_seq = self._concat_speaker_embedding(encoder_seq, style_embed)
+            # style_embed = style_embed.expand_as(encoder_seq)
+            # encoder_seq = torch.cat((encoder_seq, style_embed), 2)
         encoder_seq_proj = self.encoder_proj(encoder_seq)
 
         # Need a couple of lists for outputs
@@ -472,7 +497,7 @@ class Tacotron(nn.Module):
             attn_scores.append(scores)
             stop_outputs.extend([stop_tokens] * self.r)
             # Stop the loop when all stop tokens in batch exceed threshold
-            if (stop_tokens > 0.5).all() and t > 10: break
+            if (stop_tokens * 10 > min_stop_token).all() and t > 10: break
 
         # Concat the mel outputs into sequence
         mel_outputs = torch.cat(mel_outputs, dim=2)
@@ -496,6 +521,15 @@ class Tacotron(nn.Module):
         for p in self.parameters():
             if p.dim() > 1: nn.init.xavier_uniform_(p)
 
+    def finetune_partial(self, whitelist_layers):
+        self.zero_grad()
+        for name, child in self.named_children():
+            if name in whitelist_layers:
+                print("Trainable Layer: %s" % name)
+                print("Trainable Parameters: %.3f" % sum([np.prod(p.size()) for p in child.parameters()]))
+                for param in child.parameters():
+                    param.requires_grad = False
+
     def get_step(self):
         return self.step.data.item()
 
@@ -507,9 +541,8 @@ class Tacotron(nn.Module):
         with open(path, "a") as f:
             print(msg, file=f)
 
-    def load(self, path, optimizer=None):
+    def load(self, path, device, optimizer=None):
         # Use device of model params as location for loaded state
-        device = next(self.parameters()).device
         checkpoint = torch.load(str(path), map_location=device)
         self.load_state_dict(checkpoint["model_state"], strict=False)
 

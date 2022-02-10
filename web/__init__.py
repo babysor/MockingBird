@@ -31,7 +31,7 @@ def webApp():
     synthesizers = list(Path(syn_models_dirt).glob("**/*.pt"))
     synthesizers_cache = {}
     encoder.load_model(Path("encoder/saved_models/pretrained.pt"))
-    # rnn_vocoder.load_model(Path("vocoder/saved_models/pretrained/pretrained.pt"))
+    rnn_vocoder.load_model(Path("vocoder/saved_models/pretrained/pretrained.pt"))
     gan_vocoder.load_model(Path("vocoder/saved_models/pretrained/g_hifigan.pt"))
 
     def pcm2float(sig, dtype='float32'):
@@ -107,12 +107,14 @@ def webApp():
         embeds = [embed] * len(texts)
         specs = current_synt.synthesize_spectrograms(texts, embeds)
         spec = np.concatenate(specs, axis=1)
-        # wav = rnn_vocoder.infer_waveform(spec)
-        wav = gan_vocoder.infer_waveform(spec)
+        if "vocoder" in request.form and request.form["vocoder"] == "WaveRNN":
+            wav = rnn_vocoder.infer_waveform(spec)
+        else:
+            wav = gan_vocoder.infer_waveform(spec)
 
         # Return cooked wav
         out = io.BytesIO()
-        write(out, Synthesizer.sample_rate, wav)
+        write(out, Synthesizer.sample_rate, wav.astype(np.float32))
         return Response(out, mimetype="audio/wav")
 
     @app.route('/', methods=['GET'])

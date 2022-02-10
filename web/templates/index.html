@@ -61,7 +61,16 @@
 			<div class="pd btns" style="margin-left: 5%;margin-top: 20px;width: 90%; ">
 				<div style="font-size: larger;font-weight: bolder;">3. 选择Synthesizer模型</div>
 				<span class="box">
-					<select id="select">
+					<select id="selectSynt">
+					</select>
+				</span>
+			</div>
+			<div class="pd btns" style="margin-left: 5%;margin-top: 20px;width: 90%; ">
+				<div style="font-size: larger;font-weight: bolder;">4. 选择Vocoder模型</div>
+				<span class="box">
+					<select id="selectVocoder">
+						<option>WaveRNN</option>
+						<option>HifiGAN</option>
 					</select>
 				</span>
 			</div>
@@ -116,7 +125,7 @@
 				var option = document.createElement('option');
 				option.text = synt.name
 				option.value = synt.path
-				$("#select").append(option);
+				$("#selectSynt").append(option);
 			}
 		}).catch(function (err) {
 			console.log('Error: ' + err.message);
@@ -266,10 +275,15 @@
 				var postData = new FormData();
 				postData.append("text", input_text)
 				postData.append("file", blob)
-				var sel = document.getElementById("select");
-				var path = sel.options[sel.selectedIndex].value;
+				var syntSelect = document.getElementById("selectSynt");
+				var path = syntSelect.options[syntSelect.selectedIndex].value;
 				if (!!path) {
 					postData.append("synt_path", path);
+				}
+				var vocoderSelect = document.getElementById("selectVocoder");
+				var vocoder = vocoderSelect.options[vocoderSelect.selectedIndex].value;
+				if (!!vocoder) {
+					postData.append("vocoder", vocoder);
 				}
 
 				fetch(api, {
