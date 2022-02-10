@@ -97,7 +97,7 @@ class STL(nn.Module):
     def forward(self, inputs):
         N = inputs.size(0)
         query = inputs.unsqueeze(1)  # [N, 1, E//2]
-        keys = tFunctional.tanh(self.embed).unsqueeze(0).expand(N, -1, -1)  # [N, token_num, E // num_heads]
+        keys = torch.tanh(self.embed).unsqueeze(0).expand(N, -1, -1)  # [N, token_num, E // num_heads]
         style_embed = self.attention(query, keys)
 
         return style_embed

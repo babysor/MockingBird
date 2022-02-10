@@ -63,7 +63,7 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
 
 def _split_on_silences(wav_fpath, words, hparams):
     # Load the audio waveform
-    wav, _ = librosa.load(wav_fpath, hparams.sample_rate)
+    wav, _ = librosa.load(wav_fpath, sr= hparams.sample_rate)
     wav = librosa.effects.trim(wav, top_db= 40, frame_length=2048, hop_length=512)[0]
     if hparams.rescale:
         wav = wav / np.abs(wav).max() * hparams.rescaling_max
