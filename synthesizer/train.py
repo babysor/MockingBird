@@ -93,7 +93,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                      speaker_embedding_size=hparams.speaker_embedding_size).to(device)
 
     # Initialize the optimizer
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), amsgrad=True)
 
     # Load the weights
     if force_restart or not weights_fpath.exists():
@@ -111,7 +111,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
 
     else:
         print("\nLoading weights at %s" % weights_fpath)
-        model.load(weights_fpath, optimizer)
+        model.load(weights_fpath, device, optimizer)
         print("Tacotron weights loaded from step %d" % model.step)
     
     # Initialize the dataset
@@ -146,7 +146,6 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                 continue
 
         model.r = r
-
         # Begin the training
         simple_table([(f"Steps with r={r}", str(training_steps // 1000) + "k Steps"),
                       ("Batch Size", batch_size),
@@ -155,6 +154,8 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
 
         for p in optimizer.param_groups:
             p["lr"] = lr
+        if hparams.tts_finetune_layers is not None and len(hparams.tts_finetune_layers) > 0:
+            model.finetune_partial(hparams.tts_finetune_layers)
 
         data_loader = DataLoader(dataset,
                                  collate_fn=collate_synthesizer,
@@ -221,7 +222,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
 
                 # Backup or save model as appropriate
                 if backup_every != 0 and step % backup_every == 0 : 
-                    backup_fpath = Path("{}/{}_{}k.pt".format(str(weights_fpath.parent), run_id, k))
+                    backup_fpath = Path("{}/{}_{}.pt".format(str(weights_fpath.parent), run_id, step))
                     model.save(backup_fpath, optimizer)
 
                 if save_every != 0 and step % save_every == 0 : 
