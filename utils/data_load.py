@@ -3,14 +3,15 @@ import numpy as np
 import torch
 from utils.f0_utils import get_cont_lf0
 import resampy
-from .audio_utils import MAX_WAV_VALUE, load_wav, mel_spectrogram, normalize
+from .audio_utils import MAX_WAV_VALUE, load_wav, mel_spectrogram
+from librosa.util import normalize
+import os
 
 
 def read_fids(fid_list_f):
     with open(fid_list_f, 'r') as f:
         fids = [l.strip().split()[0] for l in f if l.strip()]
     return fids   
-
 
 class OneshotVcDataset(torch.utils.data.Dataset):
     def __init__(
@@ -61,17 +62,17 @@ class OneshotVcDataset(torch.utils.data.Dataset):
         return len(self.fid_list)
     
     def get_spk_dvec(self, fid):
-        spk_name = fid.split("_")[0]
+        spk_name = fid
         if spk_name.startswith("p"):
-            spk_dvec_path = f"{self.vctk_spk_dvec_dir}/{spk_name}.npy"
+            spk_dvec_path = f"{self.vctk_spk_dvec_dir}{os.sep}{spk_name}.npy"
         else:
-            spk_dvec_path = f"{self.libri_spk_dvec_dir}/{spk_name}.npy"
+            spk_dvec_path = f"{self.libri_spk_dvec_dir}{os.sep}{spk_name}.npy"
         return torch.from_numpy(np.load(spk_dvec_path))
     
     def compute_mel(self, wav_path):
         audio, sr = load_wav(wav_path)
-        if sr != 16000:
-            audio = resampy.resample(audio, sr, 16000)
+        if sr != 24000:
+            audio = resampy.resample(audio, sr, 24000)
         audio = audio / MAX_WAV_VALUE
         audio = normalize(audio) * 0.95
         audio = torch.FloatTensor(audio).unsqueeze(0)
@@ -79,11 +80,11 @@ class OneshotVcDataset(torch.utils.data.Dataset):
             audio,
             n_fft=1024,
             num_mels=80,
-            sampling_rate=16000,
-            hop_size=200,
-            win_size=800,
+            sampling_rate=24000,
+            hop_size=240,
+            win_size=1024,
             fmin=0,
-            fmax=7600,
+            fmax=8000,
         )
         return melspec.squeeze(0).numpy().T
 
@@ -98,14 +99,16 @@ class OneshotVcDataset(torch.utils.data.Dataset):
         # 1. Load features
         if fid.startswith("p"):
             # vctk
-            ppg = np.load(f"{self.vctk_ppg_dir}/{fid}.{self.ppg_file_ext}")
-            f0 = np.load(f"{self.vctk_f0_dir}/{fid}.{self.f0_file_ext}")
-            mel = self.compute_mel(f"{self.vctk_wav_dir}/{fid}.{self.wav_file_ext}")
+            sub = fid.split("_")[0]
+            ppg = np.load(f"{self.vctk_ppg_dir}{os.sep}{fid}.{self.ppg_file_ext}")
+            f0 = np.load(f"{self.vctk_f0_dir}{os.sep}{fid}.{self.f0_file_ext}")
+            mel = self.compute_mel(f"{self.vctk_wav_dir}{os.sep}{sub}{os.sep}{fid}.{self.wav_file_ext}")
         else:
-            # libritts
-            ppg = np.load(f"{self.libri_ppg_dir}/{fid}.{self.ppg_file_ext}")
-            f0 = np.load(f"{self.libri_f0_dir}/{fid}.{self.f0_file_ext}")
-            mel = self.compute_mel(f"{self.libri_wav_dir}/{fid}.{self.wav_file_ext}")
+            # aidatatang
+            sub = fid[5:10]
+            ppg = np.load(f"{self.libri_ppg_dir}{os.sep}{fid}.{self.ppg_file_ext}")
+            f0 = np.load(f"{self.libri_f0_dir}{os.sep}{fid}.{self.f0_file_ext}")
+            mel = self.compute_mel(f"{self.libri_wav_dir}{os.sep}{sub}{os.sep}{fid}.{self.wav_file_ext}")
         if self.min_max_norm_mel:
             mel = self.bin_level_min_max_norm(mel)
         
@@ -147,7 +150,6 @@ class OneshotVcDataset(torch.utils.data.Dataset):
         ppg = ppg[:min_len]
         mel = mel[:min_len]
         return f0, ppg, mel
-
 
 class MultiSpkVcCollate():
     """Zero-pads model inputs and targets based on number of frames per step

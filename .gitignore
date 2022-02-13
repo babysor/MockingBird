@@ -19,3 +19,4 @@
 !vocoder/saved_models/pretrained/**
 !encoder/saved_models/pretrained.pt
 wavs
+log

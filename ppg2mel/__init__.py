@@ -148,8 +148,9 @@ class MelDecoderMOLv2(AbsMelDecoder):
         decoder_inputs = self.reduce_proj(decoder_inputs)
         
         # (B, num_mels, T_dec)
+        T_dec = torch.div(feature_lengths, int(self.encoder_down_factor), rounding_mode='floor')
         mel_outputs, predicted_stop, alignments = self.decoder(
-            decoder_inputs, speech, feature_lengths//int(self.encoder_down_factor))
+            decoder_inputs, speech, T_dec)
         ## Post-processing
         mel_outputs_postnet = self.postnet(mel_outputs.transpose(1, 2)).transpose(1, 2)
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet

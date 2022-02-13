@@ -34,7 +34,7 @@ if __name__ == "__main__":
     #     "Preprocess audio without trimming silences (not recommended).")
     parser.add_argument("-pf", "--ppg_encoder_model_fpath", type=Path, default="ppg_extractor/saved_models/24epoch.pt", help=\
         "Path your trained ppg encoder model.")
-    parser.add_argument("-sf", "--speaker_encoder_model", type=Path, default="encoder/saved_models/pretrained.pt", help=\
+    parser.add_argument("-sf", "--speaker_encoder_model", type=Path, default="encoder/saved_models/pretrained_bak_5805000.pt", help=\
         "Path your trained speaker encoder model.")
     args = parser.parse_args()
 
