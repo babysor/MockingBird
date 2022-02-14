@@ -185,7 +185,7 @@ def train(rank, a, h):
                     checkpoint_path = "{}/g_{:08d}.pt".format(a.checkpoint_path, steps)
                     save_checkpoint(checkpoint_path,
                                     {'generator': (generator.module if h.num_gpus > 1 else generator).state_dict()})
-                    checkpoint_path = "{}/do_{:08d}".format(a.checkpoint_path, steps)
+                    checkpoint_path = "{}/do_{:08d}.pt".format(a.checkpoint_path, steps)
                     save_checkpoint(checkpoint_path,
                                     {'mpd': (mpd.module if h.num_gpus > 1 else mpd).state_dict(),
                                      'msd': (msd.module if h.num_gpus > 1 else msd).state_dict(),
@@ -203,7 +203,7 @@ def train(rank, a, h):
                     checkpoint_path = "{}/g_hifigan.pt".format(a.checkpoint_path)
                     save_checkpoint(checkpoint_path,
                                     {'generator': (generator.module if h.num_gpus > 1 else generator).state_dict()})
-                    checkpoint_path = "{}/do_hifigan".format(a.checkpoint_path)
+                    checkpoint_path = "{}/do_hifigan.pt".format(a.checkpoint_path)
                     save_checkpoint(checkpoint_path,
                                     {'mpd': (mpd.module if h.num_gpus > 1 else mpd).state_dict(),
                                      'msd': (msd.module if h.num_gpus > 1 else msd).state_dict(),

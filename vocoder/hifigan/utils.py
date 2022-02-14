@@ -50,7 +50,7 @@ def save_checkpoint(filepath, obj):
 
 
 def scan_checkpoint(cp_dir, prefix):
-    pattern = os.path.join(cp_dir, prefix + '????????')
+    pattern = os.path.join(cp_dir, prefix + 'hifigan.pt')
     cp_list = glob.glob(pattern)
     if len(cp_list) == 0:
         return None
