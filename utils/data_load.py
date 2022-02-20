@@ -8,6 +8,8 @@ from librosa.util import normalize
 import os
 
 
+SAMPLE_RATE=16000
+
 def read_fids(fid_list_f):
     with open(fid_list_f, 'r') as f:
         fids = [l.strip().split()[0] for l in f if l.strip()]
@@ -71,8 +73,8 @@ class OneshotVcDataset(torch.utils.data.Dataset):
     
     def compute_mel(self, wav_path):
         audio, sr = load_wav(wav_path)
-        if sr != 24000:
-            audio = resampy.resample(audio, sr, 24000)
+        if sr != SAMPLE_RATE:
+            audio = resampy.resample(audio, sr, SAMPLE_RATE)
         audio = audio / MAX_WAV_VALUE
         audio = normalize(audio) * 0.95
         audio = torch.FloatTensor(audio).unsqueeze(0)
@@ -80,9 +82,9 @@ class OneshotVcDataset(torch.utils.data.Dataset):
             audio,
             n_fft=1024,
             num_mels=80,
-            sampling_rate=24000,
-            hop_size=240,
-            win_size=1024,
+            sampling_rate=SAMPLE_RATE,
+            hop_size=200,
+            win_size=800,
             fmin=0,
             fmax=8000,
         )
@@ -112,7 +114,7 @@ class OneshotVcDataset(torch.utils.data.Dataset):
         if self.min_max_norm_mel:
             mel = self.bin_level_min_max_norm(mel)
         
-        f0, ppg, mel = self._adjust_lengths(f0, ppg, mel)
+        f0, ppg, mel = self._adjust_lengths(f0, ppg, mel, fid)
         spk_dvec = self.get_spk_dvec(fid)
 
         # 2. Convert f0 to continuous log-f0 and u/v flags
@@ -132,15 +134,15 @@ class OneshotVcDataset(torch.utils.data.Dataset):
         
         return (ppg, lf0_uv, mel, spk_dvec, fid)
 
-    def check_lengths(self, f0, ppg, mel):
+    def check_lengths(self, f0, ppg, mel, fid):
         LEN_THRESH = 10
         assert abs(len(ppg) - len(f0)) <= LEN_THRESH, \
-            f"{abs(len(ppg) - len(f0))}"
+            f"{abs(len(ppg) - len(f0))}: for file {fid}"
         assert abs(len(mel) - len(f0)) <= LEN_THRESH, \
-            f"{abs(len(mel) - len(f0))}"
+            f"{abs(len(mel) - len(f0))}: for file {fid}"
     
-    def _adjust_lengths(self, f0, ppg, mel):
-        self.check_lengths(f0, ppg, mel)
+    def _adjust_lengths(self, f0, ppg, mel, fid):
+        self.check_lengths(f0, ppg, mel, fid)
         min_len = min(
             len(f0),
             len(ppg),

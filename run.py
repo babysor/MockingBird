@@ -39,7 +39,7 @@ def convert(args):
     # Build models
     print("Load PPG-model, PPG2Mel-model, Vocoder-model...")
     ppg_model = load_model(
-        './ppg_extractor/saved_models/24epoch.pt',
+        Path('./ppg_extractor/saved_models/24epoch.pt'),
         device,
     )
     ppg2mel_model = _build_ppg2mel_model(HpsYaml(args.ppg2mel_model_train_config), args.ppg2mel_model_file, device) 
