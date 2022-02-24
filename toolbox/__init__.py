@@ -137,7 +137,8 @@ class Toolbox:
         self.ui.vocode_button.clicked.connect(self.vocode)
         self.ui.random_seed_checkbox.clicked.connect(self.update_seed_textbox)
 
-        self.ui.convert_button.clicked.connect(self.convert)
+        func = lambda: self.convert() or self.vocode()
+        self.ui.convert_button.clicked.connect(func)
 
         # UMAP legend
         self.ui.clear_button.clicked.connect(self.clear_utterances)
