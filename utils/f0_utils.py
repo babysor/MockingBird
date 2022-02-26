@@ -15,7 +15,7 @@ def compute_f0(wav, sr=16000, frame_period=10.0):
     """Compute f0 from wav using pyworld harvest algorithm."""
     wav = wav.astype(np.float64)
     f0, _ = pyworld.harvest(
-        wav, sr, frame_period=frame_period, f0_floor=20.0, f0_ceil=600.0)
+        wav, sr, frame_period=frame_period, f0_floor=80.0, f0_ceil=600.0)
     return f0.astype(np.float32)
 
 def f02lf0(f0):

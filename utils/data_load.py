@@ -83,9 +83,9 @@ class OneshotVcDataset(torch.utils.data.Dataset):
             n_fft=1024,
             num_mels=80,
             sampling_rate=SAMPLE_RATE,
-            hop_size=200,
-            win_size=800,
-            fmin=0,
+            hop_size=160,
+            win_size=1024,
+            fmin=80,
             fmax=8000,
         )
         return melspec.squeeze(0).numpy().T
