@@ -100,7 +100,7 @@ def preprocess_dataset(datasets_root, dataset, out_dir, n_processes, ppg_encoder
     d_fid_file = out_dir.joinpath("dev_fidlist.txt").open("w", encoding="utf-8")
     e_fid_file = out_dir.joinpath("eval_fidlist.txt").open("w", encoding="utf-8")
     for file in sorted(out_dir.joinpath("f0").glob("*.npy")):
-        id = os.path.basename(file).rstrip(".f0.npy")
+        id = os.path.basename(file).split(".f0.npy")[0]
         if id.endswith("01"):
             d_fid_file.write(id + "\n")
         elif id.endswith("09"):

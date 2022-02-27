@@ -18,7 +18,7 @@ def main():
     parser.add_argument('--name', default=None, type=str, help='Name for logging.')
     parser.add_argument('--logdir', default='log/', type=str,
                         help='Logging path.', required=False)
-    parser.add_argument('--ckpdir', default='ckpt/', type=str,
+    parser.add_argument('--ckpdir', default='ppg2mel/saved_models/', type=str,
                         help='Checkpoint path.', required=False)
     parser.add_argument('--outdir', default='result/', type=str,
                         help='Decode output path.', required=False)
