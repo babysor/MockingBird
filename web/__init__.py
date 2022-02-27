@@ -94,7 +94,7 @@ def webApp():
         embed, _, _ = encoder.embed_utterance(encoder_wav, return_partials=True)
         
         # Load input text
-        texts = request.form["text"].split("\n")
+        texts = filter(None, request.form["text"].split("\n"))
         punctuation = '！，。、,' # punctuate and split/clean text
         processed_texts = []
         for text in texts:
