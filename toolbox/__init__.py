@@ -286,7 +286,7 @@ class Toolbox:
             self.ui.set_loading(i, seq_len)
         if self.ui.current_vocoder_fpath is not None:
             self.ui.log("")
-            wav = vocoder.infer_waveform(spec, progress_callback=vocoder_progress)
+            wav, sample_rate = vocoder.infer_waveform(spec, progress_callback=vocoder_progress)
         else:
             self.ui.log("Waveform generation with Griffin-Lim... ")
             wav = Synthesizer.griffin_lim(spec)
@@ -297,7 +297,7 @@ class Toolbox:
         b_ends = np.cumsum(np.array(breaks) * Synthesizer.hparams.hop_size)
         b_starts = np.concatenate(([0], b_ends[:-1]))
         wavs = [wav[start:end] for start, end, in zip(b_starts, b_ends)]
-        breaks = [np.zeros(int(0.15 * Synthesizer.sample_rate))] * len(breaks)
+        breaks = [np.zeros(int(0.15 * sample_rate))] * len(breaks)
         wav = np.concatenate([i for w, b in zip(wavs, breaks) for i in (w, b)])
 
         # Trim excessive silences
@@ -306,7 +306,7 @@ class Toolbox:
 
         # Play it
         wav = wav / np.abs(wav).max() * 0.97
-        self.ui.play(wav, Synthesizer.sample_rate)
+        self.ui.play(wav, sample_rate)
 
         # Name it (history displayed in combobox)
         # TODO better naming for the combobox items?
