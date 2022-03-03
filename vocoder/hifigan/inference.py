@@ -3,14 +3,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import json
 import torch
-from scipy.io.wavfile import write
 from vocoder.hifigan.env import AttrDict
-from vocoder.hifigan.meldataset import mel_spectrogram, MAX_WAV_VALUE, load_wav
 from vocoder.hifigan.models import Generator
-import soundfile as sf
-
 
 generator = None       # type: Generator
+output_sample_rate = None     
 _device = None
 
 
@@ -22,16 +19,17 @@ def load_checkpoint(filepath, device):
     return checkpoint_dict
 
 
-def load_model(weights_fpath, verbose=True):
-    global generator, _device
+def load_model(weights_fpath, config_fpath="./vocoder/saved_models/24k/config.json", verbose=True):
+    global generator, _device, output_sample_rate
 
     if verbose:
         print("Building hifigan")
 
-    with open("./vocoder/hifigan/config_16k_.json") as f:
+    with open(config_fpath) as f:
         data = f.read()
     json_config = json.loads(data)
     h = AttrDict(json_config)
+    output_sample_rate = h.sampling_rate
     torch.manual_seed(h.seed)
 
     if torch.cuda.is_available():
@@ -66,5 +64,5 @@ def infer_waveform(mel, progress_callback=None):
         audio = y_g_hat.squeeze()
     audio = audio.cpu().numpy()
 
-    return audio
+    return audio, output_sample_rate
 
