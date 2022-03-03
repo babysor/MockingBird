@@ -36,6 +36,14 @@
       "args": ["-d","..\\audiodata"]
     },
     {
+      "name": "Python: Demo Box VC",
+      "type": "python",
+      "request": "launch",
+      "program": "demo_toolbox.py",
+      "console": "integratedTerminal",
+      "args": ["-d","..\\audiodata","-vc"]
+    },
+    {
       "name": "Python: Synth Train",
       "type": "python",
       "request": "launch",

@@ -50,8 +50,9 @@ recognized_datasets = [
 MAX_WAVES = 15
 
 class Toolbox:
-    def __init__(self, datasets_root, enc_models_dir, syn_models_dir, voc_models_dir, extractor_models_dir, convertor_models_dir, seed, no_mp3_support):
+    def __init__(self, datasets_root, enc_models_dir, syn_models_dir, voc_models_dir, extractor_models_dir, convertor_models_dir, seed, no_mp3_support, vc_mode):
         self.no_mp3_support = no_mp3_support
+        self.vc_mode = vc_mode
         sys.excepthook = self.excepthook
         self.datasets_root = datasets_root
         self.utterances = set()
@@ -76,7 +77,7 @@ class Toolbox:
             self.trim_silences = False
 
         # Initialize the events and the interface
-        self.ui = UI()
+        self.ui = UI(vc_mode)
         self.style_idx = 0
         self.reset_ui(enc_models_dir, syn_models_dir, voc_models_dir, extractor_models_dir, convertor_models_dir, seed)
         self.setup_events()
@@ -102,9 +103,12 @@ class Toolbox:
         self.ui.encoder_box.currentIndexChanged.connect(self.init_encoder)
         def func(): 
             self.synthesizer = None
-        self.ui.synthesizer_box.currentIndexChanged.connect(func)
+        if self.vc_mode:
+            self.ui.extractor_box.currentIndexChanged.connect(self.init_extractor)
+        else:
+            self.ui.synthesizer_box.currentIndexChanged.connect(func)
+
         self.ui.vocoder_box.currentIndexChanged.connect(self.init_vocoder)
-        self.ui.extractor_box.currentIndexChanged.connect(self.init_extractor)
         
         # Utterance selection
         func = lambda: self.load_from_browser(self.ui.browse_file())
@@ -117,8 +121,9 @@ class Toolbox:
         self.ui.record_button.clicked.connect(self.record)
 
         # Source Utterance selection
-        func = lambda: self.load_soruce_button(self.ui.selected_utterance)
-        self.ui.load_soruce_button.clicked.connect(func)
+        if self.vc_mode:
+            func = lambda: self.load_soruce_button(self.ui.selected_utterance)
+            self.ui.load_soruce_button.clicked.connect(func)
 
         #Audio
         self.ui.setup_audio_devices(Synthesizer.sample_rate)
@@ -131,14 +136,16 @@ class Toolbox:
         self.ui.waves_cb.currentIndexChanged.connect(self.set_current_wav)
 
         # Generation
-        func = lambda: self.synthesize() or self.vocode()
-        self.ui.generate_button.clicked.connect(func)
-        self.ui.synthesize_button.clicked.connect(self.synthesize)
         self.ui.vocode_button.clicked.connect(self.vocode)
         self.ui.random_seed_checkbox.clicked.connect(self.update_seed_textbox)
 
-        func = lambda: self.convert() or self.vocode()
-        self.ui.convert_button.clicked.connect(func)
+        if self.vc_mode:
+            func = lambda: self.convert() or self.vocode()
+            self.ui.convert_button.clicked.connect(func)
+        else:
+            func = lambda: self.synthesize() or self.vocode()
+            self.ui.generate_button.clicked.connect(func)
+            self.ui.synthesize_button.clicked.connect(self.synthesize)
 
         # UMAP legend
         self.ui.clear_button.clicked.connect(self.clear_utterances)
@@ -154,7 +161,7 @@ class Toolbox:
 
     def reset_ui(self, encoder_models_dir, synthesizer_models_dir, vocoder_models_dir, extractor_models_dir, convertor_models_dir, seed):
         self.ui.populate_browser(self.datasets_root, recognized_datasets, 0, True)
-        self.ui.populate_models(encoder_models_dir, synthesizer_models_dir, vocoder_models_dir, extractor_models_dir, convertor_models_dir)
+        self.ui.populate_models(encoder_models_dir, synthesizer_models_dir, vocoder_models_dir, extractor_models_dir, convertor_models_dir, self.vc_mode)
         self.ui.populate_gen_options(seed, self.trim_silences)
         
     def load_from_browser(self, fpath=None):
@@ -213,7 +220,7 @@ class Toolbox:
         # Add the utterance
         utterance = Utterance(name, speaker_name, wav, spec, embed, partial_embeds, False)
         self.utterances.add(utterance)
-        self.ui.register_utterance(utterance)
+        self.ui.register_utterance(utterance, self.vc_mode)
 
         # Plot it
         self.ui.draw_embed(embed, name, "current")
