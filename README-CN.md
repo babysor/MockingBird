@@ -98,33 +98,33 @@
 
 <img width="1042" alt="d48ea37adf3660e657cfb047c10edbc" src="https://user-images.githubusercontent.com/7423248/134275227-c1ddf154-f118-4b77-8949-8c4c7daf25f0.png">
 
-## 文件结构（目标读者：开发者）
-```
-├─archived_untest_files 废弃文件
-├─encoder encoder模型
-│  ├─data_objects
-│  └─saved_models 预训练好的模型
-├─samples 样例语音
-├─synthesizer  synthesizer模型
-│  ├─models
-│  ├─saved_models 预训练好的模型
-│  └─utils 工具类库
-├─toolbox 图形化工具箱
-├─utils 工具类库
-├─vocoder  vocoder模型（目前包含hifi-gan、wavrnn）
-│  ├─hifigan
-│  ├─saved_models 预训练好的模型
-│  └─wavernn
-└─web
-    ├─api
-    │  └─Web端接口
-    ├─config
-    │  └─ Web端配置文件
-    ├─static 前端静态脚本
-    │  └─js 
-    ├─templates 前端模板
-    └─__init__.py Web端入口文件
-```
+### 4. 番外：语音转换Voice Conversion(PPG based)
+想像柯南拿着变声器然后发出毛利小五郎的声音吗？本项目现基于PPG-VC，引入额外两个模块（PPG extractor + PPG2Mel）, 可以实现变声功能。（文档不全，尤其是训练部分，正在努力补充中）
+#### 4.0 准备环境
+* 确保项目以上环境已经安装ok，运行`pip install -r requirements.txt` 来安装剩余的必要包。
+* 下载以下模型 
+  * 24K采样率专用的vocoder（hifigan）到 *vocoder\saved_mode\xxx*
+  * 预训练的ppg特征encoder(ppg_extractor)到 *ppg_extractor\saved_mode\xxx*
+  * 预训练的PPG2Mel到 *ppg2mel\saved_mode\xxx*
+
+#### 4.1 使用数据集自己训练PPG2Mel模型 (可选)
+
+* 下载aidatatang_200zh数据集并解压：确保您可以访问 *train* 文件夹中的所有音频文件（如.wav）
+* 进行音频和梅尔频谱图预处理：
+`python pre4ppg.py <datasets_root> -d {dataset} -n {number}`
+可传入参数：
+* `-d {dataset}` 指定数据集，支持 aidatatang_200zh, 不传默认为aidatatang_200zh
+* `-n {number}` 指定并行数，CPU 11770k在8的情况下，需要运行12到18小时！待优化
+> 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
+
+* 训练合成器, 注意在上一步先下载好`ppg2mel.yaml`, 修改里面的地址指向预训练好的文件夹：
+`python ppg2mel_train.py --config .\ppg2mel\saved_models\ppg2mel.yaml --oneshotvc `
+* 如果想要继续上一次的训练，可以通过`--load .\ppg2mel\saved_models\<old_pt_file>` 参数指定一个预训练模型文件。
+
+#### 4.2 启动工具箱VC模式
+您可以尝试使用以下命令：
+`python demo_toolbox.py vc -d <datasets_root>`
+> 请指定一个可用的数据集文件路径，如果有支持的数据集则会自动加载供调试，也同时会作为手动录制音频的存储目录。
 
 ## 引用及论文
 > 该库一开始从仅支持英语的[Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) 分叉出来的，鸣谢作者。
