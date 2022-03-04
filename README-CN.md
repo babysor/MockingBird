@@ -125,10 +125,10 @@
 您可以尝试使用以下命令：
 `python demo_toolbox.py vc -d <datasets_root>`
 > 请指定一个可用的数据集文件路径，如果有支持的数据集则会自动加载供调试，也同时会作为手动录制音频的存储目录。
+<img width="971" alt="微信图片_20220305005351" src="https://user-images.githubusercontent.com/7423248/156805733-2b093dbc-d989-4e68-8609-db11f365886a.png">
 
 ## 引用及论文
 > 该库一开始从仅支持英语的[Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) 分叉出来的，鸣谢作者。
-<img width="971" alt="微信图片_20220305005351" src="https://user-images.githubusercontent.com/7423248/156805733-2b093dbc-d989-4e68-8609-db11f365886a.png">
 
 | URL | Designation | 标题 | 实现源码 |
 | --- | ----------- | ----- | --------------------- |
