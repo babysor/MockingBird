@@ -21,6 +21,3 @@ flask_cors==3.0.10
 gevent==21.8.0
 flask_restx
 tensorboard
-PyYAML==5.4.1
-torch_complex
-espnet
