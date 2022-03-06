@@ -451,7 +451,7 @@ class Toolbox:
             self.ui.log("set hifigan as vocoder")
             # search a config file
             model_config_fpaths = list(model_fpath.parent.rglob("*.json"))
-            if self.ui.current_extractor_fpath is None:
+            if self.vc_mode and self.ui.current_extractor_fpath is None:
                 return
             model_config_fpath = model_config_fpaths[0]
         else:

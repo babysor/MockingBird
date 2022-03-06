@@ -22,7 +22,8 @@ class HParams(object):
     def loadJson(self, dict):
         print("\Loading the json with %s\n", dict)
         for k in dict.keys():
-            self.__dict__[k] = dict[k]
+            if k not in ["tts_schedule", "tts_finetune_layers"]: 
+                self.__dict__[k] = dict[k]
         return self
 
     def dumpJson(self, fp):
