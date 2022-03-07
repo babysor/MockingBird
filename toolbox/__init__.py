@@ -3,8 +3,6 @@ from encoder import inference as encoder
 from synthesizer.inference import Synthesizer
 from vocoder.wavernn import inference as rnn_vocoder
 from vocoder.hifigan import inference as gan_vocoder
-import ppg_extractor as extractor
-import ppg2mel as convertor
 from pathlib import Path
 from time import perf_counter as timer
 from toolbox.utterance import Utterance
@@ -397,6 +395,7 @@ class Toolbox:
         self.ui.log("Loading the extractor %s... " % model_fpath)
         self.ui.set_loading(1)
         start = timer()
+        import ppg_extractor as extractor
         self.extractor = extractor.load_model(model_fpath)
         self.ui.log("Done (%dms)." % int(1000 * (timer() - start)), "append")
         self.ui.set_loading(0)
@@ -413,6 +412,7 @@ class Toolbox:
         self.ui.log("Loading the convertor %s... " % model_fpath)
         self.ui.set_loading(1)
         start = timer()
+        import ppg2mel as convertor
         self.convertor = convertor.load_model(model_config_fpath, model_fpath)
         self.ui.log("Done (%dms)." % int(1000 * (timer() - start)), "append")
         self.ui.set_loading(0)
