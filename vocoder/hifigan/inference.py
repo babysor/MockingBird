@@ -19,7 +19,7 @@ def load_checkpoint(filepath, device):
     return checkpoint_dict
 
 
-def load_model(weights_fpath, config_fpath="./vocoder/saved_models/24k/config.json", verbose=True):
+def load_model(weights_fpath, config_fpath="./vocoder/hifigan/config_16k.json", verbose=True):
     global generator, _device, output_sample_rate
 
     if verbose:

@@ -453,7 +453,8 @@ class Toolbox:
             model_config_fpaths = list(model_fpath.parent.rglob("*.json"))
             if self.vc_mode and self.ui.current_extractor_fpath is None:
                 return
-            model_config_fpath = model_config_fpaths[0]
+            if len(model_config_fpaths) > 0:
+                model_config_fpath = model_config_fpaths[0]
         else:
             vocoder = rnn_vocoder
             self.ui.log("set wavernn as vocoder")
