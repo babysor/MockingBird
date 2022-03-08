@@ -19,12 +19,14 @@ def load_checkpoint(filepath, device):
     return checkpoint_dict
 
 
-def load_model(weights_fpath, config_fpath="./vocoder/hifigan/config_16k.json", verbose=True):
+def load_model(weights_fpath, config_fpath, verbose=True):
     global generator, _device, output_sample_rate
 
     if verbose:
         print("Building hifigan")
 
+    if config_fpath == None:
+        config_fpath = "./vocoder/hifigan/config_16k_.json"
     with open(config_fpath) as f:
         data = f.read()
     json_config = json.loads(data)
