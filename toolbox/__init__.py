@@ -6,7 +6,6 @@ from vocoder.hifigan import inference as gan_vocoder
 from pathlib import Path
 from time import perf_counter as timer
 from toolbox.utterance import Utterance
-from utils.f0_utils import compute_f0, f02lf0, compute_mean_std, get_converted_lf0uv
 import numpy as np
 import traceback
 import sys
@@ -371,6 +370,8 @@ class Toolbox:
         
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         ref_wav = self.ui.selected_utterance.wav
+        # Import necessary dependency of Voice Conversion
+        from utils.f0_utils import compute_f0, f02lf0, compute_mean_std, get_converted_lf0uv   
         ref_lf0_mean, ref_lf0_std = compute_mean_std(f02lf0(compute_f0(ref_wav)))
         lf0_uv = get_converted_lf0uv(src_wav, ref_lf0_mean, ref_lf0_std, convert=True)
         min_len = min(ppg.shape[1], len(lf0_uv))
