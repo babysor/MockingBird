@@ -109,7 +109,7 @@ def webApp():
         spec = np.concatenate(specs, axis=1)
         sample_rate = Synthesizer.sample_rate
         if "vocoder" in request.form and request.form["vocoder"] == "WaveRNN":
-            wav = rnn_vocoder.infer_waveform(spec)
+            wav, sample_rate = rnn_vocoder.infer_waveform(spec)
         else:
             wav, sample_rate = gan_vocoder.infer_waveform(spec)
 
