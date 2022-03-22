@@ -21,7 +21,7 @@
 ## 开始
 ### 1. 安装要求
 > 按照原始存储库测试您是否已准备好所有环境。
-**Python 3.7 或更高版本** 需要运行工具箱。
+运行工具箱(demo_toolbox.py)需要 **Python 3.7 或更高版本** 。
 
 * 安装 [PyTorch](https://pytorch.org/get-started/locally/)。
 > 如果在用 pip 方式安装的时候出现 `ERROR: Could not find a version that satisfies the requirement torch==1.9.0+cu102 (from versions: 0.1.2, 0.1.2.post1, 0.1.2.post2)` 这个错误可能是 python 版本过低，3.9 可以安装成功
