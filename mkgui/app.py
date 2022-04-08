@@ -8,9 +8,11 @@ import librosa
 from scipy.io.wavfile import write
 import re
 import numpy as np
-from opyrator.components.types import FileContent
+from mkgui.base.components.types import FileContent
 from vocoder.hifigan import inference as gan_vocoder
 from synthesizer.inference import Synthesizer
+from typing import Any
+import matplotlib.pyplot as plt
 
 # Constants
 AUDIO_SAMPLES_DIR = 'samples\\'
@@ -40,7 +42,7 @@ class Input(BaseModel):
         ..., alias="输入语音（本地wav）",
         description="选择本地语音文件."
     )
-    upload_audio_file: FileContent = Field(..., alias="或上传语音",
+    upload_audio_file: FileContent = Field(default=None, alias="或上传语音",
         description="拖拽或点击上传.", mime_type="audio/wav")
     encoder: encoders = Field(
         ..., alias="编码模型", 
@@ -58,17 +60,30 @@ class Input(BaseModel):
         ..., example="欢迎使用工具箱, 现已支持中文输入！", alias="输出文本内容"
     )
 
+class AudioEntity(BaseModel):
+    content: bytes
+    mel: Any
+
 class Output(BaseModel):
-    result_file: FileContent = Field(
-        ...,
-        mime_type="audio/wav",
-        description="输出音频",
-    )
-    source_file: FileContent = Field(
-        ...,
-        mime_type="audio/wav",
-        description="原始音频.",
-    )
+    __root__: tuple[AudioEntity, AudioEntity]
+
+    def render_output_ui(self, streamlit_app, input) -> None:  # type: ignore
+        """Custom output UI.
+        If this method is implmeneted, it will be used instead of the default Output UI renderer.
+        """
+        src, result = self.__root__
+        streamlit_app.subheader("Result Audio")
+        streamlit_app.audio(result.content, format="audio/wav")
+
+        fig, ax = plt.subplots()
+        ax.imshow(src.mel, aspect="equal", interpolation="none")
+        ax.set_title("mel spectrogram(Source Audio)")
+        streamlit_app.pyplot(fig)
+        fig, ax = plt.subplots()
+        ax.imshow(result.mel, aspect="equal", interpolation="none")
+        ax.set_title("mel spectrogram(Result Audio)")
+        streamlit_app.pyplot(fig)
+
 
 def mocking_bird(input: Input) -> Output:
     """欢迎使用MockingBird Web 2"""
@@ -78,7 +93,7 @@ def mocking_bird(input: Input) -> Output:
     gan_vocoder.load_model(Path(input.vocoder.value))
 
     # load file
-    if input.upload_audio_file != NULL:
+    if input.upload_audio_file != None:
         with open(TEMP_SOURCE_AUDIO, "w+b") as f:
             f.write(input.upload_audio_file.as_bytes())
             f.seek(0)
@@ -86,6 +101,8 @@ def mocking_bird(input: Input) -> Output:
     else:
         wav, sample_rate  = librosa.load(input.local_audio_file.value)
         write(TEMP_SOURCE_AUDIO, sample_rate, wav) #Make sure we get the correct wav
+
+    source_spec = Synthesizer.make_spectrogram(wav)
 
     # preprocess
     encoder_wav = encoder.preprocess_wav(wav, sample_rate)
@@ -114,4 +131,4 @@ def mocking_bird(input: Input) -> Output:
         source_file = f.read()
     with open(TEMP_RESULT_AUDIO, "rb") as f:
         result_file = f.read()
-    return Output(source_file=source_file, result_file=result_file)
+    return Output(__root__=(AudioEntity(content=source_file, mel=source_spec), AudioEntity(content=result_file, mel=spec)))

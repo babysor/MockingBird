@@ -4,6 +4,7 @@
   // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+
     {
       "name": "Python: Web",
       "type": "python",
@@ -59,6 +60,15 @@
       "console": "integratedTerminal",
       "args": ["-c", ".\\ppg2mel\\saved_models\\seq2seq_mol_ppg2mel_vctk_libri_oneshotvc_r4_normMel_v2.yaml",
         "-m", ".\\ppg2mel\\saved_models\\best_loss_step_304000.pth", "--wav_dir", ".\\wavs\\input", "--ref_wav_path", ".\\wavs\\pkq.mp3", "-o", ".\\wavs\\output\\"
+      ]
+    },
+    {
+      "name": "GUI",
+      "type": "python",
+      "request": "launch",
+      "program": "mkgui\\base\\_cli.py",
+      "console": "integratedTerminal",
+      "args": ["launch-ui", "mkgui.app:mocking_bird"
       ]
     },
   ]
