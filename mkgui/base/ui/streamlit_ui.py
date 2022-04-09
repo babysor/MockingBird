@@ -819,7 +819,7 @@ def render_streamlit_ui(opyrator: Opyrator, action: str = "Execute") -> None:
     if opyrator.description:
         st.markdown(opyrator.description)
 
-    left, right = st.columns(2)
+    left, right = st.columns([0.3, 0.8])
     InputUI(session_state=session_state, input_class=opyrator.input_type).render_ui(left)
 
 
