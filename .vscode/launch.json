@@ -68,7 +68,7 @@
       "request": "launch",
       "program": "mkgui\\base\\_cli.py",
       "console": "integratedTerminal",
-      "args": ["launch-ui", "mkgui.app:mocking_bird"
+      "args": [ "mkgui.app:mocking_bird"
       ]
     },
   ]

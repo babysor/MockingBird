@@ -35,7 +35,7 @@ st.set_page_config(
 with st.spinner("Loading MockingBird GUI. Please wait..."):
     opyrator = Opyrator("{opyrator_path}")
 
-render_streamlit_ui(opyrator)
+render_streamlit_ui(opyrator, action="{action}")
 """
 
 
@@ -43,7 +43,7 @@ def launch_ui(opyrator_path: str, port: int = 8501) -> None:
     with NamedTemporaryFile(
         suffix=".py", mode="w", encoding="utf-8", delete=False
     ) as f:
-        f.write(STREAMLIT_RUNNER_SNIPPET.format(opyrator_path=opyrator_path))
+        f.write(STREAMLIT_RUNNER_SNIPPET.format_map({'opyrator_path': opyrator_path, 'action': "Synthesize"}))
         f.seek(0)
 
         # TODO: PYTHONPATH="$PYTHONPATH:/workspace/opyrator/src"
@@ -105,8 +105,6 @@ class InputUI:
             "definitions", {}
         )
 
-        # TODO: check if state has input data
-
     def render_ui(self, streamlit_app_root) -> None:
         if has_input_ui_renderer(self._input_class):
             # The input model has a rendering function
@@ -116,10 +114,7 @@ class InputUI:
             ).dict()
             return
 
-        required_properties = self._input_class.schema(by_alias=True).get(
-            "required", []
-        )
-        print(self._schema_properties)
+        # print(self._schema_properties)
         for property_key in self._schema_properties.keys():
             property = self._schema_properties[property_key]
 
@@ -806,7 +801,7 @@ class OutputUI:
             streamlit.json(jsonable_encoder(output_data))
 
 
-def render_streamlit_ui(opyrator: Opyrator) -> None:
+def render_streamlit_ui(opyrator: Opyrator, action: str = "Execute") -> None:
     title = opyrator.name
 
     # init
@@ -829,7 +824,7 @@ def render_streamlit_ui(opyrator: Opyrator) -> None:
 
 
     with left:
-        execute_selected = st.button("Execute")
+        execute_selected = st.button(action)
         if execute_selected:
             with st.spinner("Executing operation. Please wait..."):
                 try:
