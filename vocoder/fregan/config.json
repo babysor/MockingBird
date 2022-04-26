@@ -1,7 +1,7 @@
 {
     "resblock": "1",
     "num_gpus": 0,
-    "batch_size": 1,
+    "batch_size": 16,
     "learning_rate": 0.0002,
     "adam_b1": 0.8,
     "adam_b2": 0.99,
@@ -9,8 +9,8 @@
     "seed": 1234,
 
 
-    "upsample_rates": [8,4,2,2,2],
-    "upsample_kernel_sizes": [16,8,4,4,4],
+    "upsample_rates": [5,5,2,2,2],
+    "upsample_kernel_sizes": [10,10,4,4,4],
     "upsample_initial_channel": 512,
     "resblock_kernel_sizes": [3,7,11],
     "resblock_dilation_sizes": [[1, 3, 5, 7], [1,3,5,7], [1,3,5,7]],
@@ -35,4 +35,7 @@
         "dist_url": "tcp://localhost:54321",
         "world_size": 1
     }
+
+
+
 }

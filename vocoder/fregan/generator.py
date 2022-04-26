@@ -9,8 +9,9 @@ LRELU_SLOPE = 0.1
 
 
 class ResBlock1(torch.nn.Module):
-    def __init__(self, channels, kernel_size=3, dilation=(1, 3, 5, 7)):
+    def __init__(self, h, channels, kernel_size=3, dilation=(1, 3, 5, 7)):
         super(ResBlock1, self).__init__()
+        self.h = h
         self.convs1 = nn.ModuleList([
             weight_norm(Conv1d(channels, channels, kernel_size, 1, dilation=dilation[0],
                                padding=get_padding(kernel_size, dilation[0]))),
@@ -78,6 +79,7 @@ class ResBlock2(torch.nn.Module):
 class FreGAN(torch.nn.Module):
     def __init__(self, h, top_k=4):
         super(FreGAN, self).__init__()
+        self.h = h
 
         self.num_kernels = len(h.resblock_kernel_sizes)
         self.num_upsamples = len(h.upsample_rates)
@@ -85,7 +87,7 @@ class FreGAN(torch.nn.Module):
         self.up_kernels = h.upsample_kernel_sizes
         self.cond_level = self.num_upsamples - top_k
         self.conv_pre = weight_norm(Conv1d(80, h.upsample_initial_channel, 7, 1, padding=3))
-        resblock = ResBlock1
+        resblock = ResBlock1 if h.resblock == '1' else ResBlock2
 
         self.ups = nn.ModuleList()
         self.cond_up = nn.ModuleList()
@@ -94,9 +96,12 @@ class FreGAN(torch.nn.Module):
         kr = 80
 
         for i, (u, k) in enumerate(zip(self.upsample_rates, self.up_kernels)):
-            self.ups.append(weight_norm(
-                ConvTranspose1d(h.upsample_initial_channel // (2 ** i), h.upsample_initial_channel // (2 ** (i + 1)),
-                                k, u, padding=(k - u) // 2)))
+#            self.ups.append(weight_norm(
+ #               ConvTranspose1d(h.upsample_initial_channel // (2 ** i), h.upsample_initial_channel // (2 ** (i + 1)),
+ #                               k, u, padding=(k - u) // 2)))
+            self.ups.append(weight_norm(ConvTranspose1d(h.upsample_initial_channel//(2**i),
+                            h.upsample_initial_channel//(2**(i+1)),
+                            k, u, padding=(u//2 + u%2), output_padding=u%2)))
 
             if i > (self.num_upsamples - top_k):
                 self.res_output.append(
@@ -111,7 +116,7 @@ class FreGAN(torch.nn.Module):
                     weight_norm(
                         ConvTranspose1d(kr, h.upsample_initial_channel // (2 ** i),
                                         self.up_kernels[i - 1], self.upsample_rates[i - 1],
-                                        padding=(self.up_kernels[i - 1] - self.upsample_rates[i - 1]) // 2))
+                                        padding=(self.upsample_rates[i-1]//2+self.upsample_rates[i-1]%2), output_padding=self.upsample_rates[i-1]%2))
                 )
                 kr = h.upsample_initial_channel // (2 ** i)
 
@@ -121,7 +126,7 @@ class FreGAN(torch.nn.Module):
         for i in range(len(self.ups)):
             ch = h.upsample_initial_channel // (2 ** (i + 1))
             for j, (k, d) in enumerate(zip(h.resblock_kernel_sizes, h.resblock_dilation_sizes)):
-                self.resblocks.append(resblock(ch, k, d))
+                self.resblocks.append(resblock(h, ch, k, d))
 
         self.conv_post = weight_norm(Conv1d(ch, 1, 7, 1, padding=3))
         self.ups.apply(init_weights)

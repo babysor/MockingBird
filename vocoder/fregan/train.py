@@ -162,6 +162,7 @@ def train(rank, a, h):
             # Generator
             optim_g.zero_grad()
 
+
             # L1 Mel-Spectrogram Loss
             loss_mel = F.l1_loss(y_mel, y_g_hat_mel) * 45
 
@@ -178,7 +179,6 @@ def train(rank, a, h):
             loss_gen_all = loss_gen_s + loss_gen_f + (2 * (loss_fm_s + loss_fm_f)) + loss_mel
 
 
-
             loss_gen_all.backward()
             optim_g.step()
 
@@ -193,7 +193,7 @@ def train(rank, a, h):
 
                 # checkpointing
                 if steps % a.checkpoint_interval == 0 and steps != 0:
-                    checkpoint_path = "{}/m_{:08d}.pt".format(a.checkpoint_path, steps)
+                    checkpoint_path = "{}/m_fregan.pt".format(a.checkpoint_path, steps)
                     save_checkpoint(checkpoint_path,
                                     {'generator': (generator.module if h.num_gpus > 1 else generator).state_dict()})
                     checkpoint_path = "{}/do_{:08d}".format(a.checkpoint_path, steps)
