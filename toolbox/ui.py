@@ -7,6 +7,9 @@ from matplotlib.figure import Figure
 from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 from encoder.inference import plot_embedding_as_heatmap
 from toolbox.utterance import Utterance
 from pathlib import Path
@@ -444,30 +447,51 @@ class UI(QDialog):
     def current_vocoder_fpath(self):
         return self.vocoder_box.itemData(self.vocoder_box.currentIndex())
 
+    @property
+    def current_extractor_fpath(self):
+        return self.extractor_box.itemData(self.extractor_box.currentIndex())
+
+    @property
+    def current_convertor_fpath(self):
+        return self.convertor_box.itemData(self.convertor_box.currentIndex())
+
     def populate_models(self, encoder_models_dir: Path, synthesizer_models_dir: Path, 
-                        vocoder_models_dir: Path):
+                        vocoder_models_dir: Path, extractor_models_dir: Path, convertor_models_dir: Path, vc_mode: bool):
         # Encoder
         encoder_fpaths = list(encoder_models_dir.glob("*.pt"))
         if len(encoder_fpaths) == 0:
             raise Exception("No encoder models found in %s" % encoder_models_dir)
         self.repopulate_box(self.encoder_box, [(f.stem, f) for f in encoder_fpaths])
         
-        # Synthesizer
-        synthesizer_fpaths = list(synthesizer_models_dir.glob("**/*.pt"))
-        if len(synthesizer_fpaths) == 0:
-            raise Exception("No synthesizer models found in %s" % synthesizer_models_dir)
-        self.repopulate_box(self.synthesizer_box, [(f.stem, f) for f in synthesizer_fpaths])
+        if vc_mode:
+            # Extractor
+            extractor_fpaths = list(extractor_models_dir.glob("*.pt"))
+            if len(extractor_fpaths) == 0:
+                self.log("No extractor models found in %s" % extractor_fpaths)
+            self.repopulate_box(self.extractor_box, [(f.stem, f) for f in extractor_fpaths])
+            
+            # Convertor
+            convertor_fpaths = list(convertor_models_dir.glob("*.pth"))
+            if len(convertor_fpaths) == 0:
+                self.log("No convertor models found in %s" % convertor_fpaths)
+            self.repopulate_box(self.convertor_box, [(f.stem, f) for f in convertor_fpaths])
+        else:
+            # Synthesizer
+            synthesizer_fpaths = list(synthesizer_models_dir.glob("**/*.pt"))
+            if len(synthesizer_fpaths) == 0:
+                raise Exception("No synthesizer models found in %s" % synthesizer_models_dir)
+            self.repopulate_box(self.synthesizer_box, [(f.stem, f) for f in synthesizer_fpaths])
 
         # Vocoder
         vocoder_fpaths = list(vocoder_models_dir.glob("**/*.pt"))
         vocoder_items = [(f.stem, f) for f in vocoder_fpaths] + [("Griffin-Lim", None)]
         self.repopulate_box(self.vocoder_box, vocoder_items)
-        
+
     @property
     def selected_utterance(self):
         return self.utterance_history.itemData(self.utterance_history.currentIndex())
         
-    def register_utterance(self, utterance: Utterance):
+    def register_utterance(self, utterance: Utterance, vc_mode):
         self.utterance_history.blockSignals(True)
         self.utterance_history.insertItem(0, utterance.name, utterance)
         self.utterance_history.setCurrentIndex(0)
@@ -477,8 +501,11 @@ class UI(QDialog):
             self.utterance_history.removeItem(self.max_saved_utterances)
 
         self.play_button.setDisabled(False)
-        self.generate_button.setDisabled(False)
-        self.synthesize_button.setDisabled(False)
+        if vc_mode:
+            self.convert_button.setDisabled(False)
+        else:
+            self.generate_button.setDisabled(False)
+            self.synthesize_button.setDisabled(False)
 
     def log(self, line, mode="newline"):
         if mode == "newline":
@@ -520,7 +547,7 @@ class UI(QDialog):
         else:
             self.seed_textbox.setEnabled(False)
 
-    def reset_interface(self):
+    def reset_interface(self, vc_mode):
         self.draw_embed(None, None, "current")
         self.draw_embed(None, None, "generated")
         self.draw_spec(None, "current")
@@ -528,13 +555,15 @@ class UI(QDialog):
         self.draw_umap_projections(set())
         self.set_loading(0)
         self.play_button.setDisabled(True)
-        self.generate_button.setDisabled(True)
-        self.synthesize_button.setDisabled(True)
+        if vc_mode:
+            self.convert_button.setDisabled(True)
+        else:
+            self.generate_button.setDisabled(True)
+            self.synthesize_button.setDisabled(True)
         self.vocode_button.setDisabled(True)
         self.replay_wav_button.setDisabled(True)
         self.export_wav_button.setDisabled(True)
         [self.log("") for _ in range(self.max_log_lines)]
-
 
     #添加result_mfcc分析函数
     def plot_mfcc1(self, wav, sample_rate):
@@ -637,8 +666,7 @@ class UI(QDialog):
 
 
 
-
-    def __init__(self):
+    def __init__(self, vc_mode):
         ## Initialize the application
         self.app = QApplication(sys.argv)
 
@@ -697,7 +725,7 @@ class UI(QDialog):
         source_groupbox = QGroupBox('Source(源音频)')
         source_layout = QGridLayout()
         source_groupbox.setLayout(source_layout)
-        browser_layout.addWidget(source_groupbox, i, 0, 1, 4)
+        browser_layout.addWidget(source_groupbox, i, 0, 1, 5)
 
         self.dataset_box = QComboBox()
       #  source_layout.addWidget(QLabel("Dataset(数据集):"), i, 0)  #隐藏标签文字
@@ -753,25 +781,35 @@ class UI(QDialog):
         self.stop_button = QPushButton("Stop(暂停)")
         self.stop_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
         browser_layout.addWidget(self.stop_button, i, 3)
+        if vc_mode:
+            self.load_soruce_button = QPushButton("Select(选择为被转换的语音输入)")
+            browser_layout.addWidget(self.load_soruce_button, i, 4)
 
         i += 1
         model_groupbox = QGroupBox('Models(模型选择)')
         model_layout = QHBoxLayout()
         model_groupbox.setLayout(model_layout)
-        browser_layout.addWidget(model_groupbox, i, 0, 1, 4)
+        browser_layout.addWidget(model_groupbox, i, 0, 2, 5)
 
         # Model and audio output selection
         self.encoder_box = QComboBox()
         model_layout.addWidget(QLabel("Encoder:"))
         model_layout.addWidget(self.encoder_box)
         self.synthesizer_box = QComboBox()
-        model_layout.addWidget(QLabel("Synthesizer:"))
-        model_layout.addWidget(self.synthesizer_box)
+        if vc_mode:
+            self.extractor_box = QComboBox()
+            model_layout.addWidget(QLabel("Extractor:"))
+            model_layout.addWidget(self.extractor_box)
+            self.convertor_box = QComboBox()
+            model_layout.addWidget(QLabel("Convertor:"))
+            model_layout.addWidget(self.convertor_box)
+        else:
+            model_layout.addWidget(QLabel("Synthesizer:"))
+            model_layout.addWidget(self.synthesizer_box)
         self.vocoder_box = QComboBox()
         model_layout.addWidget(QLabel("Vocoder:"))
         model_layout.addWidget(self.vocoder_box)
-        
-
+    
         #Replay & Save Audio
         i = 0
         output_layout.addWidget(QLabel("<b>Toolbox Output:</b>"), i, 0)
@@ -795,7 +833,6 @@ class UI(QDialog):
 
         ## Embed & spectrograms
         vis_layout.addStretch()
-
         #添加标签控件，设置标签文字格式并且居中
         label1 = QLabel("source audio")
         label1.setStyleSheet("QLabel{color:red;font-size:20px;font-weight:bold;font-family:Roman times;}")
@@ -844,8 +881,22 @@ class UI(QDialog):
         self.vocode_button = QPushButton("Vocode only(仅播放)")
         self.vocode_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
 
+        if vc_mode:
+            layout = QHBoxLayout()
+            self.convert_button = QPushButton("Extract and Convert")
+            layout.addWidget(self.convert_button)
+            gen_layout.addLayout(layout)
+        else:
+            self.generate_button = QPushButton("Synthesize and vocode")
+            gen_layout.addWidget(self.generate_button)
+            layout = QHBoxLayout()
+            self.synthesize_button = QPushButton("Synthesize only")
+            layout.addWidget(self.synthesize_button)
+
+        self.vocode_button = QPushButton("Vocode only")
         layout.addWidget(self.vocode_button)
         gen_layout.addLayout(layout)
+
 
         layout_seed = QGridLayout()
         self.random_seed_checkbox = QCheckBox("Random seed(随机数种子):")
@@ -914,7 +965,7 @@ class UI(QDialog):
         self.resize(max_size)
         
         ## Finalize the display
-        self.reset_interface()
+        self.reset_interface(vc_mode)
         self.show()
 
         ##set the picture of background

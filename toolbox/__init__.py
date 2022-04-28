@@ -11,7 +11,6 @@ import numpy as np
 import traceback
 import sys
 import torch
-import librosa
 import re
 from audioread.exceptions import NoBackendError
 from specdeno.enhance_speach import enhance
@@ -54,14 +53,20 @@ recognized_datasets = [
 MAX_WAVES = 15
 
 class Toolbox:
-    def __init__(self, datasets_root, enc_models_dir, syn_models_dir, voc_models_dir, seed, no_mp3_support):
+    def __init__(self, datasets_root, enc_models_dir, syn_models_dir, voc_models_dir, extractor_models_dir, convertor_models_dir, seed, no_mp3_support, vc_mode):
         self.no_mp3_support = no_mp3_support
+        self.vc_mode = vc_mode
         sys.excepthook = self.excepthook
         self.datasets_root = datasets_root
         self.utterances = set()
         self.current_generated = (None, None, None, None) # speaker_name, spec, breaks, wav
         
         self.synthesizer = None # type: Synthesizer
+
+        # for ppg-based voice conversion
+        self.extractor = None 
+        self.convertor = None # ppg2mel
+
         self.current_wav = None
         self.waves_list = []
         self.waves_count = 0
@@ -75,9 +80,9 @@ class Toolbox:
             self.trim_silences = False
 
         # Initialize the events and the interface
-        self.ui = UI()
+        self.ui = UI(vc_mode)
         self.style_idx = 0
-        self.reset_ui(enc_models_dir, syn_models_dir, voc_models_dir, seed)
+        self.reset_ui(enc_models_dir, syn_models_dir, voc_models_dir, extractor_models_dir, convertor_models_dir, seed)
         self.setup_events()
         self.ui.start()
 
@@ -101,7 +106,11 @@ class Toolbox:
         self.ui.encoder_box.currentIndexChanged.connect(self.init_encoder)
         def func(): 
             self.synthesizer = None
-        self.ui.synthesizer_box.currentIndexChanged.connect(func)
+        if self.vc_mode:
+            self.ui.extractor_box.currentIndexChanged.connect(self.init_extractor)
+        else:
+            self.ui.synthesizer_box.currentIndexChanged.connect(func)
+
         self.ui.vocoder_box.currentIndexChanged.connect(self.init_vocoder)
         
         # Utterance selection
@@ -118,9 +127,10 @@ class Toolbox:
         func = lambda: self.ui.plot_mfcc(self.ui.selected_utterance.wav, Synthesizer.sample_rate)
         self.ui.play_button.clicked.connect(func)
 
-
-
-
+        # Source Utterance selection
+        if self.vc_mode:
+            func = lambda: self.load_soruce_button(self.ui.selected_utterance)
+            self.ui.load_soruce_button.clicked.connect(func)
         #Audio
         self.ui.setup_audio_devices(Synthesizer.sample_rate)
 
@@ -134,15 +144,20 @@ class Toolbox:
 
 
         # Generation
-        func = lambda: self.synthesize() or self.vocode()
-        self.ui.generate_button.clicked.connect(func)
-        self.ui.synthesize_button.clicked.connect(self.synthesize)
         self.ui.vocode_button.clicked.connect(self.vocode)
         self.ui.random_seed_checkbox.clicked.connect(self.update_seed_textbox)
 
         # 添加result_mfcc分析槽,该槽要在语音合成之后
         func = lambda: self.ui.plot_mfcc1(self.current_wav, Synthesizer.sample_rate)
         self.ui.generate_button.clicked.connect(func)
+        if self.vc_mode:
+            func = lambda: self.convert() or self.vocode()
+            self.ui.convert_button.clicked.connect(func)
+        else:
+            func = lambda: self.synthesize() or self.vocode()
+            self.ui.generate_button.clicked.connect(func)
+            self.ui.synthesize_button.clicked.connect(self.synthesize)
+
         # UMAP legend
         self.ui.clear_button.clicked.connect(self.clear_utterances)
 
@@ -155,9 +170,9 @@ class Toolbox:
     def replay_last_wav(self):
         self.ui.play(self.current_wav, Synthesizer.sample_rate)
 
-    def reset_ui(self, encoder_models_dir, synthesizer_models_dir, vocoder_models_dir, seed):
+    def reset_ui(self, encoder_models_dir, synthesizer_models_dir, vocoder_models_dir, extractor_models_dir, convertor_models_dir, seed):
         self.ui.populate_browser(self.datasets_root, recognized_datasets, 0, True)
-        self.ui.populate_models(encoder_models_dir, synthesizer_models_dir, vocoder_models_dir)
+        self.ui.populate_models(encoder_models_dir, synthesizer_models_dir, vocoder_models_dir, extractor_models_dir, convertor_models_dir, self.vc_mode)
         self.ui.populate_gen_options(seed, self.trim_silences)
         
     def load_from_browser(self, fpath=None):
@@ -190,7 +205,10 @@ class Toolbox:
         self.ui.log("Loaded %s" % name)
 
         self.add_real_utterance(wav, name, speaker_name)
-        
+    
+    def load_soruce_button(self, utterance: Utterance):
+        self.selected_source_utterance = utterance
+
     def record(self):
         wav = self.ui.record_one(encoder.sampling_rate, 5)
         sf.write('output1.wav', wav, hparams.sample_rate)  # 先将变量wav写为文件的形式
@@ -218,7 +236,7 @@ class Toolbox:
         # Add the utterance
         utterance = Utterance(name, speaker_name, wav, spec, embed, partial_embeds, False)
         self.utterances.add(utterance)
-        self.ui.register_utterance(utterance)
+        self.ui.register_utterance(utterance, self.vc_mode)
 
         # Plot it
         self.ui.draw_embed(embed, name, "current")
@@ -291,7 +309,7 @@ class Toolbox:
             self.ui.set_loading(i, seq_len)
         if self.ui.current_vocoder_fpath is not None:
             self.ui.log("")
-            wav = vocoder.infer_waveform(spec, progress_callback=vocoder_progress)
+            wav, sample_rate = vocoder.infer_waveform(spec, progress_callback=vocoder_progress)
         else:
             self.ui.log("Waveform generation with Griffin-Lim... ")
             wav = Synthesizer.griffin_lim(spec)
@@ -302,7 +320,7 @@ class Toolbox:
         b_ends = np.cumsum(np.array(breaks) * Synthesizer.hparams.hop_size)
         b_starts = np.concatenate(([0], b_ends[:-1]))
         wavs = [wav[start:end] for start, end, in zip(b_starts, b_ends)]
-        breaks = [np.zeros(int(0.15 * Synthesizer.sample_rate))] * len(breaks)
+        breaks = [np.zeros(int(0.15 * sample_rate))] * len(breaks)
         wav = np.concatenate([i for w, b in zip(wavs, breaks) for i in (w, b)])
 
         # Trim excessive silences
@@ -314,7 +332,7 @@ class Toolbox:
 
         # Play it
         wav = wav / np.abs(wav).max() * 0.97
-        self.ui.play(wav, Synthesizer.sample_rate)
+        self.ui.play(wav, sample_rate)
 
         # Name it (history displayed in combobox)
         # TODO better naming for the combobox items?
@@ -356,6 +374,72 @@ class Toolbox:
         self.ui.draw_embed(embed, name, "generated")
         self.ui.draw_umap_projections(self.utterances)
         
+    def convert(self):
+        self.ui.log("Extract PPG and Converting...")
+        self.ui.set_loading(1)
+        
+        # Init
+        if self.convertor is None:
+            self.init_convertor()
+        if self.extractor is None:
+            self.init_extractor()
+        
+        src_wav = self.selected_source_utterance.wav
+
+        # Compute the ppg
+        if not self.extractor is None:
+            ppg = self.extractor.extract_from_wav(src_wav)
+        
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        ref_wav = self.ui.selected_utterance.wav
+        # Import necessary dependency of Voice Conversion
+        from utils.f0_utils import compute_f0, f02lf0, compute_mean_std, get_converted_lf0uv   
+        ref_lf0_mean, ref_lf0_std = compute_mean_std(f02lf0(compute_f0(ref_wav)))
+        lf0_uv = get_converted_lf0uv(src_wav, ref_lf0_mean, ref_lf0_std, convert=True)
+        min_len = min(ppg.shape[1], len(lf0_uv))
+        ppg = ppg[:, :min_len]
+        lf0_uv = lf0_uv[:min_len]
+        _, mel_pred, att_ws = self.convertor.inference(
+            ppg,
+            logf0_uv=torch.from_numpy(lf0_uv).unsqueeze(0).float().to(device),
+            spembs=torch.from_numpy(self.ui.selected_utterance.embed).unsqueeze(0).to(device),
+        )
+        mel_pred= mel_pred.transpose(0, 1)
+        breaks = [mel_pred.shape[1]]
+        mel_pred= mel_pred.detach().cpu().numpy()
+        self.ui.draw_spec(mel_pred, "generated")
+        self.current_generated = (self.ui.selected_utterance.speaker_name, mel_pred, breaks, None)
+        self.ui.set_loading(0)
+
+    def init_extractor(self):
+        if self.ui.current_extractor_fpath is None:
+            return
+        model_fpath = self.ui.current_extractor_fpath
+        self.ui.log("Loading the extractor %s... " % model_fpath)
+        self.ui.set_loading(1)
+        start = timer()
+        import ppg_extractor as extractor
+        self.extractor = extractor.load_model(model_fpath)
+        self.ui.log("Done (%dms)." % int(1000 * (timer() - start)), "append")
+        self.ui.set_loading(0)
+
+    def init_convertor(self):
+        if self.ui.current_convertor_fpath is None:
+            return
+        model_fpath = self.ui.current_convertor_fpath
+        # search a config file
+        model_config_fpaths = list(model_fpath.parent.rglob("*.yaml"))
+        if self.ui.current_convertor_fpath is None:
+            return
+        model_config_fpath = model_config_fpaths[0]
+        self.ui.log("Loading the convertor %s... " % model_fpath)
+        self.ui.set_loading(1)
+        start = timer()
+        import ppg2mel as convertor
+        self.convertor = convertor.load_model(model_config_fpath, model_fpath)
+        self.ui.log("Done (%dms)." % int(1000 * (timer() - start)), "append")
+        self.ui.set_loading(0)
+        
     def init_encoder(self):
         model_fpath = self.ui.current_encoder_fpath
         
@@ -383,7 +467,6 @@ class Toolbox:
         # Case of Griffin-lim
         if model_fpath is None:
             return 
-        
 
         # Select vocoder based on model name
         if model_fpath.name[0] == "g":
@@ -392,6 +475,17 @@ class Toolbox:
         elif model_fpath.name[0] == "m":
             vocoder = fgan_vocoder
             self.ui.log("set fregan as vocoder")
+        # Sekect vocoder based on model name
+        model_config_fpath = None
+        if model_fpath.name[0] == "g":
+            vocoder = gan_vocoder
+            self.ui.log("set hifigan as vocoder")
+            # search a config file
+            model_config_fpaths = list(model_fpath.parent.rglob("*.json"))
+            if self.vc_mode and self.ui.current_extractor_fpath is None:
+                return
+            if len(model_config_fpaths) > 0:
+                model_config_fpath = model_config_fpaths[0]
         else:
             vocoder = rnn_vocoder
             self.ui.log("set wavernn as vocoder")
@@ -399,7 +493,7 @@ class Toolbox:
         self.ui.log("Loading the vocoder %s... " % model_fpath)
         self.ui.set_loading(1)
         start = timer()
-        vocoder.load_model(model_fpath)
+        vocoder.load_model(model_fpath, model_config_fpath)
         self.ui.log("Done (%dms)." % int(1000 * (timer() - start)), "append")
         self.ui.set_loading(0)
 

@@ -34,8 +34,16 @@ def load_model(weights_fpath: Path, device=None):
     _model.load_state_dict(checkpoint["model_state"])
     _model.eval()
     print("Loaded encoder \"%s\" trained to step %d" % (weights_fpath.name, checkpoint["step"]))
+    return _model
     
-    
+def set_model(model, device=None):
+    global _model, _device
+    _model = model
+    if device is None:
+        _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    _device = device
+    _model.to(device)
+
 def is_loaded():
     return _model is not None
 
@@ -57,7 +65,7 @@ def embed_frames_batch(frames_batch):
 
 
 def compute_partial_slices(n_samples, partial_utterance_n_frames=partials_n_frames,
-                           min_pad_coverage=0.75, overlap=0.5):
+                           min_pad_coverage=0.75, overlap=0.5, rate=None):
     """
     Computes where to split an utterance waveform and its corresponding mel spectrogram to obtain 
     partial utterances of <partial_utterance_n_frames> each. Both the waveform and the mel 
@@ -85,9 +93,18 @@ def compute_partial_slices(n_samples, partial_utterance_n_frames=partials_n_fram
     assert 0 <= overlap < 1
     assert 0 < min_pad_coverage <= 1
     
-    samples_per_frame = int((sampling_rate * mel_window_step / 1000))
-    n_frames = int(np.ceil((n_samples + 1) / samples_per_frame))
-    frame_step = max(int(np.round(partial_utterance_n_frames * (1 - overlap))), 1)
+    if rate != None:
+        samples_per_frame = int((sampling_rate * mel_window_step / 1000))
+        n_frames = int(np.ceil((n_samples + 1) / samples_per_frame))
+        frame_step = int(np.round((sampling_rate / rate) / samples_per_frame))
+    else: 
+        samples_per_frame = int((sampling_rate * mel_window_step / 1000))
+        n_frames = int(np.ceil((n_samples + 1) / samples_per_frame))
+        frame_step = max(int(np.round(partial_utterance_n_frames * (1 - overlap))), 1)
+
+    assert 0 < frame_step, "The rate is too high"
+    assert frame_step <= partials_n_frames, "The rate is too low, it should be %f at least" % \
+        (sampling_rate / (samples_per_frame * partials_n_frames))
 
     # Compute the slices
     wav_slices, mel_slices = [], []

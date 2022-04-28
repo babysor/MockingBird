@@ -15,12 +15,18 @@ if __name__ == '__main__':
     parser.add_argument("-d", "--datasets_root", type=Path, help= \
         "Path to the directory containing your datasets. See toolbox/__init__.py for a list of "
         "supported datasets.", default=None)
+    parser.add_argument("-vc", "--vc_mode", action="store_true", 
+                        help="Voice Conversion Mode(PPG based)")
     parser.add_argument("-e", "--enc_models_dir", type=Path, default="encoder/saved_models", 
                         help="Directory containing saved encoder models")
     parser.add_argument("-s", "--syn_models_dir", type=Path, default="synthesizer/saved_models", 
                         help="Directory containing saved synthesizer models")
     parser.add_argument("-v", "--voc_models_dir", type=Path, default="vocoder/saved_models", 
                         help="Directory containing saved vocoder models")
+    parser.add_argument("-ex", "--extractor_models_dir", type=Path, default="ppg_extractor/saved_models", 
+                        help="Directory containing saved extrator models")
+    parser.add_argument("-cv", "--convertor_models_dir", type=Path, default="ppg2mel/saved_models", 
+                        help="Directory containing saved convert models")
     parser.add_argument("--cpu", action="store_true", help=\
         "If True, processing is done on CPU, even when a GPU is available.")
     parser.add_argument("--seed", type=int, default=None, help=\

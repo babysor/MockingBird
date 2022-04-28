@@ -12,6 +12,7 @@ from synthesizer.utils.symbols import symbols
 from synthesizer.utils.text import sequence_to_text
 from vocoder.display import *
 from datetime import datetime
+import json
 import numpy as np
 from pathlib import Path
 import sys
@@ -75,6 +76,13 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
         if num_chars != loaded_shape[0]:
             print("WARNING: you are using compatible mode due to wrong sympols length, please modify varible _characters in `utils\symbols.py`")
             num_chars != loaded_shape[0]
+                # Try to scan config file
+        model_config_fpaths = list(weights_fpath.parent.rglob("*.json"))
+        if len(model_config_fpaths)>0 and model_config_fpaths[0].exists():
+            with model_config_fpaths[0].open("r", encoding="utf-8") as f:
+                hparams.loadJson(json.load(f))
+        else:  # save a config
+            hparams.dumpJson(weights_fpath.parent.joinpath(run_id).with_suffix(".json"))
 
 
     model = Tacotron(embed_dims=hparams.tts_embed_dims,
@@ -222,7 +230,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
 
                 # Backup or save model as appropriate
                 if backup_every != 0 and step % backup_every == 0 : 
-                    backup_fpath = Path("{}/{}_{}k.pt".format(str(weights_fpath.parent), run_id, k))
+                    backup_fpath = Path("{}/{}_{}.pt".format(str(weights_fpath.parent), run_id, step))
                     model.save(backup_fpath, optimizer)
 
                 if save_every != 0 and step % save_every == 0 : 

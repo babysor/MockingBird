@@ -1,5 +1,6 @@
 import ast
 import pprint
+import json
 
 class HParams(object):
     def __init__(self, **kwargs): self.__dict__.update(kwargs)
@@ -16,6 +17,19 @@ class HParams(object):
             values = list(map(str.strip, values))
             for k in keys:
                 self.__dict__[k] = ast.literal_eval(values[keys.index(k)])
+        return self
+
+    def loadJson(self, dict):
+        print("\Loading the json with %s\n", dict)
+        for k in dict.keys():
+            if k not in ["tts_schedule", "tts_finetune_layers"]: 
+                self.__dict__[k] = dict[k]
+        return self
+
+    def dumpJson(self, fp):
+        print("\Saving the json with %s\n", fp)
+        with fp.open("w", encoding="utf-8") as f:
+            json.dump(self.__dict__, f)
         return self
 
 hparams = HParams(

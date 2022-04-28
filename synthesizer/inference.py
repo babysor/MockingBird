@@ -10,6 +10,7 @@ from typing import Union, List
 import numpy as np
 import librosa
 from utils import logmmse
+import json
 from pypinyin import lazy_pinyin, Style
 
 class Synthesizer:
@@ -44,6 +45,11 @@ class Synthesizer:
         return self._model is not None
     
     def load(self):
+        # Try to scan config file
+        model_config_fpaths = list(self.model_fpath.parent.rglob("*.json"))
+        if len(model_config_fpaths)>0 and model_config_fpaths[0].exists():
+            with model_config_fpaths[0].open("r", encoding="utf-8") as f:
+                hparams.loadJson(json.load(f))
         """
         Instantiates and loads the model given the weights file that was passed in the constructor.
         """
@@ -143,7 +149,7 @@ class Synthesizer:
         Loads and preprocesses an audio file under the same conditions the audio files were used to
         train the synthesizer. 
         """
-        wav = librosa.load(str(fpath), hparams.sample_rate)[0]
+        wav = librosa.load(path=str(fpath), sr=hparams.sample_rate)[0]
         if hparams.rescale:
             wav = wav / np.abs(wav).max() * hparams.rescaling_max
         # denoise
