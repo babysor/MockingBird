@@ -5,7 +5,7 @@ import typer
 cli = typer.Typer()
 
 @cli.command()
-def launch_ui(opyrator: str, port: int = typer.Option(8051, "--port", "-p")) -> None:
+def launch_ui(port: int = typer.Option(8051, "--port", "-p")) -> None:
     """Start a graphical UI server for the opyrator.
 
     The UI is auto-generated from the input- and output-schema of the given function.
@@ -15,7 +15,7 @@ def launch_ui(opyrator: str, port: int = typer.Option(8051, "--port", "-p")) -> 
     sys.path.append(os.getcwd())
 
     from mkgui.base.ui.streamlit_ui import launch_ui
-    launch_ui(opyrator, port)
+    launch_ui(port)
 
 if __name__ == "__main__":
     cli()

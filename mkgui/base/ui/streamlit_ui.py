@@ -32,21 +32,20 @@ st.set_page_config(
     page_icon="🧊",
     layout="wide")
 
-with st.spinner("Loading MockingBird GUI. Please wait..."):
-    opyrator = Opyrator("{opyrator_path}")
-
-render_streamlit_ui(opyrator, action="{action}")
+render_streamlit_ui()
 """
 
+# with st.spinner("Loading MockingBird GUI. Please wait..."):
+#     opyrator = Opyrator("{opyrator_path}")
 
-def launch_ui(opyrator_path: str, port: int = 8501) -> None:
+
+def launch_ui(port: int = 8501) -> None:
     with NamedTemporaryFile(
         suffix=".py", mode="w", encoding="utf-8", delete=False
     ) as f:
-        f.write(STREAMLIT_RUNNER_SNIPPET.format_map({'opyrator_path': opyrator_path, 'action': "Synthesize"}))
+        f.write(STREAMLIT_RUNNER_SNIPPET)
         f.seek(0)
 
-        # TODO: PYTHONPATH="$PYTHONPATH:/workspace/opyrator/src"
         import subprocess
 
         python_path = f'PYTHONPATH="$PYTHONPATH:{getcwd()}"'
@@ -801,30 +800,42 @@ class OutputUI:
             streamlit.json(jsonable_encoder(output_data))
 
 
-def render_streamlit_ui(opyrator: Opyrator, action: str = "Execute") -> None:
-    title = opyrator.name
+def getOpyrator(mode: str) -> Opyrator:
+    # if mode == None or mode.startswith('VC'):
+    #     from mkgui.app_vc import vc
+    #     return  Opyrator(vc)
+    from mkgui.app import main
+    return Opyrator(main)
+    
 
+def render_streamlit_ui() -> None:
     # init
     session_state = st.session_state
     session_state.input_data = {}
+    session_state.mode = None
+
+    with st.spinner("Loading MockingBird GUI. Please wait..."):
+        session_state.mode = st.sidebar.selectbox(
+            '模式选择', 
+            ("AI拟音", "VC拟音")
+        )
+        opyrator = getOpyrator(session_state.mode)
+    title = opyrator.name
 
     col1, col2, _ = st.columns(3)
     col2.title(title)
+    col2.markdown("欢迎使用MockingBird Web 2")
+
     image = Image.open('.\\mkgui\\static\\mb.png')
     col1.image(image)
 
-    # Add custom css settings
-    st.markdown(f"<style>{CUSTOM_STREAMLIT_CSS}</style>", unsafe_allow_html=True)
-
-    if opyrator.description:
-        st.markdown(opyrator.description)
-
-    left, right = st.columns([0.3, 0.8])
-    InputUI(session_state=session_state, input_class=opyrator.input_type).render_ui(left)
-
+    st.markdown("---")
+    left, right = st.columns([0.4, 0.6])
 
     with left:
-        execute_selected = st.button(action)
+        st.header("Control 控制")
+        InputUI(session_state=session_state, input_class=opyrator.input_type).render_ui(st)
+        execute_selected = st.button(opyrator.action)
         if execute_selected:
             with st.spinner("Executing operation. Please wait..."):
                 try:
@@ -838,18 +849,23 @@ def render_streamlit_ui(opyrator: Opyrator, action: str = "Execute") -> None:
                 else:
                     # st.success("Operation executed successfully.")
                     pass
-        if st.button("Clear"):
+
+    with right:
+        st.header("Result 结果")
+        if 'output_data' in session_state:
+            OutputUI(
+                session_state.output_data, session_state.latest_operation_input
+            ).render_ui(st)
+            if st.button("Clear"):
             # Clear all state
-            for key in st.session_state.keys():
-                del st.session_state[key]   
-            session_state.input_data = {}
-            st.experimental_rerun()
-
-
-    if 'output_data' in session_state:
-        OutputUI(
-            session_state.output_data, session_state.latest_operation_input
-        ).render_ui(right)
-
-    #     st.markdown("---")
+                for key in st.session_state.keys():
+                    del st.session_state[key]   
+                session_state.input_data = {}
+                st.experimental_rerun()
+        else:
+            # placeholder
+            st.caption("请使用左侧控制板进行输入并运行获得结果")
+        
+    # Add custom css settings
+    st.markdown(f"<style>{CUSTOM_STREAMLIT_CSS}</style>", unsafe_allow_html=True)
 

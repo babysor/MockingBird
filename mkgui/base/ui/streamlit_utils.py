@@ -4,6 +4,9 @@ div[data-testid="stBlock"] button {
   margin-bottom: 20px !important;
   border-color: #bfbfbf !important;
 }
+section[data-testid="stSidebar"] div {
+  max-width: 10rem;
+}
 pre code {
     white-space: pre-wrap;
 }

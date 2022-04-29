@@ -38,6 +38,9 @@ if os.path.isdir(VOC_MODELS_DIRT):
 
 
 class Input(BaseModel):
+    message: str = Field(
+        ..., example="欢迎使用工具箱, 现已支持中文输入！", alias="文本内容"
+    )
     local_audio_file: audio_input_selection = Field(
         ..., alias="输入语音（本地wav）",
         description="选择本地语音文件."
@@ -56,9 +59,6 @@ class Input(BaseModel):
         ..., alias="语音编码模型", 
         description="选择语音编码模型文件(目前只支持HifiGan类型)."
     )
-    message: str = Field(
-        ..., example="欢迎使用工具箱, 现已支持中文输入！", alias="输出文本内容"
-    )
 
 class AudioEntity(BaseModel):
     content: bytes
@@ -72,7 +72,8 @@ class Output(BaseModel):
         If this method is implmeneted, it will be used instead of the default Output UI renderer.
         """
         src, result = self.__root__
-        streamlit_app.subheader("Result Audio")
+        
+        streamlit_app.subheader("Synthesized Audio")
         streamlit_app.audio(result.content, format="audio/wav")
 
         fig, ax = plt.subplots()
@@ -85,8 +86,8 @@ class Output(BaseModel):
         streamlit_app.pyplot(fig)
 
 
-def mocking_bird(input: Input) -> Output:
-    """欢迎使用MockingBird Web 2"""
+def main(input: Input) -> Output:
+    """synthesize(合成)"""
     # load models
     encoder.load_model(Path(input.encoder.value))
     current_synt = Synthesizer(Path(input.synthesizer.value))

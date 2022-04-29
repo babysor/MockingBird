@@ -113,7 +113,7 @@ class Opyrator:
             self.function = func
 
         self._name = "Opyrator"
-        self._description = ""
+        self._action = "Execute"
         self._input_type = None
         self._output_type = None
 
@@ -140,7 +140,7 @@ class Opyrator:
                 # Get description from function
                 doc_string = inspect.getdoc(self.function)
                 if doc_string:
-                    self._description = doc_string
+                    self._action = doc_string
             except Exception:
                 pass
         elif hasattr(self.function, "__call__"):
@@ -155,19 +155,19 @@ class Opyrator:
                 pass
 
             try:
-                # Get description from
+                # Get action from
                 doc_string = inspect.getdoc(self.function.__call__)  # type: ignore
                 if doc_string:
-                    self._description = doc_string
+                    self._action = doc_string
 
                 if (
-                    not self._description
-                    or self._description == "Call self as a function."
+                    not self._action
+                    or self._action == "Call"
                 ):
                     # Get docstring from class instead of __call__ function
                     doc_string = inspect.getdoc(self.function)
                     if doc_string:
-                        self._description = doc_string
+                        self._action = doc_string
             except Exception:
                 pass
         else:
@@ -178,8 +178,8 @@ class Opyrator:
         return self._name
 
     @property
-    def description(self) -> str:
-        return self._description
+    def action(self) -> str:
+        return self._action
 
     @property
     def input_type(self) -> Any:
