@@ -447,7 +447,7 @@ class Toolbox:
             return 
         # Sekect vocoder based on model name
         model_config_fpath = None
-        if model_fpath.name[0] == "g":
+        if model_fpath.name is not None and model_fpath.name.find("hifigan") > -1:
             vocoder = gan_vocoder
             self.ui.log("set hifigan as vocoder")
             # search a config file
