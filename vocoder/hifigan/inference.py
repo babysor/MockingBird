@@ -26,7 +26,11 @@ def load_model(weights_fpath, config_fpath=None, verbose=True):
         print("Building hifigan")
 
     if config_fpath == None:
-        config_fpath = "./vocoder/hifigan/config_16k_.json"
+        model_config_fpaths = list(weights_fpath.parent.rglob("*.json"))
+        if len(model_config_fpaths) > 0:
+            config_fpath = model_config_fpaths[0]
+        else:
+            config_fpath = "./vocoder/hifigan/config_16k_.json"
     with open(config_fpath) as f:
         data = f.read()
     json_config = json.loads(data)

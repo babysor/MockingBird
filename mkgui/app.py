@@ -53,11 +53,11 @@ class Input(BaseModel):
     )
     synthesizer: synthesizers = Field(
         ..., alias="合成模型", 
-        description="选择语音编码模型文件."
+        description="选择语音合成模型文件."
     )
     vocoder: vocoders = Field(
-        ..., alias="语音编码模型", 
-        description="选择语音编码模型文件(目前只支持HifiGan类型)."
+        ..., alias="语音解码模型", 
+        description="选择语音解码模型文件(目前只支持HifiGan类型)."
     )
 
 class AudioEntity(BaseModel):

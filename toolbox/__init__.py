@@ -405,16 +405,11 @@ class Toolbox:
         if self.ui.current_convertor_fpath is None:
             return
         model_fpath = self.ui.current_convertor_fpath
-        # search a config file
-        model_config_fpaths = list(model_fpath.parent.rglob("*.yaml"))
-        if self.ui.current_convertor_fpath is None:
-            return
-        model_config_fpath = model_config_fpaths[0]
         self.ui.log("Loading the convertor %s... " % model_fpath)
         self.ui.set_loading(1)
         start = timer()
         import ppg2mel as convertor
-        self.convertor = convertor.load_model(model_config_fpath, model_fpath)
+        self.convertor = convertor.load_model( model_fpath)
         self.ui.log("Done (%dms)." % int(1000 * (timer() - start)), "append")
         self.ui.set_loading(0)
         

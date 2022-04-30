@@ -801,9 +801,9 @@ class OutputUI:
 
 
 def getOpyrator(mode: str) -> Opyrator:
-    # if mode == None or mode.startswith('VC'):
-    #     from mkgui.app_vc import vc
-    #     return  Opyrator(vc)
+    if mode == None or mode.startswith('VC'):
+        from mkgui.app_vc import main
+        return  Opyrator(main)
     from mkgui.app import main
     return Opyrator(main)
     
