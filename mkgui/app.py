@@ -86,7 +86,7 @@ class Output(BaseModel):
         streamlit_app.pyplot(fig)
 
 
-def main(input: Input) -> Output:
+def synthesize(input: Input) -> Output:
     """synthesize(合成)"""
     # load models
     encoder.load_model(Path(input.encoder.value))

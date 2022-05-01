@@ -38,6 +38,11 @@ def is_single_file_property(property: Dict) -> bool:
     return property.get("format") == "byte"
 
 
+def is_single_directory_property(property: Dict) -> bool:
+    if property.get("type") != "string":
+        return False
+    return property.get("format") == "path"
+
 def is_multi_enum_property(property: Dict, references: Dict) -> bool:
     if property.get("type") != "array":
         return False

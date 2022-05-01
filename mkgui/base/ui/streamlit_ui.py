@@ -110,7 +110,7 @@ class InputUI:
             # The rendering also returns the current state of input data
             self._session_state.input_data = self._input_class.render_input_ui(  # type: ignore
                 st, self._session_state.input_data
-            ).dict()
+            )
             return
 
         # print(self._schema_properties)
@@ -802,25 +802,31 @@ class OutputUI:
 
 def getOpyrator(mode: str) -> Opyrator:
     if mode == None or mode.startswith('VC'):
-        from mkgui.app_vc import main
-        return  Opyrator(main)
-    from mkgui.app import main
-    return Opyrator(main)
+        from mkgui.app_vc import convert
+        return  Opyrator(convert)
+    if mode == None or mode.startswith('预处理'):
+        from mkgui.preprocess import preprocess
+        return  Opyrator(preprocess)
+    from mkgui.app import synthesize
+    return Opyrator(synthesize)
     
 
 def render_streamlit_ui() -> None:
     # init
     session_state = st.session_state
     session_state.input_data = {}
-    session_state.mode = None
 
     with st.spinner("Loading MockingBird GUI. Please wait..."):
         session_state.mode = st.sidebar.selectbox(
             '模式选择', 
-            ("AI拟音", "VC拟音")
+            ( "AI拟音", "VC拟音", "预处理")
         )
-        opyrator = getOpyrator(session_state.mode)
-    title = opyrator.name
+        if "mode" in session_state:
+            mode = session_state.mode
+        else:
+            mode = ""
+        opyrator = getOpyrator(mode)
+    title = opyrator.name + mode
 
     col1, col2, _ = st.columns(3)
     col2.title(title)

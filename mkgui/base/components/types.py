@@ -1,5 +1,5 @@
 import base64
-from typing import Any, Dict
+from typing import Any, Dict, overload
 
 
 class FileContent(str):
@@ -27,3 +27,20 @@ class FileContent(str):
             return FileContent(base64.b64encode(value).decode())
         else:
             raise Exception("Wrong type")
+
+# # 暂时无法使用，因为浏览器中没有考虑选择文件夹
+# class DirectoryContent(FileContent):
+#     @classmethod
+#     def __modify_schema__(cls, field_schema: Dict[str, Any]) -> None:
+#         field_schema.update(format="path")
+
+#     @classmethod
+#     def validate(cls, value: Any) -> "DirectoryContent":
+#         if isinstance(value, DirectoryContent):
+#             return value
+#         elif isinstance(value, str):
+#             return DirectoryContent(value)
+#         elif isinstance(value, (bytes, bytearray, memoryview)):
+#             return DirectoryContent(base64.b64encode(value).decode())
+#         else:
+#             raise Exception("Wrong type")

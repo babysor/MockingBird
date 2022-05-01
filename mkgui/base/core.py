@@ -112,7 +112,6 @@ class Opyrator:
         else:
             self.function = func
 
-        self._name = "Opyrator"
         self._action = "Execute"
         self._input_type = None
         self._output_type = None

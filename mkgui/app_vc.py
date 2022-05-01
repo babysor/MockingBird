@@ -101,7 +101,7 @@ class Output(BaseModel):
         ax.set_title("mel spectrogram(Result Audio)")
         streamlit_app.pyplot(fig)
 
-def main(input: Input) -> Output:
+def convert(input: Input) -> Output:
     """convert(转换)"""
     # load models
     extractor = Extractor.load_model(Path(input.extractor.value))
