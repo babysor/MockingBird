@@ -44,9 +44,6 @@ if os.path.isdir(VOC_MODELS_DIRT):
 
 
 class Input(BaseModel):
-    message: str = Field(
-        ..., example="欢迎使用工具箱, 现已支持中文输入！", alias="文本内容"
-    )
     local_audio_file: audio_input_selection = Field(
         ..., alias="输入语音（本地wav）",
         description="选择本地语音文件."
