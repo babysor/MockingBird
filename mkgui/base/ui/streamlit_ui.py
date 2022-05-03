@@ -51,9 +51,13 @@ def launch_ui(port: int = 8501) -> None:
         python_path = f'PYTHONPATH="$PYTHONPATH:{getcwd()}"'
         if system() == "Windows":
             python_path = f"set PYTHONPATH=%PYTHONPATH%;{getcwd()} &&"
+            subprocess.run(
+                f"""set STREAMLIT_GLOBAL_SHOW_WARNING_ON_DIRECT_EXECUTION=false""",
+                shell=True,
+            )
 
         subprocess.run(
-            f"""{python_path} "{sys.executable}" -m streamlit run --server.port={port} --server.headless=True --runner.magicEnabled=False --server.maxUploadSize=50 --browser.gatherUsageStats=False {f.name}""",
+            f"""{python_path} "{sys.executable}" -m streamlit run --server.port={port} --server.headless=True --runner.magicEnabled=False --server.maxUploadSize=50  --browser.gatherUsageStats=False {f.name}""",
             shell=True,
         )
 
@@ -122,10 +126,11 @@ class InputUI:
                 property["title"] = name_to_title(property_key)
 
             try:
-                self._store_value(
-                    property_key,
-                    self._render_property(streamlit_app_root, property_key, property),
-                )
+                if "input_data" in self._session_state:
+                    self._store_value(
+                        property_key,
+                        self._render_property(streamlit_app_root, property_key, property),
+                    )
             except Exception as e:
                 print("Exception!", e)
                 pass
@@ -807,6 +812,9 @@ def getOpyrator(mode: str) -> Opyrator:
     if mode == None or mode.startswith('预处理'):
         from mkgui.preprocess import preprocess
         return  Opyrator(preprocess)
+    if mode == None or mode.startswith('模型训练'):
+        from mkgui.train import train
+        return  Opyrator(train)
     from mkgui.app import synthesize
     return Opyrator(synthesize)
     
@@ -815,11 +823,13 @@ def render_streamlit_ui() -> None:
     # init
     session_state = st.session_state
     session_state.input_data = {}
+    # Add custom css settings
+    st.markdown(f"<style>{CUSTOM_STREAMLIT_CSS}</style>", unsafe_allow_html=True)
 
     with st.spinner("Loading MockingBird GUI. Please wait..."):
         session_state.mode = st.sidebar.selectbox(
             '模式选择', 
-            ( "AI拟音", "VC拟音", "预处理")
+            ( "AI拟音", "VC拟音", "预处理", "模型训练")
         )
         if "mode" in session_state:
             mode = session_state.mode
@@ -872,6 +882,4 @@ def render_streamlit_ui() -> None:
             # placeholder
             st.caption("请使用左侧控制板进行输入并运行获得结果")
         
-    # Add custom css settings
-    st.markdown(f"<style>{CUSTOM_STREAMLIT_CSS}</style>", unsafe_allow_html=True)
-
+   

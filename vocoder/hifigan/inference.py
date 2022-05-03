@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import json
 import torch
-from vocoder.hifigan.env import AttrDict
+from utils.util import AttrDict
 from vocoder.hifigan.models import Generator
 
 generator = None       # type: Generator

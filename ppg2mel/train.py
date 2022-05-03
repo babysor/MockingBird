@@ -31,15 +31,10 @@ def main():
     parser.add_argument('--njobs', default=8, type=int,
                         help='Number of threads for dataloader/decoding.', required=False)
     parser.add_argument('--cpu', action='store_true', help='Disable GPU training.')
-    parser.add_argument('--no-pin', action='store_true',
-                        help='Disable pin-memory for dataloader')
-    parser.add_argument('--test', action='store_true', help='Test the model.')
+    # parser.add_argument('--no-pin', action='store_true',
+    #                     help='Disable pin-memory for dataloader')
     parser.add_argument('--no-msg', action='store_true', help='Hide all messages.')
-    parser.add_argument('--finetune', action='store_true', help='Finetune model')
-    parser.add_argument('--oneshotvc', action='store_true', help='Oneshot VC model')
-    parser.add_argument('--bilstm', action='store_true', help='BiLSTM VC model')
-    parser.add_argument('--lsa', action='store_true', help='Use location-sensitive attention (LSA)')
-
+    
     ###
 
     paras = parser.parse_args()

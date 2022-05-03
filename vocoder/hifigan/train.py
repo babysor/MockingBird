@@ -12,7 +12,6 @@ from torch.utils.data import DistributedSampler, DataLoader
 import torch.multiprocessing as mp
 from torch.distributed import init_process_group
 from torch.nn.parallel import DistributedDataParallel
-from vocoder.hifigan.env import AttrDict, build_env
 from vocoder.hifigan.meldataset import MelDataset, mel_spectrogram, get_dataset_filelist
 from vocoder.hifigan.models import Generator, MultiPeriodDiscriminator, MultiScaleDiscriminator, feature_loss, generator_loss,\
     discriminator_loss
