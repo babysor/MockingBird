@@ -18,6 +18,14 @@
 
 ### [DEMO VIDEO](https://www.bilibili.com/video/BV17Q4y1B7mY/)
 
+### Ongoing Works(Helps Needed)
+* Major upgrade on GUI/Client and unifying web and toolbox
+[X] Init framework `./mkgui` and [tech design](https://vaj2fgg8yn.feishu.cn/docs/doccnvotLWylBub8VJIjKzoEaee)
+[X] Add demo part of Voice Cloning and Conversion
+[X] Add preprocessing and training for Voice Conversion
+[ ] Add preprocessing and training for Encoder/Synthesizer/Vocoder
+* Major upgrade on model backend based on ESPnet2(not yet started)
+
 ## Quick Start
 
 ### 1. Install Requirements
