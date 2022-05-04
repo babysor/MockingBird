@@ -82,15 +82,10 @@
 ### 3. 启动程序或工具箱
 您可以尝试使用以下命令：
 
-### 3.1 启动Web程序：
+### 3.1 启动Web程序（v2）：
 `python web.py`
 运行成功后在浏览器打开地址, 默认为 `http://localhost:8080`
-![123](https://user-images.githubusercontent.com/12797292/135494044-ae59181c-fe3a-406f-9c7d-d21d12fdb4cb.png)
-> 注：目前界面比较buggy, 
-> * 第一次点击`录制`要等待几秒浏览器正常启动录音，否则会有重音
-> * 录制结束不要再点`录制`而是`停止`
 > * 仅支持手动新录音（16khz）, 不支持超过4MB的录音，最佳长度在5~15秒
-> * 默认使用第一个找到的模型，有动手能力的可以看代码修改 `web\__init__.py`。
 
 ### 3.2 启动工具箱：
 `python demo_toolbox.py -d <datasets_root>`
