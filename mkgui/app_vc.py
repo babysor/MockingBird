@@ -34,14 +34,20 @@ if os.path.isdir(AUDIO_SAMPLES_DIR):
 if os.path.isdir(EXT_MODELS_DIRT):    
     extractors =  Enum('extractors', list((file.name, file) for file in Path(EXT_MODELS_DIRT).glob("**/*.pt")))
     print("Loaded extractor models: " + str(len(extractors)))
+else:
+    raise Exception(f"Model folder {EXT_MODELS_DIRT} doesn't exist.")
+
 if os.path.isdir(CONV_MODELS_DIRT):    
     convertors =  Enum('convertors', list((file.name, file) for file in Path(CONV_MODELS_DIRT).glob("**/*.pth")))
     print("Loaded convertor models: " + str(len(convertors)))
+else:
+    raise Exception(f"Model folder {CONV_MODELS_DIRT} doesn't exist.")
 
 if os.path.isdir(VOC_MODELS_DIRT):    
     vocoders =  Enum('vocoders', list((file.name, file) for file in Path(VOC_MODELS_DIRT).glob("**/*gan*.pt")))
     print("Loaded vocoders models: " + str(len(vocoders)))
-
+else:
+    raise Exception(f"Model folder {VOC_MODELS_DIRT} doesn't exist.")
 
 class Input(BaseModel):
     local_audio_file: audio_input_selection = Field(

@@ -29,12 +29,20 @@ if os.path.isdir(AUDIO_SAMPLES_DIR):
 if os.path.isdir(SYN_MODELS_DIRT):    
     synthesizers =  Enum('synthesizers', list((file.name, file) for file in Path(SYN_MODELS_DIRT).glob("**/*.pt")))
     print("Loaded synthesizer models: " + str(len(synthesizers)))
+else:
+    raise Exception(f"Model folder {SYN_MODELS_DIRT} doesn't exist.")
+
 if os.path.isdir(ENC_MODELS_DIRT):    
     encoders =  Enum('encoders', list((file.name, file) for file in Path(ENC_MODELS_DIRT).glob("**/*.pt")))
     print("Loaded encoders models: " + str(len(encoders)))
+else:
+    raise Exception(f"Model folder {ENC_MODELS_DIRT} doesn't exist.")
+
 if os.path.isdir(VOC_MODELS_DIRT):    
     vocoders =  Enum('vocoders', list((file.name, file) for file in Path(VOC_MODELS_DIRT).glob("**/*gan*.pt")))
     print("Loaded vocoders models: " + str(len(synthesizers)))
+else:
+    raise Exception(f"Model folder {VOC_MODELS_DIRT} doesn't exist.")
 
 
 class Input(BaseModel):

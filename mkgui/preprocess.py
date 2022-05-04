@@ -13,9 +13,14 @@ ENC_MODELS_DIRT = "encoder\\saved_models"
 if os.path.isdir(EXT_MODELS_DIRT):    
     extractors =  Enum('extractors', list((file.name, file) for file in Path(EXT_MODELS_DIRT).glob("**/*.pt")))
     print("Loaded extractor models: " + str(len(extractors)))
+else:
+    raise Exception(f"Model folder {EXT_MODELS_DIRT} doesn't exist.")
+
 if os.path.isdir(ENC_MODELS_DIRT):    
     encoders = Enum('encoders', list((file.name, file) for file in Path(ENC_MODELS_DIRT).glob("**/*.pt")))
     print("Loaded encoders models: " + str(len(encoders)))
+else:
+    raise Exception(f"Model folder {ENC_MODELS_DIRT} doesn't exist.")
 
 class Model(str, Enum):
     VC_PPG2MEL = "ppg2mel"
