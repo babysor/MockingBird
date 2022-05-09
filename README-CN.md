@@ -18,6 +18,15 @@
 
 🌍 **Webserver Ready** 可伺服你的训练结果，供远程调用
 
+### 进行中的工作
+*  GUI/客户端大升级与合并
+[X] 初始化框架 `./mkgui` （基于streamlit + fastapi）和 [技术设计](https://vaj2fgg8yn.feishu.cn/docs/doccnvotLWylBub8VJIjKzoEaee)
+[X] 增加 Voice Cloning and Conversion的演示页面
+[X] 增加Voice Conversion的预处理preprocessing 和训练 training 页面 
+[ ] 增加其他的的预处理preprocessing 和训练 training 页面 
+* 模型后端基于ESPnet2升级
+
+
 ## 开始
 ### 1. 安装要求
 > 按照原始存储库测试您是否已准备好所有环境。
@@ -82,15 +91,10 @@
 ### 3. 启动程序或工具箱
 您可以尝试使用以下命令：
 
-### 3.1 启动Web程序：
+### 3.1 启动Web程序（v2）：
 `python web.py`
 运行成功后在浏览器打开地址, 默认为 `http://localhost:8080`
-![123](https://user-images.githubusercontent.com/12797292/135494044-ae59181c-fe3a-406f-9c7d-d21d12fdb4cb.png)
-> 注：目前界面比较buggy, 
-> * 第一次点击`录制`要等待几秒浏览器正常启动录音，否则会有重音
-> * 录制结束不要再点`录制`而是`停止`
 > * 仅支持手动新录音（16khz）, 不支持超过4MB的录音，最佳长度在5~15秒
-> * 默认使用第一个找到的模型，有动手能力的可以看代码修改 `web\__init__.py`。
 
 ### 3.2 启动工具箱：
 `python demo_toolbox.py -d <datasets_root>`

@@ -191,12 +191,15 @@ class MelDecoderMOLv2(AbsMelDecoder):
         
         return mel_outputs[0], mel_outputs_postnet[0], alignments[0]
 
-def load_model(train_config, model_file, device=None):
-    
+def load_model(model_file, device=None):
+    # search a config file
+    model_config_fpaths = list(model_file.parent.rglob("*.yaml"))
+    if len(model_config_fpaths) == 0:
+        raise "No model yaml config found for convertor"
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model_config = HpsYaml(train_config)
+    model_config = HpsYaml(model_config_fpaths[0])
     ppg2mel_model = MelDecoderMOLv2(
         **model_config["model"]
     ).to(device)

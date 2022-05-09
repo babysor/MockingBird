@@ -1,7 +1,7 @@
 from utils.argutils import print_args
 from vocoder.wavernn.train import train
 from vocoder.hifigan.train import train as train_hifigan
-from vocoder.hifigan.env import AttrDict
+from utils.util import AttrDict
 from pathlib import Path
 import argparse
 import json
