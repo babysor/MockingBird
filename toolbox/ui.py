@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+import numpy
+from scipy.fftpack import dct
+from PyQt5.QtGui import QPalette, QBrush, QPixmap
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from PyQt5.QtCore import Qt, QStringListModel
@@ -16,7 +19,13 @@ from time import sleep
 import umap
 import sys
 from warnings import filterwarnings, warn
+
+
+
 filterwarnings("ignore")
+
+
+
 
 
 colormap = np.array([
@@ -37,7 +46,7 @@ colormap = np.array([
 ], dtype=np.float) / 255 
 
 default_text = \
-    "欢迎使用工具箱, 现已支持中文输入！"
+    "请输入需要克隆的语音文本！"
 
 
    
@@ -49,7 +58,12 @@ class UI(QDialog):
     def draw_utterance(self, utterance: Utterance, which):
         self.draw_spec(utterance.spec, which)
         self.draw_embed(utterance.embed, utterance.name, which)
-    
+
+
+
+
+
+
     def draw_embed(self, embed, name, which):
         embed_ax, _ = self.current_ax if which == "current" else self.gen_ax
         embed_ax.figure.suptitle("" if embed is None else name)
@@ -96,7 +110,7 @@ class UI(QDialog):
 
         # Display a message if there aren't enough points
         if len(utterances) < self.min_umap_points:
-            self.umap_ax.text(.5, .5, "Add %d more points to\ngenerate the projections" % 
+            self.umap_ax.text(.5, .5, "umap:\nAdd %d more points to\ngenerate the projections" %
                               (self.min_umap_points - len(utterances)), 
                               horizontalalignment='center', fontsize=15)
             self.umap_ax.set_title("")
@@ -227,6 +241,110 @@ class UI(QDialog):
         
         return wav.squeeze()
 
+
+
+    #添加source_mfcc分析函数
+    def plot_mfcc(self, wav, sample_rate):
+
+        signal = wav
+        print(sample_rate, len(signal))
+        # 读取前3.5s 的数据
+        signal = signal[0:int(3.5 * sample_rate)]
+        print(signal)
+
+        # 预先处理
+        pre_emphasis = 0.97
+        emphasized_signal = numpy.append(signal[0], signal[1:] - pre_emphasis * signal[:-1])
+
+        frame_size = 0.025
+        frame_stride = 0.1
+        frame_length, frame_step = frame_size * sample_rate, frame_stride * sample_rate
+        signal_length = len(emphasized_signal)
+        frame_length = int(round(frame_length))
+        frame_step = int(round(frame_step))
+        num_frames = int(numpy.ceil(float(numpy.abs(signal_length - frame_length)) / frame_step))
+
+        pad_signal_length = num_frames * frame_step + frame_length
+        z = numpy.zeros((pad_signal_length - signal_length))
+        pad_signal = numpy.append(emphasized_signal, z)
+
+        indices = numpy.tile(numpy.arange(0, frame_length), (num_frames, 1)) + numpy.tile(
+            numpy.arange(0, num_frames * frame_step, frame_step), (frame_length, 1)).T
+
+        frames = pad_signal[numpy.mat(indices).astype(numpy.int32, copy=False)]
+
+        # 加上汉明窗
+        frames *= numpy.hamming(frame_length)
+        # frames *= 0.54 - 0.46 * numpy.cos((2 * numpy.pi * n) / (frame_length - 1))  # Explicit Implementation **
+
+        # 傅立叶变换和功率谱
+        NFFT = 512
+        mag_frames = numpy.absolute(numpy.fft.rfft(frames, NFFT))  # Magnitude of the FFT
+        # print(mag_frames.shape)
+        pow_frames = ((1.0 / NFFT) * ((mag_frames) ** 2))  # Power Spectrum
+
+        low_freq_mel = 0
+        # 将频率转换为Mel
+        nfilt = 40
+        high_freq_mel = (2595 * numpy.log10(1 + (sample_rate / 2) / 700))
+        mel_points = numpy.linspace(low_freq_mel, high_freq_mel, nfilt + 2)  # Equally spaced in Mel scale
+        hz_points = (700 * (10 ** (mel_points / 2595) - 1))  # Convert Mel to Hz
+
+        bin = numpy.floor((NFFT + 1) * hz_points / sample_rate)
+
+        fbank = numpy.zeros((nfilt, int(numpy.floor(NFFT / 2 + 1))))
+
+        for m in range(1, nfilt + 1):
+            f_m_minus = int(bin[m - 1])  # left
+            f_m = int(bin[m])  # center
+            f_m_plus = int(bin[m + 1])  # right
+            for k in range(f_m_minus, f_m):
+                fbank[m - 1, k] = (k - bin[m - 1]) / (bin[m] - bin[m - 1])
+            for k in range(f_m, f_m_plus):
+                fbank[m - 1, k] = (bin[m + 1] - k) / (bin[m + 1] - bin[m])
+        filter_banks = numpy.dot(pow_frames, fbank.T)
+        filter_banks = numpy.where(filter_banks == 0, numpy.finfo(float).eps, filter_banks)  # Numerical Stability
+        filter_banks = 20 * numpy.log10(filter_banks)  # dB
+
+        # 所得到的倒谱系数2-13被保留，其余的被丢弃
+        num_ceps = 12
+        mfcc = dct(filter_banks, type=2, axis=1, norm='ortho')[:, 1: (num_ceps + 1)]
+        (nframes, ncoeff) = mfcc.shape
+
+        n = numpy.arange(ncoeff)
+        cep_lifter = 22
+        lift = 1 + (cep_lifter / 2) * numpy.sin(numpy.pi * n / cep_lifter)
+        mfcc *= lift  # *
+
+        # filter_banks -= (numpy.mean(filter_banks, axis=0) + 1e-8)
+        mfcc -= (numpy.mean(mfcc, axis=0) + 1e-8)
+        print(mfcc.shape)
+
+        # 创建新的figure
+        fig10 = plt.figure(figsize=(16,8))
+
+        # 绘制1x2两行两列共四个图，编号从1开始
+        ax = fig10.add_subplot(121)
+        plt.plot(mfcc)
+
+        ax = fig10.add_subplot(122)
+        # 平均归一化MFCC
+        mfcc -= (numpy.mean(mfcc, axis=0) + 1e-8)
+        plt.imshow(numpy.flipud(mfcc.T), cmap=plt.cm.jet, aspect=0.2,
+                   extent=[0, mfcc.shape[0], 0, mfcc.shape[1]])  # 热力图
+        #将figure保存为png并显示在新创建的子窗口上
+        plt.savefig("fmcc_source.png")
+        dialog_fault = QDialog()
+        dialog_fault.setWindowTitle("源音频MFCC特征图及MFCC平均归一化热图")  # 设置窗口名
+        pic = QPixmap("fmcc_source.png")
+        label_pic = QLabel("show", dialog_fault)
+        label_pic.setPixmap(pic)
+        label_pic.setGeometry(0,0,1500,800)
+        dialog_fault.exec_()
+
+
+
+
     @property        
     def current_dataset_name(self):
         return self.dataset_box.currentText()
@@ -272,7 +390,7 @@ class UI(QDialog):
                 datasets = [d.relative_to(datasets_root) for d in datasets if d.exists()]
                 self.browser_load_button.setDisabled(len(datasets) == 0)
             if datasets_root is None or len(datasets) == 0:
-                msg = "Warning: you d" + ("id not pass a root directory for datasets as argument" \
+                msg = "Tip: Please " + (" select the voice to be cloned" \
                     if datasets_root is None else "o not have any of the recognized datasets" \
                                                   " in %s" % datasets_root) 
                 self.log(msg)
@@ -417,16 +535,125 @@ class UI(QDialog):
         self.export_wav_button.setDisabled(True)
         [self.log("") for _ in range(self.max_log_lines)]
 
+
+    #添加result_mfcc分析函数
+    def plot_mfcc1(self, wav, sample_rate):
+
+        signal = wav
+        print(sample_rate, len(signal))
+        # 读取前3.5s 的数据
+        signal = signal[0:int(3.5 * sample_rate)]
+        print(signal)
+
+        # 预先处理
+        pre_emphasis = 0.97
+        emphasized_signal = numpy.append(signal[0], signal[1:] - pre_emphasis * signal[:-1])
+
+        frame_size = 0.025
+        frame_stride = 0.1
+        frame_length, frame_step = frame_size * sample_rate, frame_stride * sample_rate
+        signal_length = len(emphasized_signal)
+        frame_length = int(round(frame_length))
+        frame_step = int(round(frame_step))
+        num_frames = int(numpy.ceil(float(numpy.abs(signal_length - frame_length)) / frame_step))
+
+        pad_signal_length = num_frames * frame_step + frame_length
+        z = numpy.zeros((pad_signal_length - signal_length))
+        pad_signal = numpy.append(emphasized_signal, z)
+
+        indices = numpy.tile(numpy.arange(0, frame_length), (num_frames, 1)) + numpy.tile(
+            numpy.arange(0, num_frames * frame_step, frame_step), (frame_length, 1)).T
+
+        frames = pad_signal[numpy.mat(indices).astype(numpy.int32, copy=False)]
+
+        # 加上汉明窗
+        frames *= numpy.hamming(frame_length)
+        # frames *= 0.54 - 0.46 * numpy.cos((2 * numpy.pi * n) / (frame_length - 1))  # Explicit Implementation **
+
+        # 傅立叶变换和功率谱
+        NFFT = 512
+        mag_frames = numpy.absolute(numpy.fft.rfft(frames, NFFT))  # Magnitude of the FFT
+        # print(mag_frames.shape)
+        pow_frames = ((1.0 / NFFT) * ((mag_frames) ** 2))  # Power Spectrum
+
+        low_freq_mel = 0
+        # 将频率转换为Mel
+        nfilt = 40
+        high_freq_mel = (2595 * numpy.log10(1 + (sample_rate / 2) / 700))
+        mel_points = numpy.linspace(low_freq_mel, high_freq_mel, nfilt + 2)  # Equally spaced in Mel scale
+        hz_points = (700 * (10 ** (mel_points / 2595) - 1))  # Convert Mel to Hz
+
+        bin = numpy.floor((NFFT + 1) * hz_points / sample_rate)
+
+        fbank = numpy.zeros((nfilt, int(numpy.floor(NFFT / 2 + 1))))
+
+        for m in range(1, nfilt + 1):
+            f_m_minus = int(bin[m - 1])  # left
+            f_m = int(bin[m])  # center
+            f_m_plus = int(bin[m + 1])  # right
+            for k in range(f_m_minus, f_m):
+                fbank[m - 1, k] = (k - bin[m - 1]) / (bin[m] - bin[m - 1])
+            for k in range(f_m, f_m_plus):
+                fbank[m - 1, k] = (bin[m + 1] - k) / (bin[m + 1] - bin[m])
+        filter_banks = numpy.dot(pow_frames, fbank.T)
+        filter_banks = numpy.where(filter_banks == 0, numpy.finfo(float).eps, filter_banks)  # Numerical Stability
+        filter_banks = 20 * numpy.log10(filter_banks)  # dB
+
+        # 所得到的倒谱系数2-13被保留，其余的被丢弃
+        num_ceps = 12
+        mfcc = dct(filter_banks, type=2, axis=1, norm='ortho')[:, 1: (num_ceps + 1)]
+        (nframes, ncoeff) = mfcc.shape
+
+        n = numpy.arange(ncoeff)
+        cep_lifter = 22
+        lift = 1 + (cep_lifter / 2) * numpy.sin(numpy.pi * n / cep_lifter)
+        mfcc *= lift  # *
+
+        # filter_banks -= (numpy.mean(filter_banks, axis=0) + 1e-8)
+        mfcc -= (numpy.mean(mfcc, axis=0) + 1e-8)
+        print(mfcc.shape)
+
+        # 创建新的figure
+        fig11 = plt.figure(figsize=(16,8))
+
+        # 绘制1x2两行两列共四个图，编号从1开始
+        ax = fig11.add_subplot(121)
+        plt.plot(mfcc)
+
+        ax = fig11.add_subplot(122)
+        # 平均归一化MFCC
+        mfcc -= (numpy.mean(mfcc, axis=0) + 1e-8)
+        plt.imshow(numpy.flipud(mfcc.T), cmap=plt.cm.jet, aspect=0.2,
+                   extent=[0, mfcc.shape[0], 0, mfcc.shape[1]])  # 热力图
+        #将figure保存为png并显示在新创建的子窗口上
+        plt.savefig("fmcc_result.png")
+        dialog_fault1 = QDialog()
+        dialog_fault1.setWindowTitle("合成音频MFCC特征图及MFCC平均归一化热图")  # 设置窗口名
+        pic = QPixmap("fmcc_result.png")
+        label_pic = QLabel("show", dialog_fault1)
+        label_pic.setPixmap(pic)
+        label_pic.setGeometry(0,0,1500,800)
+        dialog_fault1.exec_()
+
+
+
+
     def __init__(self):
         ## Initialize the application
         self.app = QApplication(sys.argv)
+
+
+
         super().__init__(None)
-        self.setWindowTitle("MockingBird GUI")
+        self.setWindowTitle("中文语音克隆系统")
         self.setWindowIcon(QtGui.QIcon('toolbox\\assets\\mb.png'))
         self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
-        
-        
+
+
+
+
+
         ## Main layouts
         # Root
         root_layout = QGridLayout()
@@ -459,46 +686,60 @@ class UI(QDialog):
         self.projections_layout.addWidget(FigureCanvas(fig))
         self.umap_hot = False
         self.clear_button = QPushButton("Clear")
+        self.clear_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/2.png)}')
         self.projections_layout.addWidget(self.clear_button)
 
 
         ## Browser
         # Dataset, speaker and utterance selection
         i = 0
-        
+
         source_groupbox = QGroupBox('Source(源音频)')
         source_layout = QGridLayout()
         source_groupbox.setLayout(source_layout)
         browser_layout.addWidget(source_groupbox, i, 0, 1, 4)
 
         self.dataset_box = QComboBox()
-        source_layout.addWidget(QLabel("Dataset(数据集):"), i, 0)
+      #  source_layout.addWidget(QLabel("Dataset(数据集):"), i, 0)  #隐藏标签文字
         source_layout.addWidget(self.dataset_box, i, 1)
         self.random_dataset_button = QPushButton("Random")
         source_layout.addWidget(self.random_dataset_button, i, 2)
+
+        self.random_dataset_button.hide()    #隐藏按钮
+        self.dataset_box.hide()              #隐藏选项条
+
         i += 1
         self.speaker_box = QComboBox()
-        source_layout.addWidget(QLabel("Speaker(说话者)"), i, 0)
+      #  source_layout.addWidget(QLabel("Speaker(说话者)"), i, 0)
         source_layout.addWidget(self.speaker_box, i, 1)
         self.random_speaker_button = QPushButton("Random")
         source_layout.addWidget(self.random_speaker_button, i, 2)
+
+        self.random_speaker_button.hide()
+        self.speaker_box.hide()
+
         i += 1
         self.utterance_box = QComboBox()
-        source_layout.addWidget(QLabel("Utterance(音频):"), i, 0)
+      #  source_layout.addWidget(QLabel("Utterance(音频):"), i, 0)
         source_layout.addWidget(self.utterance_box, i, 1)
         self.random_utterance_button = QPushButton("Random")
         source_layout.addWidget(self.random_utterance_button, i, 2)
 
+        self.random_utterance_button.hide()
+        self.utterance_box.hide()
+
         i += 1
         source_layout.addWidget(QLabel("<b>Use(使用):</b>"), i, 0)
-        self.browser_load_button = QPushButton("Load Above(加载上面)")
+        self.browser_load_button = QPushButton("")
         source_layout.addWidget(self.browser_load_button, i, 1, 1, 2)
         self.auto_next_checkbox = QCheckBox("Auto select next")
         self.auto_next_checkbox.setChecked(True)
-        source_layout.addWidget(self.auto_next_checkbox, i+1, 1)
+        source_layout.addWidget(self.auto_next_checkbox, i + 1, 1)
         self.browser_browse_button = QPushButton("Browse(打开本地)")
+        self.browser_browse_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
         source_layout.addWidget(self.browser_browse_button, i, 3)
         self.record_button = QPushButton("Record(录音)")
+        self.record_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
         source_layout.addWidget(self.record_button, i+1, 3)
         
         i += 2
@@ -507,8 +748,10 @@ class UI(QDialog):
         self.utterance_history = QComboBox()
         browser_layout.addWidget(self.utterance_history, i, 1)
         self.play_button = QPushButton("Play(播放)")
+        self.play_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
         browser_layout.addWidget(self.play_button, i, 2)
         self.stop_button = QPushButton("Stop(暂停)")
+        self.stop_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
         browser_layout.addWidget(self.stop_button, i, 3)
 
         i += 1
@@ -537,10 +780,12 @@ class UI(QDialog):
         self.waves_cb.setModel(self.waves_cb_model)
         self.waves_cb.setToolTip("Select one of the last generated waves in this section for replaying or exporting")
         output_layout.addWidget(self.waves_cb, i, 1)
-        self.replay_wav_button = QPushButton("Replay")
+        self.replay_wav_button = QPushButton("Replay(重播)")
+        self.replay_wav_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
         self.replay_wav_button.setToolTip("Replay last generated vocoder")
         output_layout.addWidget(self.replay_wav_button, i, 2)
-        self.export_wav_button = QPushButton("Export")
+        self.export_wav_button = QPushButton("Export(导出)")
+        self.export_wav_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
         self.export_wav_button.setToolTip("Save last generated vocoder audio in filesystem as a wav file")
         output_layout.addWidget(self.export_wav_button, i, 3)
         self.audio_out_devices_cb=QComboBox()
@@ -551,14 +796,27 @@ class UI(QDialog):
         ## Embed & spectrograms
         vis_layout.addStretch()
 
+        #添加标签控件，设置标签文字格式并且居中
+        label1 = QLabel("source audio")
+        label1.setStyleSheet("QLabel{color:red;font-size:20px;font-weight:bold;font-family:Roman times;}")
+        label1.setAlignment(Qt.AlignCenter)
+        vis_layout.addWidget(label1)      #addwidget:添加控件
+
         gridspec_kw = {"width_ratios": [1, 4]}
-        fig, self.current_ax = plt.subplots(1, 2, figsize=(10, 2.25), facecolor="#F0F0F0", 
+        fig, self.current_ax = plt.subplots(1, 2, figsize=(10, 2.25), facecolor="#F0F0F0",
                                             gridspec_kw=gridspec_kw)
+        #self.current_ax[1].set_title("source audio", fontsize=50, color='red', fontstyle='italic', fontweight="heavy")
         fig.subplots_adjust(left=0, bottom=0.1, right=1, top=0.8)
         vis_layout.addWidget(FigureCanvas(fig))
 
-        fig, self.gen_ax = plt.subplots(1, 2, figsize=(10, 2.25), facecolor="#F0F0F0", 
+        label2 = QLabel("target audio")
+        label2.setStyleSheet("QLabel{color:red;font-size:20px;font-weight:bold;font-family:Roman times;}")
+        label2.setAlignment(Qt.AlignCenter)
+        vis_layout.addWidget(label2)
+
+        fig, self.gen_ax = plt.subplots(1, 2, figsize=(10, 2.25), facecolor="#F0F0F0",
                                         gridspec_kw=gridspec_kw)
+        #self.gen_ax[1].set_title("target audio", fontsize=50, color='red', fontstyle='italic', fontweight="heavy")
         fig.subplots_adjust(left=0, bottom=0.1, right=1, top=0.8)
         vis_layout.addWidget(FigureCanvas(fig))
 
@@ -566,29 +824,37 @@ class UI(QDialog):
             ax.set_facecolor("#F0F0F0")
             for side in ["top", "right", "bottom", "left"]:
                 ax.spines[side].set_visible(False)
-        
+
+
+
+
+
         ## Generation
         self.text_prompt = QPlainTextEdit(default_text)
         gen_layout.addWidget(self.text_prompt, stretch=1)
         
-        self.generate_button = QPushButton("Synthesize and vocode")
+        self.generate_button = QPushButton("Synthesize and vocode(合成并播放)")
+        self.generate_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
         gen_layout.addWidget(self.generate_button)
         
         layout = QHBoxLayout()
-        self.synthesize_button = QPushButton("Synthesize only")
+        self.synthesize_button = QPushButton("Synthesize only(仅合成)")
+        self.synthesize_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
         layout.addWidget(self.synthesize_button)
-        self.vocode_button = QPushButton("Vocode only")
+        self.vocode_button = QPushButton("Vocode only(仅播放)")
+        self.vocode_button.setStyleSheet('QPushButton{border-image:url(toolbox/assets/1.png)}')
+
         layout.addWidget(self.vocode_button)
         gen_layout.addLayout(layout)
 
         layout_seed = QGridLayout()
-        self.random_seed_checkbox = QCheckBox("Random seed:")
+        self.random_seed_checkbox = QCheckBox("Random seed(随机数种子):")
         self.random_seed_checkbox.setToolTip("When checked, makes the synthesizer and vocoder deterministic.")
         layout_seed.addWidget(self.random_seed_checkbox, 0, 0)
         self.seed_textbox = QLineEdit()
         self.seed_textbox.setMaximumWidth(80)
         layout_seed.addWidget(self.seed_textbox, 0, 1)
-        self.trim_silences_checkbox = QCheckBox("Enhance vocoder output")
+        self.trim_silences_checkbox = QCheckBox("Enhance vocoder output（语音增强）")
         self.trim_silences_checkbox.setToolTip("When checked, trims excess silence in vocoder output."
             " This feature requires `webrtcvad` to be installed.")
         layout_seed.addWidget(self.trim_silences_checkbox, 0, 2, 1, 2)
@@ -599,7 +865,7 @@ class UI(QDialog):
         self.style_slider.setRange(-1, 9)
         self.style_value_label = QLabel("-1")
         self.style_slider.setValue(-1)
-        layout_seed.addWidget(QLabel("Style:"), 1, 0)
+        layout_seed.addWidget(QLabel("Style(风格):"), 1, 0)
 
         self.style_slider.valueChanged.connect(lambda s: self.style_value_label.setNum(s))
         layout_seed.addWidget(self.style_value_label, 1, 1)
@@ -610,7 +876,7 @@ class UI(QDialog):
         self.token_slider.setFocusPolicy(Qt.NoFocus)
         self.token_slider.setSingleStep(1)
         self.token_slider.setRange(3, 9)
-        self.token_value_label = QLabel("5")
+        self.token_value_label = QLabel("4")
         self.token_slider.setValue(4)
         layout_seed.addWidget(QLabel("Accuracy(精度):"), 2, 0)
 
@@ -650,6 +916,17 @@ class UI(QDialog):
         ## Finalize the display
         self.reset_interface()
         self.show()
+
+        ##set the picture of background
+        palette1 = QPalette()
+        # palette1.setColor(self.backgroundRole(), QColor(192,253,123))   # 设置背景颜色
+        palette1.setBrush(self.backgroundRole(), QBrush(QPixmap('toolbox\\assets\\picture1.jpg')))  # 设置背景图片
+        self.setPalette(palette1)
+        self.setAutoFillBackground(True)
+
+
+
+
 
     def start(self):
         self.app.exec_()

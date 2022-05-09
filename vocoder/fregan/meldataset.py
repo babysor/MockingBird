@@ -52,7 +52,6 @@ def mel_spectrogram(y, n_fft, num_mels, sampling_rate, hop_size, win_size, fmin,
     if torch.max(y) > 1.:
         print('max value is ', torch.max(y))
 
-
     global mel_basis, hann_window
     if fmax not in mel_basis:
         mel = librosa_mel_fn(sampling_rate, n_fft, num_mels, fmin, fmax)
@@ -74,20 +73,18 @@ def mel_spectrogram(y, n_fft, num_mels, sampling_rate, hop_size, win_size, fmin,
 
 
 def get_dataset_filelist(a):
-    # with open(a.input_training_file, 'r', encoding='utf-8') as fi:
-    #     training_files = [os.path.join(a.input_wavs_dir, x.split('|')[0] + '.wav')
-    #                       for x in fi.read().split('\n') if len(x) > 0]
+    #with open(a.input_training_file, 'r', encoding='utf-8') as fi:
+    #    training_files = [os.path.join(a.input_wavs_dir, x.split('|')[0] + '.wav')
+    #                      for x in fi.read().split('\n') if len(x) > 0]
 
-    # with open(a.input_validation_file, 'r', encoding='utf-8') as fi:
-    #     validation_files = [os.path.join(a.input_wavs_dir, x.split('|')[0] + '.wav')
-    #                         for x in fi.read().split('\n') if len(x) > 0]
-
+    #with open(a.input_validation_file, 'r', encoding='utf-8') as fi:
+    #   validation_files = [os.path.join(a.input_wavs_dir, x.split('|')[0] + '.wav')
+    #                        for x in fi.read().split('\n') if len(x) > 0]
     files = os.listdir(a.input_wavs_dir)
     random.shuffle(files)
     files = [os.path.join(a.input_wavs_dir, f) for f in files]
-    training_files = files[: -int(len(files)*0.05)]
-    validation_files = files[-int(len(files)*0.05): ]
-
+    training_files = files[: -int(len(files) * 0.05)]
+    validation_files = files[-int(len(files) * 0.05):]
     return training_files, validation_files
 
 
@@ -119,15 +116,15 @@ class MelDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         filename = self.audio_files[index]
         if self._cache_ref_count == 0:
-            # audio, sampling_rate = load_wav(filename)
-            # audio = audio / MAX_WAV_VALUE
+            #audio, sampling_rate = load_wav(filename)
+            #audio = audio / MAX_WAV_VALUE
             audio = np.load(filename)
             if not self.fine_tuning:
                 audio = normalize(audio) * 0.95
             self.cached_wav = audio
-            # if sampling_rate != self.sampling_rate:
-            #     raise ValueError("{} SR doesn't match target {} SR".format(
-            #         sampling_rate, self.sampling_rate))
+            #if sampling_rate != self.sampling_rate:
+            #    raise ValueError("{} SR doesn't match target {} SR".format(
+            #        sampling_rate, self.sampling_rate))
             self._cache_ref_count = self.n_cache_reuse
         else:
             audio = self.cached_wav
@@ -151,8 +148,8 @@ class MelDataset(torch.utils.data.Dataset):
         else:
             mel_path = os.path.join(self.base_mels_path, "mel" + "-" + filename.split("/")[-1].split("-")[-1])
             mel = np.load(mel_path).T
-            # mel = np.load(
-            #     os.path.join(self.base_mels_path, os.path.splitext(os.path.split(filename)[-1])[0] + '.npy'))
+            #mel = np.load(
+            #    os.path.join(self.base_mels_path, os.path.splitext(os.path.split(filename)[-1])[0] + '.npy'))
             mel = torch.from_numpy(mel)
 
             if len(mel.shape) < 3:
