@@ -386,10 +386,10 @@ class Toolbox:
         
 
         # Select vocoder based on model name
-        if model_fpath.name[0] == "g":
+        if model_fpath.name is not None and model_fpath.name.find("hifigan") > -1:
             vocoder = gan_vocoder
             self.ui.log("set hifigan as vocoder")
-        elif model_fpath.name[0] == "m":
+        elif model_fpath.name is not None and model_fpath.name.find("fregan") > -1:
             vocoder = fgan_vocoder
             self.ui.log("set fregan as vocoder")
         else:
