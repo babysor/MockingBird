@@ -87,7 +87,9 @@
 * 训练hifigan声码器:
 `python vocoder_train.py <trainid> <datasets_root> hifigan`
 > `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
-
+* 训练fregan声码器:
+`python vocoder_train.py <trainid> <datasets_root> --config config.json fregan`
+> `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
 ### 3. 启动程序或工具箱
 您可以尝试使用以下命令：
 
