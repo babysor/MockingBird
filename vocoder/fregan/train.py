@@ -4,22 +4,18 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 import itertools
 import os
 import time
-import argparse
-import json
 import torch
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DistributedSampler, DataLoader
-import torch.multiprocessing as mp
 from torch.distributed import init_process_group
 from torch.nn.parallel import DistributedDataParallel
-from vocoder.fregan.utils import AttrDict, build_env
 from vocoder.fregan.meldataset import MelDataset, mel_spectrogram, get_dataset_filelist
 from vocoder.fregan.generator import FreGAN
 from vocoder.fregan.discriminator import ResWiseMultiPeriodDiscriminator, ResWiseMultiScaleDiscriminator
 from vocoder.fregan.loss import feature_loss, generator_loss, discriminator_loss
 from vocoder.fregan.utils import plot_spectrogram, scan_checkpoint, load_checkpoint, save_checkpoint
-from vocoder.fregan.stft_loss import MultiResolutionSTFTLoss
+
 
 torch.backends.cudnn.benchmark = True
 
@@ -133,11 +129,8 @@ def train(rank, a, h):
             x = torch.autograd.Variable(x.to(device, non_blocking=True))
             y = torch.autograd.Variable(y.to(device, non_blocking=True))
             y_mel = torch.autograd.Variable(y_mel.to(device, non_blocking=True))
-
             y = y.unsqueeze(1)
-
             y_g_hat = generator(x)
-
             y_g_hat_mel = mel_spectrogram(y_g_hat.squeeze(1), h.n_fft, h.num_mels, h.sampling_rate, h.hop_size,
                                           h.win_size,
                                           h.fmin, h.fmax_for_loss)
@@ -193,7 +186,7 @@ def train(rank, a, h):
 
                 # checkpointing
                 if steps % a.checkpoint_interval == 0 and steps != 0:
-                    checkpoint_path = "{}/m_fregan_{:08d}.pt".format(a.checkpoint_path, steps)
+                    checkpoint_path = "{}/g_fregan_{:08d}.pt".format(a.checkpoint_path, steps)
                     save_checkpoint(checkpoint_path,
                                     {'generator': (generator.module if h.num_gpus > 1 else generator).state_dict()})
                     checkpoint_path = "{}/do_fregan_{:08d}.pt".format(a.checkpoint_path, steps)
