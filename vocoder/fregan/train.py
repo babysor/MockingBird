@@ -51,8 +51,8 @@ def train(rank, a, h):
         print("checkpoints directory : ", a.checkpoint_path)
 
     if os.path.isdir(a.checkpoint_path):
-        cp_g = scan_checkpoint(a.checkpoint_path, 'g_')
-        cp_do = scan_checkpoint(a.checkpoint_path, 'do_')
+        cp_g = scan_checkpoint(a.checkpoint_path, 'g_fregan_')
+        cp_do = scan_checkpoint(a.checkpoint_path, 'do_fregan_')
 
     steps = 0
     if cp_g is None or cp_do is None:
