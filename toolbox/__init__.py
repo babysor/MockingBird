@@ -3,6 +3,7 @@ from encoder import inference as encoder
 from synthesizer.inference import Synthesizer
 from vocoder.wavernn import inference as rnn_vocoder
 from vocoder.hifigan import inference as gan_vocoder
+from vocoder.fregan import inference as fgan_vocoder
 from pathlib import Path
 from time import perf_counter as timer
 from toolbox.utterance import Utterance
@@ -445,6 +446,15 @@ class Toolbox:
         if model_fpath.name is not None and model_fpath.name.find("hifigan") > -1:
             vocoder = gan_vocoder
             self.ui.log("set hifigan as vocoder")
+            # search a config file
+            model_config_fpaths = list(model_fpath.parent.rglob("*.json"))
+            if self.vc_mode and self.ui.current_extractor_fpath is None:
+                return
+            if len(model_config_fpaths) > 0:
+                model_config_fpath = model_config_fpaths[0]
+        elif model_fpath.name is not None and model_fpath.name.find("fregan") > -1:
+            vocoder = fgan_vocoder
+            self.ui.log("set fregan as vocoder")
             # search a config file
             model_config_fpaths = list(model_fpath.parent.rglob("*.json"))
             if self.vc_mode and self.ui.current_extractor_fpath is None:
