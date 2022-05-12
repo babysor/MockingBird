@@ -54,6 +54,7 @@ def train(rank, a, h):
         cp_g = scan_checkpoint(a.checkpoint_path, 'g_fregan_')
         cp_do = scan_checkpoint(a.checkpoint_path, 'do_fregan_')
 
+
     steps = 0
     if cp_g is None or cp_do is None:
         state_dict_do = None
