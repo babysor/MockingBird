@@ -51,8 +51,8 @@ def train(rank, a, h):
         print("checkpoints directory : ", a.checkpoint_path)
 
     if os.path.isdir(a.checkpoint_path):
-        cp_g = scan_checkpoint(a.checkpoint_path, 'g_')
-        cp_do = scan_checkpoint(a.checkpoint_path, 'do_')
+        cp_g = scan_checkpoint(a.checkpoint_path, 'g_hifigan_')
+        cp_do = scan_checkpoint(a.checkpoint_path, 'do_hifigan_')
 
     steps = 0
     if cp_g is None or cp_do is None:
@@ -181,10 +181,10 @@ def train(rank, a, h):
 
                 # checkpointing
                 if steps % a.checkpoint_interval == 0 and steps != 0:
-                    checkpoint_path = "{}/g_{:08d}.pt".format(a.checkpoint_path, steps)
+                    checkpoint_path = "{}/g_hifigan_{:08d}.pt".format(a.checkpoint_path, steps)
                     save_checkpoint(checkpoint_path,
                                     {'generator': (generator.module if h.num_gpus > 1 else generator).state_dict()})
-                    checkpoint_path = "{}/do_{:08d}.pt".format(a.checkpoint_path, steps)
+                    checkpoint_path = "{}/do_hifigan_{:08d}.pt".format(a.checkpoint_path, steps)
                     save_checkpoint(checkpoint_path,
                                     {'mpd': (mpd.module if h.num_gpus > 1 else mpd).state_dict(),
                                      'msd': (msd.module if h.num_gpus > 1 else msd).state_dict(),
