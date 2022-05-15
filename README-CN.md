@@ -87,7 +87,9 @@
 * 训练hifigan声码器:
 `python vocoder_train.py <trainid> <datasets_root> hifigan`
 > `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
-
+* 训练fregan声码器:
+`python vocoder_train.py <trainid> <datasets_root> --config config.json fregan`
+> `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
 ### 3. 启动程序或工具箱
 您可以尝试使用以下命令：
 
@@ -139,6 +141,7 @@
 | --- | ----------- | ----- | --------------------- |
 | [1803.09017](https://arxiv.org/abs/1803.09017) | GlobalStyleToken (synthesizer)| Style Tokens: Unsupervised Style Modeling, Control and Transfer in End-to-End Speech Synthesis | 本代码库 |
 | [2010.05646](https://arxiv.org/abs/2010.05646) | HiFi-GAN (vocoder)| Generative Adversarial Networks for Efficient and High Fidelity Speech Synthesis | 本代码库 |
+| [2106.02297](https://arxiv.org/abs/2106.02297) | Fre-GAN (vocoder)| Fre-GAN: Adversarial Frequency-consistent Audio Synthesis | 本代码库 |
 |[**1806.04558**](https://arxiv.org/pdf/1806.04558.pdf) | SV2TTS | Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis | 本代码库 |
 |[1802.08435](https://arxiv.org/pdf/1802.08435.pdf) | WaveRNN (vocoder) | Efficient Neural Audio Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN) |
 |[1703.10135](https://arxiv.org/pdf/1703.10135.pdf) | Tacotron (synthesizer) | Tacotron: Towards End-to-End Speech Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN)
