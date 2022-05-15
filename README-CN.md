@@ -107,7 +107,7 @@
 ### 4. 番外：语音转换Voice Conversion(PPG based)
 想像柯南拿着变声器然后发出毛利小五郎的声音吗？本项目现基于PPG-VC，引入额外两个模块（PPG extractor + PPG2Mel）, 可以实现变声功能。（文档不全，尤其是训练部分，正在努力补充中）
 #### 4.0 准备环境
-* 确保项目以上环境已经安装ok，运行`pip install -r requirements_vc.txt` 来安装剩余的必要包。
+* 确保项目以上环境已经安装ok，运行`pip install espnet` 来安装剩余的必要包。
 * 下载以下模型 链接：https://pan.baidu.com/s/1bl_x_DHJSAUyN2fma-Q_Wg 
 提取码：gh41
   * 24K采样率专用的vocoder（hifigan）到 *vocoder\saved_models\xxx*

@@ -19,8 +19,8 @@ AUDIO_SAMPLES_DIR = 'samples\\'
 SYN_MODELS_DIRT = "synthesizer\\saved_models"
 ENC_MODELS_DIRT = "encoder\\saved_models"
 VOC_MODELS_DIRT = "vocoder\\saved_models"
-TEMP_SOURCE_AUDIO = "wavs/temp_source.wav"
-TEMP_RESULT_AUDIO = "wavs/temp_result.wav"
+TEMP_SOURCE_AUDIO = "wavs\\temp_source.wav"
+TEMP_RESULT_AUDIO = "wavs\\temp_result.wav"
 
 # Load local sample audio as options TODO: load dataset 
 if os.path.isdir(AUDIO_SAMPLES_DIR):
