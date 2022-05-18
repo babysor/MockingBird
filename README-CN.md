@@ -90,6 +90,7 @@
 * 训练fregan声码器:
 `python vocoder_train.py <trainid> <datasets_root> --config config.json fregan`
 > `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
+* 将GAN声码器的训练切换为多GPU模式：修改GAN文件夹下.json文件中的"num_gpus"参数
 ### 3. 启动程序或工具箱
 您可以尝试使用以下命令：
 
