@@ -1,6 +1,6 @@
 {
     "resblock": "1",
-    "num_gpus": 2,
+    "num_gpus": 0,
     "batch_size": 16,
     "learning_rate": 0.0002,
     "adam_b1": 0.8,
