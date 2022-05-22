@@ -7,6 +7,7 @@
     "adam_b2": 0.99,
     "lr_decay": 0.999,
     "seed": 1234,
+    "disc_start_step":0,
 
 
     "upsample_rates": [5,5,2,2,2],

@@ -7,6 +7,7 @@
     "adam_b2": 0.99,
     "lr_decay": 0.999,
     "seed": 1234,
+    "disc_start_step":0,
 
     "upsample_rates": [5,5,4,2],
     "upsample_kernel_sizes": [10,10,8,4],
@@ -27,5 +28,11 @@
     "fmax": 7600,
     "fmax_for_loss": null,
 
-    "num_workers": 4
+    "num_workers": 4,
+
+    "dist_config": {
+        "dist_backend": "nccl",
+        "dist_url": "tcp://localhost:54321",
+        "world_size": 1
+    }
 }

@@ -6,7 +6,8 @@ from utils.util import AttrDict
 from pathlib import Path
 import argparse
 import json
-
+import torch
+import torch.multiprocessing as mp
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -69,11 +70,23 @@ if __name__ == "__main__":
         with open(args.config) as f:
             json_config = json.load(f)
         h = AttrDict(json_config)
-        train_hifigan(0, args, h)
+        if h.num_gpus > 1:
+            h.num_gpus = torch.cuda.device_count()
+            h.batch_size = int(h.batch_size / h.num_gpus)
+            print('Batch size per GPU :', h.batch_size)
+            mp.spawn(train_hifigan, nprocs=h.num_gpus, args=(args, h,))
+        else:
+            train_hifigan(0, args, h)
     elif args.vocoder_type == "fregan":
         with open('vocoder/fregan/config.json') as f:
             json_config = json.load(f)
         h = AttrDict(json_config)
-        train_fregan(0, args, h)
+        if h.num_gpus > 1:
+            h.num_gpus = torch.cuda.device_count()
+            h.batch_size = int(h.batch_size / h.num_gpus)
+            print('Batch size per GPU :', h.batch_size)
+            mp.spawn(train_fregan, nprocs=h.num_gpus, args=(args, h,))
+        else:
+            train_fregan(0, args, h)
 
         
