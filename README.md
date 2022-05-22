@@ -90,6 +90,11 @@ You can then try to run:`python web.py` and open it in browser, default as `http
 You can then try the toolbox:
 `python demo_toolbox.py -d <datasets_root>`
 
+#### 3.3 Using the command line
+You can then try the command:
+`python gen_voice.py <text_file.txt> your_wav_file.wav`
+you may need to install cn2an by "pip install cn2an" for better digital number result.
+
 ## Reference
 > This repository is forked from [Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) which only support English.
 
