@@ -12,6 +12,7 @@ import traceback
 import sys
 import torch
 import re
+from toolbox.digit_2_chinese import text_to_chinese
 
 # 默认使用wavernn
 vocoder = rnn_vocoder
@@ -250,9 +251,10 @@ class Toolbox:
         punctuation = '！，。、,' # punctuate and split/clean text
         processed_texts = []
         for text in texts:
-          for processed_text in re.sub(r'[{}]+'.format(punctuation), '\n', text).split('\n'):
-            if processed_text:
-                processed_texts.append(processed_text.strip())
+            text = text_to_chinese(text)
+            for processed_text in re.sub(r'[{}]+'.format(punctuation), '\n', text).split('\n'):
+                if processed_text:
+                    processed_texts.append(processed_text.strip())
         texts = processed_texts
         embed = self.ui.selected_utterance.embed
         embeds = [embed] * len(texts)
