@@ -12,7 +12,7 @@ import librosa
 from utils import logmmse
 import json
 from pypinyin import lazy_pinyin, Style
-from digit_2_chinese import text_2_chinese
+from digit_2_chinese import text_to_chinese
 
 class Synthesizer:
     sample_rate = hparams.sample_rate
