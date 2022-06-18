@@ -11,7 +11,7 @@ import numpy as np
 from mkgui.base.components.types import FileContent
 from vocoder.hifigan import inference as gan_vocoder
 from synthesizer.inference import Synthesizer
-from typing import Any
+from typing import Any, Tuple
 import matplotlib.pyplot as plt
 
 # Constants
@@ -73,7 +73,7 @@ class AudioEntity(BaseModel):
     mel: Any
 
 class Output(BaseModel):
-    __root__: tuple[AudioEntity, AudioEntity]
+    __root__: Tuple[AudioEntity, AudioEntity]
 
     def render_output_ui(self, streamlit_app, input) -> None:  # type: ignore
         """Custom output UI.

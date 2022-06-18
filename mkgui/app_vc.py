@@ -71,7 +71,7 @@ class Input(BaseModel):
         description="选择语音转换模型文件."
     )
     vocoder: vocoders = Field(
-        ..., alias="语音编码模型", 
+        ..., alias="语音解码模型", 
         description="选择语音解码模型文件(目前只支持HifiGan类型)."
     )
 
