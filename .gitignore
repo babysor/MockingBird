@@ -13,7 +13,6 @@
 *.bbl
 *.bcf
 *.toc
-*.wav
 *.sh
 */saved_models
 !vocoder/saved_models/pretrained/**

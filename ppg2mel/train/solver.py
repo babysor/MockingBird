@@ -93,6 +93,7 @@ class BaseSolver():
 
     def load_ckpt(self):
         ''' Load ckpt if --load option is specified '''
+        print(self.paras)
         if self.paras.load is not None:
             if self.paras.warm_start:
                 self.verbose(f"Warm starting model from checkpoint {self.paras.load}.")
@@ -100,7 +101,7 @@ class BaseSolver():
                     self.paras.load, map_location=self.device if self.mode == 'train'
                                                         else 'cpu')
                 model_dict = ckpt['model']
-                if len(self.config.model.ignore_layers) > 0:
+                if "ignore_layers" in self.config.model and len(self.config.model.ignore_layers) > 0:
                     model_dict = {k:v for k, v in model_dict.items()
                                   if k not in self.config.model.ignore_layers}
                     dummy_dict = self.model.state_dict()

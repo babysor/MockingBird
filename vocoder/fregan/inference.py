@@ -4,10 +4,10 @@ import os
 import json
 import torch
 from utils.util import AttrDict
-from vocoder.hifigan.models import Generator
+from vocoder.fregan.generator import FreGAN
 
-generator = None       # type: Generator
-output_sample_rate = None     
+generator = None       # type: FreGAN
+output_sample_rate = None
 _device = None
 
 
@@ -23,14 +23,14 @@ def load_model(weights_fpath, config_fpath=None, verbose=True):
     global generator, _device, output_sample_rate
 
     if verbose:
-        print("Building hifigan")
+        print("Building fregan")
 
     if config_fpath == None:
         model_config_fpaths = list(weights_fpath.parent.rglob("*.json"))
         if len(model_config_fpaths) > 0:
             config_fpath = model_config_fpaths[0]
         else:
-            config_fpath = "./vocoder/hifigan/config_16k_.json"
+            config_fpath = "./vocoder/fregan/config.json"
     with open(config_fpath) as f:
         data = f.read()
     json_config = json.loads(data)
@@ -44,7 +44,7 @@ def load_model(weights_fpath, config_fpath=None, verbose=True):
     else:
         _device = torch.device('cpu')
 
-    generator = Generator(h).to(_device)
+    generator = FreGAN(h).to(_device)
     state_dict_g = load_checkpoint(
         weights_fpath, _device
     )
@@ -60,7 +60,7 @@ def is_loaded():
 def infer_waveform(mel, progress_callback=None):
 
     if generator is None:
-        raise Exception("Please load hifi-gan in memory before using it")
+        raise Exception("Please load fre-gan in memory before using it")
 
     mel = torch.FloatTensor(mel).to(_device)
     mel = mel.unsqueeze(0)

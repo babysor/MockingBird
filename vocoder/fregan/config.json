@@ -9,11 +9,12 @@
     "seed": 1234,
     "disc_start_step":0,
 
-    "upsample_rates": [5,5,4,2],
-    "upsample_kernel_sizes": [10,10,8,4],
+
+    "upsample_rates": [5,5,2,2,2],
+    "upsample_kernel_sizes": [10,10,4,4,4],
     "upsample_initial_channel": 512,
     "resblock_kernel_sizes": [3,7,11],
-    "resblock_dilation_sizes": [[1,3,5], [1,3,5], [1,3,5]],
+    "resblock_dilation_sizes": [[1, 3, 5, 7], [1,3,5,7], [1,3,5,7]],
 
     "segment_size": 6400,
     "num_mels": 80,
@@ -35,4 +36,7 @@
         "dist_url": "tcp://localhost:54321",
         "world_size": 1
     }
+
+
+
 }

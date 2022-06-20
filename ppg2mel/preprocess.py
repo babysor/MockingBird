@@ -110,3 +110,4 @@ def preprocess_dataset(datasets_root, dataset, out_dir, n_processes, ppg_encoder
     t_fid_file.close()
     d_fid_file.close()
     e_fid_file.close()
+    return len(wav_file_list)

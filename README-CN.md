@@ -18,6 +18,15 @@
 
 🌍 **Webserver Ready** 可伺服你的训练结果，供远程调用
 
+### 进行中的工作
+*  GUI/客户端大升级与合并
+[X] 初始化框架 `./mkgui` （基于streamlit + fastapi）和 [技术设计](https://vaj2fgg8yn.feishu.cn/docs/doccnvotLWylBub8VJIjKzoEaee)
+[X] 增加 Voice Cloning and Conversion的演示页面
+[X] 增加Voice Conversion的预处理preprocessing 和训练 training 页面 
+[ ] 增加其他的的预处理preprocessing 和训练 training 页面 
+* 模型后端基于ESPnet2升级
+
+
 ## 开始
 ### 1. 安装要求
 > 按照原始存储库测试您是否已准备好所有环境。
@@ -68,7 +77,7 @@
 对效果影响不大，已经预置3款，如果希望自己训练可以参考以下命令。
 * 预处理数据:
 `python vocoder_preprocess.py <datasets_root> -m <synthesizer_model_path>`
-> `<datasets_root>`替换为你的数据集目录，`<synthesizer_model_path>`替换为一个你最好的synthesizer模型目录，例如 *sythensizer\saved_mode\xxx*
+> `<datasets_root>`替换为你的数据集目录，`<synthesizer_model_path>`替换为一个你最好的synthesizer模型目录，例如 *sythensizer\saved_models\xxx*
 
 
 * 训练wavernn声码器:
@@ -78,19 +87,17 @@
 * 训练hifigan声码器:
 `python vocoder_train.py <trainid> <datasets_root> hifigan`
 > `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
-
+* 训练fregan声码器:
+`python vocoder_train.py <trainid> <datasets_root> --config config.json fregan`
+> `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
+* 将GAN声码器的训练切换为多GPU模式：修改GAN文件夹下.json文件中的"num_gpus"参数
 ### 3. 启动程序或工具箱
 您可以尝试使用以下命令：
 
-### 3.1 启动Web程序：
+### 3.1 启动Web程序（v2）：
 `python web.py`
 运行成功后在浏览器打开地址, 默认为 `http://localhost:8080`
-![123](https://user-images.githubusercontent.com/12797292/135494044-ae59181c-fe3a-406f-9c7d-d21d12fdb4cb.png)
-> 注：目前界面比较buggy, 
-> * 第一次点击`录制`要等待几秒浏览器正常启动录音，否则会有重音
-> * 录制结束不要再点`录制`而是`停止`
 > * 仅支持手动新录音（16khz）, 不支持超过4MB的录音，最佳长度在5~15秒
-> * 默认使用第一个找到的模型，有动手能力的可以看代码修改 `web\__init__.py`。
 
 ### 3.2 启动工具箱：
 `python demo_toolbox.py -d <datasets_root>`
@@ -101,12 +108,12 @@
 ### 4. 番外：语音转换Voice Conversion(PPG based)
 想像柯南拿着变声器然后发出毛利小五郎的声音吗？本项目现基于PPG-VC，引入额外两个模块（PPG extractor + PPG2Mel）, 可以实现变声功能。（文档不全，尤其是训练部分，正在努力补充中）
 #### 4.0 准备环境
-* 确保项目以上环境已经安装ok，运行`pip install -r requirements_vc.txt` 来安装剩余的必要包。
+* 确保项目以上环境已经安装ok，运行`pip install espnet` 来安装剩余的必要包。
 * 下载以下模型 链接：https://pan.baidu.com/s/1bl_x_DHJSAUyN2fma-Q_Wg 
 提取码：gh41
-  * 24K采样率专用的vocoder（hifigan）到 *vocoder\saved_mode\xxx*
-  * 预训练的ppg特征encoder(ppg_extractor)到 *ppg_extractor\saved_mode\xxx*
-  * 预训练的PPG2Mel到 *ppg2mel\saved_mode\xxx*
+  * 24K采样率专用的vocoder（hifigan）到 *vocoder\saved_models\xxx*
+  * 预训练的ppg特征encoder(ppg_extractor)到 *ppg_extractor\saved_models\xxx*
+  * 预训练的PPG2Mel到 *ppg2mel\saved_models\xxx*
 
 #### 4.1 使用数据集自己训练PPG2Mel模型 (可选)
 
@@ -124,7 +131,7 @@
 
 #### 4.2 启动工具箱VC模式
 您可以尝试使用以下命令：
-`python demo_toolbox.py vc -d <datasets_root>`
+`python demo_toolbox.py -vc -d <datasets_root>`
 > 请指定一个可用的数据集文件路径，如果有支持的数据集则会自动加载供调试，也同时会作为手动录制音频的存储目录。
 <img width="971" alt="微信图片_20220305005351" src="https://user-images.githubusercontent.com/7423248/156805733-2b093dbc-d989-4e68-8609-db11f365886a.png">
 
@@ -135,6 +142,7 @@
 | --- | ----------- | ----- | --------------------- |
 | [1803.09017](https://arxiv.org/abs/1803.09017) | GlobalStyleToken (synthesizer)| Style Tokens: Unsupervised Style Modeling, Control and Transfer in End-to-End Speech Synthesis | 本代码库 |
 | [2010.05646](https://arxiv.org/abs/2010.05646) | HiFi-GAN (vocoder)| Generative Adversarial Networks for Efficient and High Fidelity Speech Synthesis | 本代码库 |
+| [2106.02297](https://arxiv.org/abs/2106.02297) | Fre-GAN (vocoder)| Fre-GAN: Adversarial Frequency-consistent Audio Synthesis | 本代码库 |
 |[**1806.04558**](https://arxiv.org/pdf/1806.04558.pdf) | SV2TTS | Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis | 本代码库 |
 |[1802.08435](https://arxiv.org/pdf/1802.08435.pdf) | WaveRNN (vocoder) | Efficient Neural Audio Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN) |
 |[1703.10135](https://arxiv.org/pdf/1703.10135.pdf) | Tacotron (synthesizer) | Tacotron: Towards End-to-End Speech Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN)

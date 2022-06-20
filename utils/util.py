@@ -42,3 +42,9 @@ def human_format(num):
     # add more suffixes if you need them
     return '{:3.1f}{}'.format(num, [' ', 'K', 'M', 'G', 'T', 'P'][magnitude])
 
+
+# provide easy access of attribute from dict, such abc.key 
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self

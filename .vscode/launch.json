@@ -61,5 +61,13 @@
         "-m", ".\\ppg2mel\\saved_models\\best_loss_step_304000.pth", "--wav_dir", ".\\wavs\\input", "--ref_wav_path", ".\\wavs\\pkq.mp3", "-o", ".\\wavs\\output\\"
       ]
     },
+    {
+      "name": "GUI",
+      "type": "python",
+      "request": "launch",
+      "program": "mkgui\\base\\_cli.py",
+      "console": "integratedTerminal",
+      "args": []
+    },
   ]
 }

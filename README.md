@@ -18,6 +18,14 @@
 
 ### [DEMO VIDEO](https://www.bilibili.com/video/BV17Q4y1B7mY/)
 
+### Ongoing Works(Helps Needed)
+* Major upgrade on GUI/Client and unifying web and toolbox
+[X] Init framework `./mkgui` and [tech design](https://vaj2fgg8yn.feishu.cn/docs/doccnvotLWylBub8VJIjKzoEaee)
+[X] Add demo part of Voice Cloning and Conversion
+[X] Add preprocessing and training for Voice Conversion
+[ ] Add preprocessing and training for Encoder/Synthesizer/Vocoder
+* Major upgrade on model backend based on ESPnet2(not yet started)
+
 ## Quick Start
 
 ### 1. Install Requirements
@@ -60,7 +68,7 @@ Allowing parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata,
 | @author | https://pan.baidu.com/s/1iONvRxmkI-t1nHqxKytY3g  [Baidu](https://pan.baidu.com/s/1iONvRxmkI-t1nHqxKytY3g) 4j5d  |  | 75k steps trained by multiple datasets
 | @author | https://pan.baidu.com/s/1fMh9IlgKJlL2PIiRTYDUvw  [Baidu](https://pan.baidu.com/s/1fMh9IlgKJlL2PIiRTYDUvw) code：om7f  |  | 25k steps trained by multiple datasets, only works under version 0.0.1
 |@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing https://u.teknik.io/AYxWf.pt  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps with local accent of Taiwan, only works under version 0.0.1
-|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ code：2021 | https://www.bilibili.com/video/BV1uh411B7AD/ | only works under version 0.0.1
+|@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ code: 2021 https://www.aliyundrive.com/s/AwPsbo8mcSP code: z2m0 | https://www.bilibili.com/video/BV1uh411B7AD/ | only works under version 0.0.1
 
 #### 2.4 Train vocoder (Optional)
 > note: vocoder has little difference in effect, so you may not need to train a new one.
@@ -82,6 +90,11 @@ You can then try to run:`python web.py` and open it in browser, default as `http
 You can then try the toolbox:
 `python demo_toolbox.py -d <datasets_root>`
 
+#### 3.3 Using the command line
+You can then try the command:
+`python gen_voice.py <text_file.txt> your_wav_file.wav`
+you may need to install cn2an by "pip install cn2an" for better digital number result.
+
 ## Reference
 > This repository is forked from [Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) which only support English.
 
@@ -89,6 +102,7 @@ You can then try the toolbox:
 | --- | ----------- | ----- | --------------------- |
 | [1803.09017](https://arxiv.org/abs/1803.09017) | GlobalStyleToken (synthesizer)| Style Tokens: Unsupervised Style Modeling, Control and Transfer in End-to-End Speech Synthesis | This repo |
 | [2010.05646](https://arxiv.org/abs/2010.05646) | HiFi-GAN (vocoder)| Generative Adversarial Networks for Efficient and High Fidelity Speech Synthesis | This repo |
+| [2106.02297](https://arxiv.org/abs/2106.02297) | Fre-GAN (vocoder)| Fre-GAN: Adversarial Frequency-consistent Audio Synthesis | This repo |
 |[**1806.04558**](https://arxiv.org/pdf/1806.04558.pdf) | **SV2TTS** | **Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis** | This repo |
 |[1802.08435](https://arxiv.org/pdf/1802.08435.pdf) | WaveRNN (vocoder) | Efficient Neural Audio Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN) |
 |[1703.10135](https://arxiv.org/pdf/1703.10135.pdf) | Tacotron (synthesizer) | Tacotron: Towards End-to-End Speech Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN)

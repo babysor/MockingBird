@@ -1,11 +1,13 @@
 from utils.argutils import print_args
 from vocoder.wavernn.train import train
 from vocoder.hifigan.train import train as train_hifigan
-from vocoder.hifigan.env import AttrDict
+from vocoder.fregan.train import train as train_fregan
+from utils.util import AttrDict
 from pathlib import Path
 import argparse
 import json
-
+import torch
+import torch.multiprocessing as mp
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -61,11 +63,30 @@ if __name__ == "__main__":
     # Process the arguments
     if args.vocoder_type == "wavernn":
         # Run the training wavernn
+        delattr(args, 'vocoder_type')
+        delattr(args, 'config')
         train(**vars(args))
     elif args.vocoder_type == "hifigan":
         with open(args.config) as f:
             json_config = json.load(f)
         h = AttrDict(json_config)
-        train_hifigan(0, args, h)
+        if h.num_gpus > 1:
+            h.num_gpus = torch.cuda.device_count()
+            h.batch_size = int(h.batch_size / h.num_gpus)
+            print('Batch size per GPU :', h.batch_size)
+            mp.spawn(train_hifigan, nprocs=h.num_gpus, args=(args, h,))
+        else:
+            train_hifigan(0, args, h)
+    elif args.vocoder_type == "fregan":
+        with open('vocoder/fregan/config.json') as f:
+            json_config = json.load(f)
+        h = AttrDict(json_config)
+        if h.num_gpus > 1:
+            h.num_gpus = torch.cuda.device_count()
+            h.batch_size = int(h.batch_size / h.num_gpus)
+            print('Batch size per GPU :', h.batch_size)
+            mp.spawn(train_fregan, nprocs=h.num_gpus, args=(args, h,))
+        else:
+            train_fregan(0, args, h)
 
         

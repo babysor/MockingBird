@@ -1,28 +1,28 @@
 import warnings
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import itertools
 import os
 import time
-import argparse
-import json
 import torch
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DistributedSampler, DataLoader
-import torch.multiprocessing as mp
 from torch.distributed import init_process_group
 from torch.nn.parallel import DistributedDataParallel
-from vocoder.hifigan.meldataset import MelDataset, mel_spectrogram, get_dataset_filelist
-from vocoder.hifigan.models import Generator, MultiPeriodDiscriminator, MultiScaleDiscriminator, feature_loss, generator_loss,\
-    discriminator_loss
-from vocoder.hifigan.utils import plot_spectrogram, scan_checkpoint, load_checkpoint, save_checkpoint
+from vocoder.fregan.meldataset import MelDataset, mel_spectrogram, get_dataset_filelist
+from vocoder.fregan.generator import FreGAN
+from vocoder.fregan.discriminator import ResWiseMultiPeriodDiscriminator, ResWiseMultiScaleDiscriminator
+from vocoder.fregan.loss import feature_loss, generator_loss, discriminator_loss
+from vocoder.fregan.utils import plot_spectrogram, scan_checkpoint, load_checkpoint, save_checkpoint
+
 
 torch.backends.cudnn.benchmark = True
 
 
 def train(rank, a, h):
 
-    a.checkpoint_path = a.models_dir.joinpath(a.run_id+'_hifigan')      
+    a.checkpoint_path = a.models_dir.joinpath(a.run_id+'_fregan')
     a.checkpoint_path.mkdir(exist_ok=True)
     a.training_epochs = 3100
     a.stdout_interval = 5
@@ -41,9 +41,9 @@ def train(rank, a, h):
     torch.cuda.manual_seed(h.seed)
     device = torch.device('cuda:{:d}'.format(rank))
 
-    generator = Generator(h).to(device)
-    mpd = MultiPeriodDiscriminator().to(device)
-    msd = MultiScaleDiscriminator().to(device)
+    generator = FreGAN(h).to(device)
+    mpd = ResWiseMultiPeriodDiscriminator().to(device)
+    msd = ResWiseMultiScaleDiscriminator().to(device)
 
     if rank == 0:
         print(generator)
@@ -51,8 +51,8 @@ def train(rank, a, h):
         print("checkpoints directory : ", a.checkpoint_path)
 
     if os.path.isdir(a.checkpoint_path):
-        cp_g = scan_checkpoint(a.checkpoint_path, 'g_hifigan_')
-        cp_do = scan_checkpoint(a.checkpoint_path, 'do_hifigan_')
+        cp_g = scan_checkpoint(a.checkpoint_path, 'g_fregan_')
+        cp_do = scan_checkpoint(a.checkpoint_path, 'do_fregan_')
 
     steps = 0
     if cp_g is None or cp_do is None:
@@ -84,9 +84,6 @@ def train(rank, a, h):
     scheduler_d = torch.optim.lr_scheduler.ExponentialLR(optim_d, gamma=h.lr_decay, last_epoch=last_epoch)
 
     training_filelist, validation_filelist = get_dataset_filelist(a)
-
-    # print(training_filelist)
-    # exit()
 
     trainset = MelDataset(training_filelist, h.segment_size, h.n_fft, h.num_mels,
                           h.hop_size, h.win_size, h.sampling_rate, h.fmin, h.fmax, n_cache_reuse=0,
@@ -120,7 +117,7 @@ def train(rank, a, h):
     for epoch in range(max(0, last_epoch), a.training_epochs):
         if rank == 0:
             start = time.time()
-            print("Epoch: {}".format(epoch+1))
+            print("Epoch: {}".format(epoch + 1))
 
         if h.num_gpus > 1:
             train_sampler.set_epoch(epoch)
@@ -133,10 +130,11 @@ def train(rank, a, h):
             y = torch.autograd.Variable(y.to(device, non_blocking=True))
             y_mel = torch.autograd.Variable(y_mel.to(device, non_blocking=True))
             y = y.unsqueeze(1)
-
             y_g_hat = generator(x)
-            y_g_hat_mel = mel_spectrogram(y_g_hat.squeeze(1), h.n_fft, h.num_mels, h.sampling_rate, h.hop_size, h.win_size,
+            y_g_hat_mel = mel_spectrogram(y_g_hat.squeeze(1), h.n_fft, h.num_mels, h.sampling_rate, h.hop_size,
+                                          h.win_size,
                                           h.fmin, h.fmax_for_loss)
+
             if steps > h.disc_start_step:
                 optim_d.zero_grad()
 
@@ -156,8 +154,12 @@ def train(rank, a, h):
             # Generator
             optim_g.zero_grad()
 
+
             # L1 Mel-Spectrogram Loss
             loss_mel = F.l1_loss(y_mel, y_g_hat_mel) * 45
+
+            # sc_loss, mag_loss = stft_loss(y_g_hat[:, :, :y.size(2)].squeeze(1), y.squeeze(1))
+            # loss_mel = h.lambda_aux * (sc_loss + mag_loss)  # STFT Loss
 
             if steps > h.disc_start_step:
                 y_df_hat_r, y_df_hat_g, fmap_f_r, fmap_f_g = mpd(y, y_g_hat)
@@ -166,7 +168,7 @@ def train(rank, a, h):
                 loss_fm_s = feature_loss(fmap_s_r, fmap_s_g)
                 loss_gen_f, losses_gen_f = generator_loss(y_df_hat_g)
                 loss_gen_s, losses_gen_s = generator_loss(y_ds_hat_g)
-                loss_gen_all = loss_gen_s + loss_gen_f + loss_fm_s + loss_fm_f + loss_mel
+                loss_gen_all = loss_gen_s + loss_gen_f + (2 * (loss_fm_s + loss_fm_f)) + loss_mel
             else:
                 loss_gen_all = loss_mel
 
@@ -184,13 +186,15 @@ def train(rank, a, h):
 
                 # checkpointing
                 if steps % a.checkpoint_interval == 0 and steps != 0:
-                    checkpoint_path = "{}/g_hifigan_{:08d}.pt".format(a.checkpoint_path, steps)
+                    checkpoint_path = "{}/g_fregan_{:08d}.pt".format(a.checkpoint_path, steps)
                     save_checkpoint(checkpoint_path,
                                     {'generator': (generator.module if h.num_gpus > 1 else generator).state_dict()})
-                    checkpoint_path = "{}/do_hifigan_{:08d}.pt".format(a.checkpoint_path, steps)
+                    checkpoint_path = "{}/do_fregan_{:08d}.pt".format(a.checkpoint_path, steps)
                     save_checkpoint(checkpoint_path,
-                                    {'mpd': (mpd.module if h.num_gpus > 1 else mpd).state_dict(),
-                                     'msd': (msd.module if h.num_gpus > 1 else msd).state_dict(),
+                                    {'mpd': (mpd.module if h.num_gpus > 1
+                                             else mpd).state_dict(),
+                                     'msd': (msd.module if h.num_gpus > 1
+                                             else msd).state_dict(),
                                      'optim_g': optim_g.state_dict(), 'optim_d': optim_d.state_dict(), 'steps': steps,
                                      'epoch': epoch})
 
@@ -198,19 +202,6 @@ def train(rank, a, h):
                 if steps % a.summary_interval == 0:
                     sw.add_scalar("training/gen_loss_total", loss_gen_all, steps)
                     sw.add_scalar("training/mel_spec_error", mel_error, steps)
-                
-
-                # save temperate hifigan model
-                if steps % a.save_every == 0:
-                    checkpoint_path = "{}/g_hifigan.pt".format(a.checkpoint_path)
-                    save_checkpoint(checkpoint_path,
-                                    {'generator': (generator.module if h.num_gpus > 1 else generator).state_dict()})
-                    checkpoint_path = "{}/do_hifigan.pt".format(a.checkpoint_path)
-                    save_checkpoint(checkpoint_path,
-                                    {'mpd': (mpd.module if h.num_gpus > 1 else mpd).state_dict(),
-                                     'msd': (msd.module if h.num_gpus > 1 else msd).state_dict(),
-                                     'optim_g': optim_g.state_dict(), 'optim_d': optim_d.state_dict(), 'steps': steps,
-                                     'epoch': epoch})
 
                 # Validation
                 if steps % a.validation_interval == 0:  # and steps != 0:
@@ -225,7 +216,7 @@ def train(rank, a, h):
                             y_g_hat_mel = mel_spectrogram(y_g_hat.squeeze(1), h.n_fft, h.num_mels, h.sampling_rate,
                                                           h.hop_size, h.win_size,
                                                           h.fmin, h.fmax_for_loss)
-#                             val_err_tot += F.l1_loss(y_mel, y_g_hat_mel).item()
+                            #val_err_tot += F.l1_loss(y_mel, y_g_hat_mel).item()
 
                             if j <= 4:
                                 if steps == 0:
@@ -239,7 +230,7 @@ def train(rank, a, h):
                                 sw.add_figure('generated/y_hat_spec_{}'.format(j),
                                               plot_spectrogram(y_hat_spec.squeeze(0).cpu().numpy()), steps)
 
-                        val_err = val_err_tot / (j+1)
+                        val_err = val_err_tot / (j + 1)
                         sw.add_scalar("validation/mel_spec_error", val_err, steps)
 
                     generator.train()
@@ -248,6 +239,8 @@ def train(rank, a, h):
 
         scheduler_g.step()
         scheduler_d.step()
-        
+
         if rank == 0:
             print('Time taken for epoch {} is {} sec\n'.format(epoch + 1, int(time.time() - start)))
+
+

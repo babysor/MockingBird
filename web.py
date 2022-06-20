@@ -1,11 +1,21 @@
-from web import webApp
-from gevent import pywsgi as wsgi
+import os
+import sys
+import typer
 
+cli = typer.Typer()
+
+@cli.command()
+def launch_ui(port: int = typer.Option(8080, "--port", "-p")) -> None:
+    """Start a graphical UI server for the opyrator.
+
+    The UI is auto-generated from the input- and output-schema of the given function.
+    """
+    # Add the current working directory to the sys path
+    # This is required to resolve the opyrator path
+    sys.path.append(os.getcwd())
+
+    from mkgui.base.ui.streamlit_ui import launch_ui
+    launch_ui(port)
 
 if __name__ == "__main__":
-    app = webApp()
-    host = app.config.get("HOST")
-    port = app.config.get("PORT")
-    print(f"Web server: http://{host}:{port}")
-    server = wsgi.WSGIServer((host, port), app)
-    server.serve_forever()
+    cli()
