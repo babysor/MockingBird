@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 import os
 from pathlib import Path
 from enum import Enum
-from typing import Any
+from typing import Any, Tuple
 import numpy as np
 from utils.load_yaml import HpsYaml
 from utils.util import AttrDict
@@ -10,9 +10,9 @@ import torch
 
 # TODO: seperator for *unix systems
 # Constants
-EXT_MODELS_DIRT = "ppg_extractor\\saved_models"
-CONV_MODELS_DIRT = "ppg2mel\\saved_models"
-ENC_MODELS_DIRT = "encoder\\saved_models"
+EXT_MODELS_DIRT = f"ppg_extractor{os.sep}saved_models"
+CONV_MODELS_DIRT = f"ppg2mel{os.sep}saved_models"
+ENC_MODELS_DIRT = f"encoder{os.sep}saved_models"
 
 
 if os.path.isdir(EXT_MODELS_DIRT):    
@@ -102,7 +102,7 @@ class AudioEntity(BaseModel):
     mel: Any
 
 class Output(BaseModel):
-    __root__: tuple[str, int]
+    __root__: Tuple[str, int]
 
     def render_output_ui(self, streamlit_app, input) -> None:  # type: ignore
         """Custom output UI.

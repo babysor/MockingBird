@@ -14,18 +14,18 @@ import re
 import numpy as np
 from mkgui.base.components.types import FileContent
 from vocoder.hifigan import inference as gan_vocoder
-from typing import Any
+from typing import Any, Tuple
 import matplotlib.pyplot as plt
 
 
 # Constants
-AUDIO_SAMPLES_DIR = 'samples\\'
-EXT_MODELS_DIRT = "ppg_extractor\\saved_models"
-CONV_MODELS_DIRT = "ppg2mel\\saved_models"
-VOC_MODELS_DIRT = "vocoder\\saved_models"
-TEMP_SOURCE_AUDIO = "wavs/temp_source.wav"
-TEMP_TARGET_AUDIO = "wavs/temp_target.wav"
-TEMP_RESULT_AUDIO = "wavs/temp_result.wav"
+AUDIO_SAMPLES_DIR = f'sample{os.sep}'
+EXT_MODELS_DIRT = f'ppg_extractor{os.sep}saved_models'
+CONV_MODELS_DIRT = f'ppg2mel{os.sep}saved_models'
+VOC_MODELS_DIRT = f'vocoder{os.sep}saved_models'
+TEMP_SOURCE_AUDIO = f'wavs{os.sep}temp_source.wav'
+TEMP_TARGET_AUDIO = f'wavs{os.sep}temp_target.wav'
+TEMP_RESULT_AUDIO = f'wavs{os.sep}temp_result.wav'
 
 # Load local sample audio as options TODO: load dataset 
 if os.path.isdir(AUDIO_SAMPLES_DIR):
@@ -80,7 +80,7 @@ class AudioEntity(BaseModel):
     mel: Any
 
 class Output(BaseModel):
-    __root__: tuple[AudioEntity, AudioEntity, AudioEntity]
+    __root__: Tuple[AudioEntity, AudioEntity, AudioEntity]
 
     def render_output_ui(self, streamlit_app, input) -> None:  # type: ignore
         """Custom output UI.
@@ -135,7 +135,7 @@ def convert(input: Input) -> Output:
     # Import necessary dependency of Voice Conversion
     from utils.f0_utils import compute_f0, f02lf0, compute_mean_std, get_converted_lf0uv   
     ref_lf0_mean, ref_lf0_std = compute_mean_std(f02lf0(compute_f0(ref_wav)))
-    speacker_encoder.load_model(Path("encoder/saved_models/pretrained_bak_5805000.pt"))
+    speacker_encoder.load_model(Path("encoder{os.sep}saved_models{os.sep}pretrained_bak_5805000.pt"))
     embed = speacker_encoder.embed_utterance(ref_wav)
     lf0_uv = get_converted_lf0uv(src_wav, ref_lf0_mean, ref_lf0_std, convert=True)
     min_len = min(ppg.shape[1], len(lf0_uv))
