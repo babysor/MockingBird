@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from synthesizer.inference import Synthesizer
 from pydantic import BaseModel, Field
 from encoder import inference as speacker_encoder
