@@ -815,6 +815,9 @@ def getOpyrator(mode: str) -> Opyrator:
     if mode == None or mode.startswith('模型训练'):
         from mkgui.train import train
         return  Opyrator(train)
+    if mode == None or mode.startswith('模型训练(VC)'):
+        from mkgui.train_vc import train_vc
+        return  Opyrator(train_vc)
     from mkgui.app import synthesize
     return Opyrator(synthesize)
     
@@ -829,7 +832,7 @@ def render_streamlit_ui() -> None:
     with st.spinner("Loading MockingBird GUI. Please wait..."):
         session_state.mode = st.sidebar.selectbox(
             '模式选择', 
-            ( "AI拟音", "VC拟音", "预处理", "模型训练")
+            ( "AI拟音", "VC拟音", "预处理", "模型训练", "模型训练(VC)")
         )
         if "mode" in session_state:
             mode = session_state.mode

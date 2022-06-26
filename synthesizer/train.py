@@ -15,9 +15,8 @@ from datetime import datetime
 import json
 import numpy as np
 from pathlib import Path
-import sys
 import time
-
+import os
 
 def np_now(x: torch.Tensor): return x.detach().cpu().numpy()
 
@@ -265,7 +264,19 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                                        loss=loss,
                                        hparams=hparams,
                                        sw=sw)
-
+                    MAX_SAVED_COUNT = 20
+                    if (step / hparams.tts_eval_interval) % MAX_SAVED_COUNT:
+                        # clean up and save last MAX_SAVED_COUNT;
+                        plots = next(os.walk(plot_dir), (None, None, []))[2]
+                        for plot in plots[-MAX_SAVED_COUNT:]:
+                            os.remove(plot_dir.joinpath(plot))
+                        mel_files = next(os.walk(mel_output_dir), (None, None, []))[2]
+                        for mel_file in mel_files[-MAX_SAVED_COUNT:]:
+                            os.remove(mel_output_dir.joinpath(mel_file))
+                        wavs = next(os.walk(wav_dir), (None, None, []))[2]
+                        for w in wavs[-MAX_SAVED_COUNT:]:
+                            os.remove(wav_dir.joinpath(w))
+                        
                 # Break out of loop to update training schedule
                 if step >= max_step:
                     break
