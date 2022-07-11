@@ -37,7 +37,7 @@
 * Install [ffmpeg](https://ffmpeg.org/download.html#get-packages).
 * Run `pip install -r requirements.txt` to install the remaining necessary packages.
 * Install webrtcvad `pip install webrtcvad-wheels`(If you need)
-> Note that we are using the pretrained encoder/vocoder but synthesizer, since the original model is incompatible with the Chinese sympols. It means the demo_cli is not working at this moment.
+> Note that we are using the pretrained encoder/vocoder but synthesizer since the original model is incompatible with the Chinese symbols. It means the demo_cli is not working at this moment.
 ### 2. Prepare your models
 You can either train your models or use existing ones:
 
