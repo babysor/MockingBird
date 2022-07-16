@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 from .sublayer.global_style_token import GlobalStyleToken
