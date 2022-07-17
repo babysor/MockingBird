@@ -9,6 +9,15 @@ class PreNet(nn.Module):
         self.p = dropout
 
     def forward(self, x):
+        """forward
+
+        Args:
+            x (3D tensor with size `[batch_size, num_chars, tts_embed_dims]`): input texts list
+
+        Returns:
+            3D tensor with size `[batch_size, num_chars, encoder_dims]`
+            
+        """        
         x = self.fc1(x)
         x = F.relu(x)
         x = F.dropout(x, self.p, training=True)

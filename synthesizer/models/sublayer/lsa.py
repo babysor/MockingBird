@@ -18,9 +18,9 @@ class LSA(nn.Module):
         self.cumulative = torch.zeros(b, t, device=device)
         self.attention = torch.zeros(b, t, device=device)
 
-    def forward(self, encoder_seq_proj, query, t, chars):
+    def forward(self, encoder_seq_proj, query, times, chars):
 
-        if t == 0: self.init_attention(encoder_seq_proj)
+        if times == 0: self.init_attention(encoder_seq_proj)
 
         processed_query = self.W(query).unsqueeze(1)
 
