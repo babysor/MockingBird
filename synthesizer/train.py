@@ -265,7 +265,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                                        hparams=hparams,
                                        sw=sw)
                     MAX_SAVED_COUNT = 20
-                    if (step / hparams.tts_eval_interval) % MAX_SAVED_COUNT:
+                    if (step / hparams.tts_eval_interval) % MAX_SAVED_COUNT == 0:
                         # clean up and save last MAX_SAVED_COUNT;
                         plots = next(os.walk(plot_dir), (None, None, []))[2]
                         for plot in plots[-MAX_SAVED_COUNT:]:
