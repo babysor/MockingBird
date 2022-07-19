@@ -20,6 +20,8 @@ ENC_MODELS_DIRT = f"encoder{os.sep}saved_models"
 VOC_MODELS_DIRT = f"vocoder{os.sep}saved_models"
 TEMP_SOURCE_AUDIO = f"wavs{os.sep}temp_source.wav"
 TEMP_RESULT_AUDIO = f"wavs{os.sep}temp_result.wav"
+if not os.path.isdir("wavs"):
+    os.makedirs("wavs")
 
 # Load local sample audio as options TODO: load dataset 
 if os.path.isdir(AUDIO_SAMPLES_DIR):
@@ -42,6 +44,7 @@ if os.path.isdir(VOC_MODELS_DIRT):
     print("Loaded vocoders models: " + str(len(synthesizers)))
 else:
     raise Exception(f"Model folder {VOC_MODELS_DIRT} doesn't exist.")
+
 
 
 class Input(BaseModel):
