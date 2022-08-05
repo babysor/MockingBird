@@ -148,30 +148,30 @@
 |[1703.10135](https://arxiv.org/pdf/1703.10135.pdf) | Tacotron (synthesizer) | Tacotron: Towards End-to-End Speech Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN)
 |[1710.10467](https://arxiv.org/pdf/1710.10467.pdf) | GE2E (encoder)| Generalized End-To-End Loss for Speaker Verification | 本代码库 |
 
-## 常見問題(FQ&A)
-#### 1.數據集哪裡下載?
+## 常见问题(FQ&A)
+#### 1.数据集在哪里下载?
 | 数据集 | OpenSLR地址 | 其他源 (Google Drive, Baidu网盘等) |
 | --- | ----------- | ---------------|
 | aidatatang_200zh | [OpenSLR](http://www.openslr.org/62/) | [Google Drive](https://drive.google.com/file/d/110A11KZoVe7vy6kXlLb6zVPLb_J91I_t/view?usp=sharing) |
 | magicdata | [OpenSLR](http://www.openslr.org/68/) | [Google Drive (Dev set)](https://drive.google.com/file/d/1g5bWRUSNH68ycC6eNvtwh07nX3QhOOlo/view?usp=sharing) |
 | aishell3 | [OpenSLR](https://www.openslr.org/93/) | [Google Drive](https://drive.google.com/file/d/1shYp_o4Z0X0cZSKQDtFirct2luFUwKzZ/view?usp=sharing) |
 | data_aishell | [OpenSLR](https://www.openslr.org/33/) |  |
-> 解壓 aidatatang_200zh 後，還需將 `aidatatang_200zh\corpus\train`下的檔案全選解壓縮
+> 解压 aidatatang_200zh 后，还需将 `aidatatang_200zh\corpus\train`下的文件全选解压缩
 
 #### 2.`<datasets_root>`是什麼意思?
-假如數據集路徑為 `D:\data\aidatatang_200zh`，那麼 `<datasets_root>`就是 `D:\data`
+假如数据集路径为 `D:\data\aidatatang_200zh`，那么 `<datasets_root>`就是 `D:\data`
 
-#### 3.訓練模型顯存不足
-訓練合成器時：將 `synthesizer/hparams.py`中的batch_size參數調小
+#### 3.训练模型显存不足
+训练合成器时：将 `synthesizer/hparams.py`中的batch_size参数调小
 ```
-//調整前
+//调整前
 tts_schedule = [(2,  1e-3,  20_000,  12),   # Progressive training schedule
                 (2,  5e-4,  40_000,  12),   # (r, lr, step, batch_size)
                 (2,  2e-4,  80_000,  12),   #
                 (2,  1e-4, 160_000,  12),   # r = reduction factor (# of mel frames
                 (2,  3e-5, 320_000,  12),   #     synthesized for each decoder iteration)
                 (2,  1e-5, 640_000,  12)],  # lr = learning rate
-//調整後
+//调整后
 tts_schedule = [(2,  1e-3,  20_000,  8),   # Progressive training schedule
                 (2,  5e-4,  40_000,  8),   # (r, lr, step, batch_size)
                 (2,  2e-4,  80_000,  8),   #
@@ -180,15 +180,15 @@ tts_schedule = [(2,  1e-3,  20_000,  8),   # Progressive training schedule
                 (2,  1e-5, 640_000,  8)],  # lr = learning rate
 ```
 
-聲碼器-預處理數據集時：將 `synthesizer/hparams.py`中的batch_size參數調小
+声码器-预处理数据集时：将 `synthesizer/hparams.py`中的batch_size参数调小
 ```
-//調整前
+//调整前
 ### Data Preprocessing
         max_mel_frames = 900,
         rescale = True,
         rescaling_max = 0.9,
         synthesis_batch_size = 16,                  # For vocoder preprocessing and inference.
-//調整後
+//调整后
 ### Data Preprocessing
         max_mel_frames = 900,
         rescale = True,
@@ -196,16 +196,16 @@ tts_schedule = [(2,  1e-3,  20_000,  8),   # Progressive training schedule
         synthesis_batch_size = 8,                  # For vocoder preprocessing and inference.
 ```
 
-聲碼器-訓練聲碼器時：將 `vocoder/wavernn/hparams.py`中的batch_size參數調小
+声码器-训练声码器时：将 `vocoder/wavernn/hparams.py`中的batch_size参数调小
 ```
-//調整前
+//调整前
 # Training
 voc_batch_size = 100
 voc_lr = 1e-4
 voc_gen_at_checkpoint = 5
 voc_pad = 2
 
-//調整後
+//调整后
 # Training
 voc_batch_size = 6
 voc_lr = 1e-4
@@ -214,13 +214,13 @@ voc_pad =2
 ```
 
 #### 4.碰到`RuntimeError: Error(s) in loading state_dict for Tacotron: size mismatch for encoder.embedding.weight: copying a param with shape torch.Size([70, 512]) from checkpoint, the shape in current model is torch.Size([75, 512]).`
-請參照 issue [#37](https://github.com/babysor/MockingBird/issues/37)
+请参照 issue [#37](https://github.com/babysor/MockingBird/issues/37)
 
-#### 5.如何改善CPU、GPU佔用率?
-適情況調整batch_size參數來改善
+#### 5.如何改善CPU、GPU占用率?
+视情况调整batch_size参数来改善
 
-#### 6.發生 `頁面文件太小，無法完成操作`
-請參考這篇[文章](https://blog.csdn.net/qq_17755303/article/details/112564030)，將虛擬內存更改為100G(102400)，例如:档案放置D槽就更改D槽的虚拟内存
+#### 6.发生 `页面文件太小，无法完成操作`
+请参考这篇[文章](https://blog.csdn.net/qq_17755303/article/details/112564030)，将虚拟内存更改为100G(102400)，例如:文件放置D盘就更改D盘的虚拟内存
 
 #### 7.什么时候算训练完成？
 首先一定要出现注意力模型，其次是loss足够低，取决于硬件设备和数据集。拿本人的供参考，我的注意力是在 18k 步之后出现的，并且在 50k 步之后损失变得低于 0.4
