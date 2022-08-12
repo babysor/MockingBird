@@ -5,7 +5,7 @@ import typer
 cli = typer.Typer()
 
 @cli.command()
-def launch_ui(port: int = typer.Option(8080, "--port", "-p")) -> None:
+def launch(port: int = typer.Option(8080, "--port", "-p")) -> None:
     """Start a graphical UI server for the opyrator.
 
     The UI is auto-generated from the input- and output-schema of the given function.
