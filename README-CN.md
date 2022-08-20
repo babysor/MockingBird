@@ -122,7 +122,7 @@
 `python pre4ppg.py <datasets_root> -d {dataset} -n {number}`
 可传入参数：
 * `-d {dataset}` 指定数据集，支持 aidatatang_200zh, 不传默认为aidatatang_200zh
-* `-n {number}` 指定并行数，CPU 11770k在8的情况下，需要运行12到18小时！待优化
+* `-n {number}` 指定并行数，CPU 11700k在8的情况下，需要运行12到18小时！待优化
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
 * 训练合成器, 注意在上一步先下载好`ppg2mel.yaml`, 修改里面的地址指向预训练好的文件夹：
