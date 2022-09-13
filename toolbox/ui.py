@@ -276,7 +276,7 @@ class UI(QDialog):
                     if datasets_root is None else "o not have any of the recognized datasets" \
                                                   " in %s \n" \
                                                   "Please note use 'E:\datasets' as root path " \
-                                                  "instead of 'E:\datasets\aidatatang_200zh\corpus/test' as an example "   % datasets_root) 
+                                                  "instead of 'E:\datasets\aidatatang_200zh\corpus\test' as an example "   % datasets_root) 
                 self.log(msg)
                 msg += ".\nThe recognized datasets are:\n\t%s\nFeel free to add your own. You " \
                        "can still use the toolbox by recording samples yourself." % \
