@@ -205,7 +205,7 @@ class UI(QDialog):
         self.record_button.setText("Recording...")
         self.record_button.setDisabled(True)
         
-        self.log("recording %d seconds of audio" % duration)
+        self.log("Recording %d seconds of audio" % duration)
         sd.stop()
         try:
             wav = sd.rec(duration * sample_rate, sample_rate, 1)
@@ -277,7 +277,6 @@ class UI(QDialog):
                                                   " in %s \n" \
                                                   "Please note use 'E:\datasets' as root path " \
                                                   "instead of 'E:\datasets\aidatatang_200zh\corpus/test' as an example "   % datasets_root) 
-                                                 
                 self.log(msg)
                 msg += ".\nThe recognized datasets are:\n\t%s\nFeel free to add your own. You " \
                        "can still use the toolbox by recording samples yourself." % \
