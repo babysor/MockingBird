@@ -3,7 +3,7 @@ visdom
 librosa==0.8.1
 matplotlib>=3.3.0
 numpy==1.19.3; platform_system == "Windows"
-numpy==1.19.4; platform_system != "Windows"
+numpy==1.20.3; platform_system != "Windows"
 scipy>=1.0.0
 tqdm
 sounddevice
@@ -14,7 +14,7 @@ PyQt5
 multiprocess
 numba
 webrtcvad; platform_system != "Windows"
-pypinyin
+pypinyin==0.44.0
 flask
 flask_wtf
 flask_cors==3.0.10
@@ -26,3 +26,7 @@ PyYAML==5.4.1
 torch_complex
 espnet
 PyWavelets
+fastapi
+loguru
+click==8.0.4
+typer
