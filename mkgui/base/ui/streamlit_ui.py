@@ -2,7 +2,7 @@ import datetime
 import inspect
 import mimetypes
 import sys
-from os import getcwd, unlink
+from os import getcwd, unlink, path
 from platform import system
 from tempfile import NamedTemporaryFile
 from typing import Any, Callable, Dict, List, Type
@@ -845,7 +845,7 @@ def render_streamlit_ui() -> None:
     col2.title(title)
     col2.markdown("欢迎使用MockingBird Web 2")
 
-    image = Image.open('.\\mkgui\\static\\mb.png')
+    image = Image.open(path.join('mkgui', 'static', 'mb.png'))
     col1.image(image)
 
     st.markdown("---")
