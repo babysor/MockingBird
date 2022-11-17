@@ -34,6 +34,7 @@
 
 ## 开始
 ### 1. 安装要求
+#### 1.1 通用配置
 > 按照原始存储库测试您是否已准备好所有环境。
 运行工具箱(demo_toolbox.py)需要 **Python 3.7 或更高版本** 。
 
@@ -42,6 +43,57 @@
 * 安装 [ffmpeg](https://ffmpeg.org/download.html#get-packages)。
 * 运行`pip install -r requirements.txt` 来安装剩余的必要包。
 * 安装 webrtcvad `pip install webrtcvad-wheels`。
+
+#### 1.2 M1芯片Mac环境配置（Inference Time)
+> 以下环境按x86-64搭建，使用原生的`demo_toolbox.py`，可作为在不改代码情况下快速使用的workaround。
+> 
+  >  如需使用M1芯片训练，因`demo_toolbox.py`依赖的`PyQt5`不支持M1，则应按需修改代码，或者尝试使用`web.py`。
+
+* 安装`PyQt5`，参考[这个链接](https://stackoverflow.com/a/68038451/20455983)
+  * 用Rosetta打开Terminal，参考[这个链接](https://dev.to/courier/tips-and-tricks-to-setup-your-apple-m1-for-development-547g)
+  * 用系统Python创建项目虚拟环境
+    ```
+    /usr/bin/python3 -m venv /PathToMockingBird/venv
+    source /PathToMockingBird/venv/bin/activate
+    ```
+  * 升级pip并安装`PyQt5`
+    ```
+    pip install --upgrade pip
+    pip install pyqt5
+    ```
+* 安装`pyworld`和`ctc-segmentation`
+  > 这里两个文件直接`pip install`的时候找不到wheel，尝试从c里build时找不到`Python.h`报错
+  * 安装`pyworld`
+    * `brew install python` 通过brew安装python时会自动安装`Python.h`
+    * `export CPLUS_INCLUDE_PATH=/opt/homebrew/Frameworks/Python.framework/Headers` 对于M1，brew安装`Python.h`到上述路径。把路径添加到环境变量里
+    * `pip install pyworld`
+
+  * 安装`ctc-segmentation`
+    > 因上述方法没有成功，选择从[github](https://github.com/lumaku/ctc-segmentation) clone源码手动编译
+    * `git clone https://github.com/lumaku/ctc-segmentation.git` 克隆到任意位置
+    * `cd ctc-segmentation` 
+    * `source /PathToMockingBird/venv/bin/activate` 假设一开始未开启，打开MockingBird项目的虚拟环境
+    * `cythonize -3 ctc_segmentation/ctc_segmentation_dyn.pyx` 
+    * `/usr/bin/arch -x86_64 python setup.py build` 要注意明确用x86-64架构编译
+    * `/usr/bin/arch -x86_64 python setup.py install --optimize=1 --skip-build`用x86-64架构安装 
+
+* 安装其他依赖
+    * `/usr/bin/arch -x86_64 pip install torch torchvision torchaudio` 这里用pip安装`PyTorch`，明确架构是x86
+    * `pip install ffmpeg`  安装ffmpeg
+    * `pip install -r requirements.txt`
+
+* 运行
+  > 参考[这个链接](https://youtrack.jetbrains.com/issue/PY-46290/Allow-running-Python-under-Rosetta-2-in-PyCharm-for-Apple-Silicon) 
+  ，让项目跑在x86架构环境上
+  * `vim /PathToMockingBird/venv/bin/pythonM1`
+  * 写入以下代码
+    ```
+    #!/usr/bin/env zsh
+    mydir=${0:a:h}
+    /usr/bin/arch -x86_64 $mydir/python "$@"
+    ```
+  * `chmod +x pythonM1` 设为可执行文件
+  * 如果使用PyCharm，则把Interpreter指向`pythonM1`，否则也可命令行运行`/PathToMockingBird/venv/bin/pythonM1 demo_toolbox.py`
 
 ### 2. 准备预训练模型
 考虑训练您自己专属的模型或者下载社区他人训练好的模型:
