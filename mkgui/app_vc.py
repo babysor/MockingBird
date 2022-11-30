@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 
 # Constants
-AUDIO_SAMPLES_DIR = f'sample{os.sep}'
+AUDIO_SAMPLES_DIR = f'samples{os.sep}'
 EXT_MODELS_DIRT = f'ppg_extractor{os.sep}saved_models'
 CONV_MODELS_DIRT = f'ppg2mel{os.sep}saved_models'
 VOC_MODELS_DIRT = f'vocoder{os.sep}saved_models'
@@ -134,7 +134,7 @@ def convert(input: Input) -> Output:
     # Import necessary dependency of Voice Conversion
     from utils.f0_utils import compute_f0, f02lf0, compute_mean_std, get_converted_lf0uv   
     ref_lf0_mean, ref_lf0_std = compute_mean_std(f02lf0(compute_f0(ref_wav)))
-    speacker_encoder.load_model(Path("encoder{os.sep}saved_models{os.sep}pretrained_bak_5805000.pt"))
+    speacker_encoder.load_model(Path(f"encoder{os.sep}saved_models{os.sep}pretrained_bak_5805000.pt"))
     embed = speacker_encoder.embed_utterance(ref_wav)
     lf0_uv = get_converted_lf0uv(src_wav, ref_lf0_mean, ref_lf0_std, convert=True)
     min_len = min(ppg.shape[1], len(lf0_uv))
