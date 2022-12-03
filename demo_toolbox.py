@@ -1,5 +1,5 @@
 from pathlib import Path
-from toolbox import Toolbox
+from control.toolbox import Toolbox
 from utils.argutils import print_args
 from utils.modelutils import check_model_paths
 import argparse
