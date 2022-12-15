@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  server:
+    image: mockingbird:latest
+    build: .
+    volumes:
+      - ./datasets:/datasets
+      - ./synthesizer/saved_models:/workspace/synthesizer/saved_models
+    environment:
+      - DATASET_MIRROR=US
+      - FORCE_RETRAIN=false
+      - TRAIN_DATASETS=aidatatang_200zh magicdata aishell3 data_aishell
+      - TRAIN_SKIP_EXISTING=true
+    ports:
+      - 8080:8080
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ '0' ]
+              capabilities: [ gpu ]

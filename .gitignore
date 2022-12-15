@@ -19,3 +19,6 @@
 !encoder/saved_models/pretrained.pt
 wavs
 log
+!/docker-entrypoint.sh
+!/datasets_download/*.sh
+/datasets
