@@ -46,15 +46,16 @@ else:
     raise Exception(f"Model folder {VOC_MODELS_DIRT} doesn't exist.")
 
 
-
 class Input(BaseModel):
     message: str = Field(
         ..., example="欢迎使用工具箱, 现已支持中文输入！", alias="文本内容"
     )
     local_audio_file: audio_input_selection = Field(
-        ..., alias="输入语音（本地wav）",
+        ..., alias="选择语音（本地wav）",
         description="选择本地语音文件."
     )
+    record_audio_file: FileContent = Field(default=None, alias="录制语音",
+        description="录音.", is_recorder=True, mime_type="audio/wav")
     upload_audio_file: FileContent = Field(default=None, alias="或上传语音",
         description="拖拽或点击上传.", mime_type="audio/wav")
     encoder: encoders = Field(
@@ -104,7 +105,12 @@ def synthesize(input: Input) -> Output:
     gan_vocoder.load_model(Path(input.vocoder.value))
 
     # load file
-    if input.upload_audio_file != None:
+    if input.record_audio_file != None:
+        with open(TEMP_SOURCE_AUDIO, "w+b") as f:
+            f.write(input.record_audio_file.as_bytes())
+            f.seek(0)
+        wav, sample_rate = librosa.load(TEMP_SOURCE_AUDIO)
+    elif input.upload_audio_file != None:
         with open(TEMP_SOURCE_AUDIO, "w+b") as f:
             f.write(input.upload_audio_file.as_bytes())
             f.seek(0)

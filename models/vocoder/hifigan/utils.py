@@ -6,7 +6,6 @@ from torch.nn.utils import weight_norm
 matplotlib.use("Agg")
 import matplotlib.pylab as plt
 
-
 def plot_spectrogram(spectrogram):
     fig, ax = plt.subplots(figsize=(10, 2))
     im = ax.imshow(spectrogram, aspect="auto", origin="lower",
@@ -17,12 +16,6 @@ def plot_spectrogram(spectrogram):
     plt.close()
 
     return fig
-
-
-def init_weights(m, mean=0.0, std=0.01):
-    classname = m.__class__.__name__
-    if classname.find("Conv") != -1:
-        m.weight.data.normal_(mean, std)
 
 
 def apply_weight_norm(m):
@@ -55,4 +48,3 @@ def scan_checkpoint(cp_dir, prefix):
     if len(cp_list) == 0:
         return None
     return sorted(cp_list)[-1]
-

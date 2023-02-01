@@ -38,7 +38,8 @@ recognized_datasets = [
     "VoxCeleb2/dev/aac",
     "VoxCeleb2/test/aac",
     "VCTK-Corpus/wav48",
-    "aidatatang_200zh/corpus",
+    "aidatatang_200zh/corpus/test",
+    "aidatatang_200zh/corpus/train",
     "aishell3/test/wav",
     "magicdata/train",
 ]

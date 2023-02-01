@@ -3,8 +3,7 @@ from models.synthesizer.train import train
 from utils.argutils import print_args
 import argparse
 
-
-if __name__ == "__main__":
+def new_train():
     parser = argparse.ArgumentParser()
     parser.add_argument("run_id", type=str, help= \
         "Name for this model instance. If a model state from the same run ID was previously "
@@ -13,7 +12,7 @@ if __name__ == "__main__":
     parser.add_argument("syn_dir", type=str, default=argparse.SUPPRESS, help= \
         "Path to the synthesizer directory that contains the ground truth mel spectrograms, "
         "the wavs and the embeds.")
-    parser.add_argument("-m", "--models_dir", type=str, default="synthesizer/saved_models/", help=\
+    parser.add_argument("-m", "--models_dir", type=str, default=f"data/ckpt/synthesizer/", help=\
         "Path to the output directory that will contain the saved model weights and the logs.")
     parser.add_argument("-s", "--save_every", type=int, default=1000, help= \
         "Number of steps between updates of the model on the disk. Set to 0 to never save the "
@@ -28,10 +27,14 @@ if __name__ == "__main__":
     parser.add_argument("--hparams", default="",
                         help="Hyperparameter overrides as a comma-separated list of name=value "
 							 "pairs")
-    args = parser.parse_args()
+    args, _ = parser.parse_known_args()
     print_args(args, parser)
 
     args.hparams = hparams.parse(args.hparams)
 
     # Run the training
     train(**vars(args))
+
+
+if __name__ == "__main__":
+    new_train()

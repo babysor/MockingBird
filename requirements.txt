@@ -26,3 +26,5 @@ PyYAML==5.4.1
 torch_complex
 espnet
 PyWavelets
+monotonic-align==0.0.3
+transformers==4.26.0

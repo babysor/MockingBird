@@ -37,6 +37,12 @@ def is_single_file_property(property: Dict) -> bool:
     # TODO: binary?
     return property.get("format") == "byte"
 
+def is_single_autio_property(property: Dict) -> bool:
+    if property.get("type") != "string":
+        return False
+    # TODO: binary?
+    return property.get("format") == "bytes"
+
 
 def is_single_directory_property(property: Dict) -> bool:
     if property.get("type") != "string":

@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from pathlib import Path
 from torch import optim
 import torch.nn.functional as F
-import vocoder.wavernn.hparams as hp
+import models.vocoder.wavernn.hparams as hp
 import numpy as np
 import time
 import torch

@@ -16,6 +16,7 @@ recognized_datasets = [
     "data_aishell"
 ]
 
+#TODO: add for emotional data 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Preprocesses audio files from datasets, encodes them as mel spectrograms "
@@ -42,7 +43,7 @@ if __name__ == "__main__":
         (these are used to split long audio files into sub-utterances.)")
     parser.add_argument("-d", "--dataset", type=str, default="aidatatang_200zh", help=\
         "Name of the dataset to process, allowing values: magicdata, aidatatang_200zh, aishell3, data_aishell.")
-    parser.add_argument("-e", "--encoder_model_fpath", type=Path, default="encoder/saved_models/pretrained.pt", help=\
+    parser.add_argument("-e", "--encoder_model_fpath", type=Path, default="data/ckpt/encoder/pretrained.pt", help=\
         "Path your trained encoder model.")
     parser.add_argument("-ne", "--n_processes_embed", type=int, default=1, help=\
         "Number of processes in parallel.An encoder is created for each, so you may need to lower "
