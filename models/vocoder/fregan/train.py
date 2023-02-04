@@ -13,7 +13,7 @@ from torch.nn.parallel import DistributedDataParallel
 from models.vocoder.fregan.meldataset import MelDataset, mel_spectrogram, get_dataset_filelist
 from models.vocoder.fregan.generator import FreGAN
 from models.vocoder.fregan.discriminator import ResWiseMultiPeriodDiscriminator, ResWiseMultiScaleDiscriminator
-from models.vocoder.fregan.loss import feature_loss, generator_loss, discriminator_loss
+from utils.loss import feature_loss, generator_loss, discriminator_loss
 from models.vocoder.fregan.utils import plot_spectrogram, scan_checkpoint, load_checkpoint, save_checkpoint
 
 

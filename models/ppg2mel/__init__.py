@@ -15,7 +15,7 @@ from .rnn_decoder_mol import Decoder
 from .utils.cnn_postnet import Postnet
 from .utils.vc_utils import get_mask_from_lengths
 
-from utils.load_yaml import HpsYaml
+from utils.hparams import HpsYaml
 
 class MelDecoderMOLv2(AbsMelDecoder):
     """Use an encoder to preprocess ppg."""

@@ -4,7 +4,7 @@ from pathlib import Path
 from enum import Enum
 from typing import Any, Tuple
 import numpy as np
-from utils.load_yaml import HpsYaml
+from utils.hparams import HpsYaml
 from utils.util import AttrDict
 import torch
 

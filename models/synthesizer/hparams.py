@@ -1,36 +1,4 @@
-import ast
-import pprint
-import json
-
-class HParams(object):
-    def __init__(self, **kwargs): self.__dict__.update(kwargs)
-    def __setitem__(self, key, value): setattr(self, key, value)
-    def __getitem__(self, key): return getattr(self, key)
-    def __repr__(self): return pprint.pformat(self.__dict__)
-
-    def parse(self, string):
-        # Overrides hparams from a comma-separated string of name=value pairs
-        if len(string) > 0:
-            overrides = [s.split("=") for s in string.split(",")]
-            keys, values = zip(*overrides)
-            keys = list(map(str.strip, keys))
-            values = list(map(str.strip, values))
-            for k in keys:
-                self.__dict__[k] = ast.literal_eval(values[keys.index(k)])
-        return self
-
-    def loadJson(self, dict):
-        print("\Loading the json with %s\n", dict)
-        for k in dict.keys():
-            if k not in ["tts_schedule", "tts_finetune_layers"]: 
-                self.__dict__[k] = dict[k]
-        return self
-
-    def dumpJson(self, fp):
-        print("\Saving the json with %s\n", fp)
-        with fp.open("w", encoding="utf-8") as f:
-            json.dump(self.__dict__, f)
-        return self
+from utils.hparams import HParams
 
 hparams = HParams(
         ### Signal Processing (used in both synthesizer and vocoder)
@@ -104,7 +72,7 @@ hparams = HParams(
         ### SV2TTS
         speaker_embedding_size = 256,               # Dimension for the speaker embedding
         silence_min_duration_split = 0.4,           # Duration in seconds of a silence for an utterance to be split
-        utterance_min_duration = 1.6,               # Duration in seconds below which utterances are discarded
+        utterance_min_duration = 0.5,               # Duration in seconds below which utterances are discarded
         use_gst = True,                             # Whether to use global style token    
         use_ser_for_gst = True,                     # Whether to use speaker embedding referenced for global style token  
         )

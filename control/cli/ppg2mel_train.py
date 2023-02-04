@@ -2,7 +2,7 @@ import sys
 import torch
 import argparse
 import numpy as np
-from utils.load_yaml import HpsYaml
+from utils.hparams import HpsYaml
 from models.ppg2mel.train.train_linglf02mel_seq2seq_oneshotvc import Solver
 
 # For reproducibility, comment these may speed up training

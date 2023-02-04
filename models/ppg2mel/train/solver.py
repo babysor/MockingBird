@@ -8,7 +8,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 from .option import default_hparas
 from utils.util import human_format, Timer
-from utils.load_yaml import HpsYaml
 
 
 class BaseSolver():

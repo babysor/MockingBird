@@ -2,7 +2,6 @@ import torch
 from torch.utils.data import DataLoader
 from models.synthesizer.synthesizer_dataset import SynthesizerDataset, collate_synthesizer
 from models.synthesizer.models.tacotron import Tacotron
-from models.synthesizer.utils.text import text_to_sequence
 from models.synthesizer.utils.symbols import symbols
 import numpy as np
 from pathlib import Path

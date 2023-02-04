@@ -6,37 +6,42 @@ from pathlib import Path
 from tqdm import tqdm
 import numpy as np
 from models.encoder import inference as encoder
-from models.synthesizer.preprocess_speaker import preprocess_speaker_general
+from models.synthesizer.preprocess_audio import preprocess_general
 from models.synthesizer.preprocess_transcript import preprocess_transcript_aishell3, preprocess_transcript_magicdata
 
 data_info = {
     "aidatatang_200zh": {
         "subfolders": ["corpus/train"],
         "trans_filepath": "transcript/aidatatang_200_zh_transcript.txt",
-        "speak_func": preprocess_speaker_general
+        "speak_func": preprocess_general
+    },
+    "aidatatang_200zh_s": {
+        "subfolders": ["corpus/train"],
+        "trans_filepath": "transcript/aidatatang_200_zh_transcript.txt",
+        "speak_func": preprocess_general
     },
     "magicdata": {
         "subfolders": ["train"],
         "trans_filepath": "train/TRANS.txt",
-        "speak_func": preprocess_speaker_general,
+        "speak_func": preprocess_general,
         "transcript_func": preprocess_transcript_magicdata,
     },
     "aishell3":{
         "subfolders": ["train/wav"],
         "trans_filepath": "train/content.txt",
-        "speak_func": preprocess_speaker_general,
+        "speak_func": preprocess_general,
         "transcript_func": preprocess_transcript_aishell3,
     },
     "data_aishell":{
         "subfolders": ["wav/train"],
         "trans_filepath": "transcript/aishell_transcript_v0.8.txt",
-        "speak_func": preprocess_speaker_general
+        "speak_func": preprocess_general
     }
 }
 
 def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
-                           skip_existing: bool, hparams, no_alignments: bool,
-                           dataset: str):
+                           skip_existing: bool, hparams, no_alignments: bool, 
+                           dataset: str, emotion_extract = False):
     dataset_info = data_info[dataset]
     # Gather the input directories
     dataset_root = datasets_root.joinpath(dataset)
@@ -47,6 +52,8 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
     # Create the output directories for each output file type
     out_dir.joinpath("mels").mkdir(exist_ok=True)
     out_dir.joinpath("audio").mkdir(exist_ok=True)
+    if emotion_extract:
+        out_dir.joinpath("emo").mkdir(exist_ok=True)
     
     # Create a metadata file
     metadata_fpath = out_dir.joinpath("train.txt")
@@ -68,12 +75,15 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
                 dict_info[v[0]] = " ".join(v[1:])
 
     speaker_dirs = list(chain.from_iterable(input_dir.glob("*") for input_dir in input_dirs))
+    
     func = partial(dataset_info["speak_func"], out_dir=out_dir, skip_existing=skip_existing, 
-                   hparams=hparams, dict_info=dict_info, no_alignments=no_alignments)
+                   hparams=hparams, dict_info=dict_info, no_alignments=no_alignments, emotion_extract=emotion_extract)
     job = Pool(n_processes).imap(func, speaker_dirs)
+    
     for speaker_metadata in tqdm(job, dataset, len(speaker_dirs), unit="speakers"):
-        for metadatum in speaker_metadata:
-            metadata_file.write("|".join(str(x) for x in metadatum) + "\n")
+        if speaker_metadata is not None:
+            for metadatum in speaker_metadata:
+                metadata_file.write("|".join(str(x) for x in metadatum) + "\n")
     metadata_file.close()
 
     # Verify the contents of the metadata file

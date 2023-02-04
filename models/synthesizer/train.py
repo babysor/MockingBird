@@ -78,8 +78,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                 # Try to scan config file
         model_config_fpaths = list(weights_fpath.parent.rglob("*.json"))
         if len(model_config_fpaths)>0 and model_config_fpaths[0].exists():
-            with model_config_fpaths[0].open("r", encoding="utf-8") as f:
-                hparams.loadJson(json.load(f))
+            hparams.loadJson(model_config_fpaths[0])
         else:  # save a config
             hparams.dumpJson(weights_fpath.parent.joinpath(run_id).with_suffix(".json"))
 

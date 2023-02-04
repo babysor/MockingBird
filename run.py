@@ -2,14 +2,13 @@ import time
 import os
 import argparse
 import torch
-import numpy as np
 import glob
 from pathlib import Path
 from tqdm import tqdm
 from models.ppg_extractor import load_model
 import librosa
 import soundfile as sf
-from utils.load_yaml import HpsYaml
+from utils.hparams import HpsYaml
 
 from models.encoder.audio import preprocess_wav
 from models.encoder import inference as speacker_encoder
