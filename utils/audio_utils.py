@@ -68,20 +68,12 @@ def mel_spectrogram(
     if torch.max(y) > 1.:
         print('max value is ', torch.max(y))
 
-    # global mel_basis, hann_window
-    # if fmax not in mel_basis:
-    #     mel = librosa_mel_fn(sampling_rate, n_fft, num_mels, fmin, fmax)
-    #     mel_basis[str(fmax)+'_'+str(y.device)] = torch.from_numpy(mel).float().to(y.device)
-    #     hann_window[str(y.device)] = torch.hann_window(win_size).to(y.device)
     global mel_basis, hann_window
-    dtype_device = str(y.dtype) + '_' + str(y.device)
-    fmax_dtype_device = str(fmax) + '_' + dtype_device
-    wnsize_dtype_device = str(win_size) + '_' + dtype_device
-    if fmax_dtype_device not in mel_basis:
+    if fmax not in mel_basis:
         mel = librosa_mel_fn(sampling_rate, n_fft, num_mels, fmin, fmax)
-        mel_basis[fmax_dtype_device] = torch.from_numpy(mel).to(dtype=y.dtype, device=y.device)
-    if wnsize_dtype_device not in hann_window:
-        hann_window[wnsize_dtype_device] = torch.hann_window(win_size).to(dtype=y.dtype, device=y.device)
+        mel_basis[str(fmax)+'_'+str(y.device)] = torch.from_numpy(mel).float().to(y.device)
+        hann_window[str(y.device)] = torch.hann_window(win_size).to(y.device)
+   
 
     y = torch.nn.functional.pad(y.unsqueeze(1), (int((n_fft-hop_size)/2), int((n_fft-hop_size)/2)), mode='reflect')
     y = y.squeeze(1)
