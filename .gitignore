@@ -14,9 +14,9 @@
 *.bcf
 *.toc
 *.sh
-*/saved_models
-!vocoder/saved_models/pretrained/**
-!encoder/saved_models/pretrained.pt
+data/ckpt
+!data/ckpt/vocoder/pretrained/**
+!data/ckpt/encoder/pretrained.pt
 wavs
 log
 !/docker-entrypoint.sh

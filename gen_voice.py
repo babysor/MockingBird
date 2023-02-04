@@ -1,23 +1,15 @@
-from encoder.params_model import model_embedding_size as speaker_embedding_size
-from utils.argutils import print_args
-from utils.modelutils import check_model_paths
-from synthesizer.inference import Synthesizer
-from encoder import inference as encoder
-from vocoder.wavernn import inference as rnn_vocoder
-from vocoder.hifigan import inference as gan_vocoder
+from models.synthesizer.inference import Synthesizer
+from models.encoder import inference as encoder
+from models.vocoder.hifigan import inference as gan_vocoder
 from pathlib import Path
 import numpy as np
 import soundfile as sf
-import librosa
-import argparse
 import torch
 import sys
 import os
 import re
 import cn2an
-import glob
 
-from audioread.exceptions import NoBackendError
 vocoder = gan_vocoder
 
 def gen_one_wav(synthesizer, in_fpath, embed, texts, file_name, seq):

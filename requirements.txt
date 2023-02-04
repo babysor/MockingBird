@@ -20,12 +20,14 @@ flask_wtf
 flask_cors==3.0.10
 gevent==21.8.0
 flask_restx
-tensorboard
+tensorboard==1.15
 streamlit==1.8.0
 PyYAML==5.4.1
 torch_complex
 espnet
 PyWavelets
+monotonic-align==0.0.3
+transformers==4.26.0
 fastapi
 loguru
 typer[all]

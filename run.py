@@ -2,19 +2,18 @@ import time
 import os
 import argparse
 import torch
-import numpy as np
 import glob
 from pathlib import Path
 from tqdm import tqdm
-from ppg_extractor import load_model
+from models.ppg_extractor import load_model
 import librosa
 import soundfile as sf
-from utils.load_yaml import HpsYaml
+from utils.hparams import HpsYaml
 
-from encoder.audio import preprocess_wav
-from encoder import inference as speacker_encoder
-from vocoder.hifigan import inference as vocoder
-from ppg2mel import MelDecoderMOLv2
+from models.encoder.audio import preprocess_wav
+from models.encoder import inference as speacker_encoder
+from models.vocoder.hifigan import inference as vocoder
+from models.ppg2mel import MelDecoderMOLv2
 from utils.f0_utils import compute_f0, f02lf0, compute_mean_std, get_converted_lf0uv
 
 
