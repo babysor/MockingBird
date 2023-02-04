@@ -19,3 +19,6 @@ data/ckpt
 !data/ckpt/encoder/pretrained.pt
 wavs
 log
+!/docker-entrypoint.sh
+!/datasets_download/*.sh
+/datasets

@@ -28,3 +28,7 @@ espnet
 PyWavelets
 monotonic-align==0.0.3
 transformers==4.26.0
+fastapi
+loguru
+typer[all]
+click==8.0.4

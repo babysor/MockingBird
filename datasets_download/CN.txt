@@ -1,0 +1,8 @@
+https://openslr.magicdatatech.com/resources/62/aidatatang_200zh.tgz
+  out=download/aidatatang_200zh.tgz
+https://openslr.magicdatatech.com/resources/68/train_set.tar.gz
+  out=download/magicdata.tgz
+https://openslr.magicdatatech.com/resources/93/data_aishell3.tgz
+  out=download/aishell3.tgz
+https://openslr.magicdatatech.com/resources/33/data_aishell.tgz
+  out=download/data_aishell.tgz
