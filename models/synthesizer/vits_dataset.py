@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.utils.data
 
-from utils.audio_utils import spectrogram, load_wav
+from utils.audio_utils import spectrogram1, load_wav_to_torch, spectrogram
 from utils.util import intersperse
 from models.synthesizer.utils.text import text_to_sequence
 
@@ -57,6 +57,8 @@ class VitsDataset(torch.utils.data.Dataset):
             if self.min_text_len <= len(text) and len(text) <= self.max_text_len:
                 # TODO: for magic data only
                 speaker_name = wav_fpath.split("_")[1]
+                # # TODO: for ai data only
+                # speaker_name = wav_fpath.split("-")[1][6:9]
                 if speaker_name not in spk_to_sid:
                     sid += 1
                     spk_to_sid[speaker_name] = sid
@@ -71,36 +73,45 @@ class VitsDataset(torch.utils.data.Dataset):
         # separate filename, speaker_id and text
         wav_fpath, text, sid = audio_metadata[0], audio_metadata[5], audio_metadata[6]
         text = self.get_text(text)
-        
-        spec, wav = self.get_audio(f'{self.datasets_root}{os.sep}audio{os.sep}{wav_fpath}')
+
+        # TODO: add original audio data root for loading
+        file_name = wav_fpath.split("_00")[0].split('-')[1]
+        spec, wav = self.get_audio(f'{self.datasets_root}{os.sep}..{os.sep}..{os.sep}magicdata{os.sep}train{os.sep}{"_".join(file_name.split("_")[:2])}{os.sep}{file_name}')
+
+        # spec, wav = self.get_audio(f'{self.datasets_root}{os.sep}audio{os.sep}{wav_fpath}')
         sid = self.get_sid(sid)
         emo = torch.FloatTensor(np.load(f'{self.datasets_root}{os.sep}emo{os.sep}{wav_fpath.replace("audio", "emo")}'))
         return (text, spec, wav, sid, emo)
 
     def get_audio(self, filename):
-        # audio, sampling_rate = load_wav(filename)
-
-        # if sampling_rate != self.sampling_rate:
-        #     raise ValueError("{} {} SR doesn't match target {} SR".format(
-        #         sampling_rate, self.sampling_rate))
-        # audio = torch.load(filename)
-        audio = torch.FloatTensor(np.load(filename).astype(np.float32)) 
-        audio = audio.unsqueeze(0)
-        # audio_norm = audio / self.max_wav_value
-        # audio_norm = audio_norm.unsqueeze(0)
-        # spec_filename = filename.replace(".wav", ".spec.pt")
-        # if os.path.exists(spec_filename):
-        #     spec = torch.load(spec_filename)
-        # else:
-        # spec = spectrogram(audio, self.filter_length,
-        #     self.sampling_rate, self.hop_length, self.win_length,
-        #     center=False)
-        # spec = torch.squeeze(spec, 0)
-        # torch.save(spec, spec_filename)
-        spec = spectrogram(audio, self.filter_length, self.hop_length, self.win_length,
+        audio, sampling_rate = load_wav_to_torch(filename)
+        if sampling_rate != self.sampling_rate:
+            raise ValueError("{} {} SR doesn't match target {} SR".format(
+                sampling_rate, self.sampling_rate))
+        audio_norm = audio / self.max_wav_value
+        audio_norm = audio_norm.unsqueeze(0)
+        spec = spectrogram(audio_norm, self.filter_length, self.hop_length, self.win_length,
             center=False)
         spec = torch.squeeze(spec, 0)
-        return spec, audio
+        return spec, audio_norm
+
+        # print("Loading", filename)
+        # # audio = torch.FloatTensor(np.load(filename).astype(np.float32)) 
+        # audio = audio.unsqueeze(0)
+        # audio_norm = audio / self.max_wav_value
+        # audio_norm = audio_norm.unsqueeze(0)
+        # # spec_filename = filename.replace(".wav", ".spec.pt")
+        # # if os.path.exists(spec_filename):
+        # #     spec = torch.load(spec_filename)
+        # # else:
+        # #     spec = spectrogram(audio, self.filter_length,self.hop_length, self.win_length,
+        # #         center=False)
+        # #     spec = torch.squeeze(spec, 0)
+        # #     torch.save(spec, spec_filename)
+        # spec = spectrogram(audio, self.filter_length, self.hop_length, self.win_length,
+        #     center=False)
+        # spec = torch.squeeze(spec, 0)
+        # return spec, audio
 
     def get_text(self, text):
         if self.cleaned_text:

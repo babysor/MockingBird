@@ -39,7 +39,7 @@ def new_train():
     parser.add_argument("--syn_dir", type=str, default="../audiodata/SV2TTS/synthesizer", help= \
         "Path to the synthesizer directory that contains the ground truth mel spectrograms, "
         "the wavs, the emos and the embeds.")
-    parser.add_argument("-m", "--model_dir", type=str, default="data/ckpt/synthesizer/vits", help=\
+    parser.add_argument("-m", "--model_dir", type=str, default="data/ckpt/synthesizer/vits2", help=\
         "Path to the output directory that will contain the saved model weights and the logs.")
     parser.add_argument('--ckptG', type=str, required=False,
                       help='original VITS G checkpoint path')
@@ -65,7 +65,7 @@ def new_train():
     run(0, 1, hparams)
 
 
-def load_checkpoint(checkpoint_path, model, optimizer=None, is_old=False):
+def load_checkpoint(checkpoint_path, model, optimizer=None, is_old=False, epochs=10000):
   assert os.path.isfile(checkpoint_path)
   checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
   iteration = checkpoint_dict['iteration']
@@ -89,8 +89,12 @@ def load_checkpoint(checkpoint_path, model, optimizer=None, is_old=False):
     try:
       new_state_dict[k] = saved_state_dict[k]
     except:
-      logger.info("%s is not in the checkpoint" % k)
-      new_state_dict[k] = v
+        if k == 'step':
+            new_state_dict[k] = iteration * epochs
+        else:
+            logger.info("%s is not in the checkpoint" % k)
+            new_state_dict[k] = v
+
   if hasattr(model, 'module'):
     model.module.load_state_dict(new_state_dict, strict=False)
   else:
@@ -173,13 +177,13 @@ def run(rank, n_gpus, hps):
             print("加载原版VITS模型G记录点成功")
         else:
             _, _, _, epoch_str = load_checkpoint(latest_checkpoint_path(hps.model_dir, "G_*.pth"), net_g,
-                                                   optim_g)
+                                                   optim_g, epochs=hps.train.epochs)
         if ckptD is not None:
             _, _, _, epoch_str = load_checkpoint(ckptG, net_g, optim_g, is_old=True)
             print("加载原版VITS模型D记录点成功")
         else:
             _, _, _, epoch_str = load_checkpoint(latest_checkpoint_path(hps.model_dir, "D_*.pth"), net_d,
-                                                   optim_d)
+                                                   optim_d, epochs=hps.train.epochs)
         global_step = (epoch_str - 1) * len(train_loader)
     except:
         epoch_str = 1
@@ -216,17 +220,17 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
     net_g.train()
     net_d.train()
     for batch_idx, (x, x_lengths, spec, spec_lengths, y, y_lengths, speakers, emo) in enumerate(train_loader):
-        logger.info(f'====> Step: 1 {batch_idx}')
-        x, x_lengths = x.cuda(rank, non_blocking=True), x_lengths.cuda(rank, non_blocking=True)
-        spec, spec_lengths = spec.cuda(rank, non_blocking=True), spec_lengths.cuda(rank, non_blocking=True)
-        y, y_lengths = y.cuda(rank, non_blocking=True), y_lengths.cuda(rank, non_blocking=True)
-        speakers = speakers.cuda(rank, non_blocking=True)
-        emo = emo.cuda(rank, non_blocking=True)
-
+        # logger.info(f'====> Step: 1 {batch_idx}')
+        x, x_lengths = x.cuda(rank), x_lengths.cuda(rank)
+        spec, spec_lengths = spec.cuda(rank), spec_lengths.cuda(rank)
+        y, y_lengths = y.cuda(rank), y_lengths.cuda(rank)
+        speakers = speakers.cuda(rank)
+        emo = emo.cuda(rank)
+        # logger.info(f'====> Step: 1.0 {batch_idx}')
         with autocast(enabled=hps.train.fp16_run):
             y_hat, l_length, attn, ids_slice, x_mask, z_mask, \
             (z, z_p, m_p, logs_p, m_q, logs_q) = net_g(x, x_lengths, spec, spec_lengths, speakers, emo)
-
+            # logger.info(f'====> Step: 1.1 {batch_idx}')
             mel = spec_to_mel(
                 spec,
                 hps.data.filter_length,
@@ -247,7 +251,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
             )
 
             y = slice_segments(y, ids_slice * hps.data.hop_length, hps.train.segment_size)  # slice
-
+            # logger.info(f'====> Step: 1.3 {batch_idx}')
             # Discriminator
             y_d_hat_r, y_d_hat_g, _, _ = net_d(y, y_hat.detach())
             with autocast(enabled=False):
@@ -258,7 +262,6 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
         scaler.unscale_(optim_d)
         grad_norm_d = clip_grad_value_(net_d.parameters(), None)
         scaler.step(optim_d)
-        logger.info(f'====> Step: 2 {batch_idx}')
 
         with autocast(enabled=hps.train.fp16_run):
             # Generator
@@ -277,7 +280,6 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
         grad_norm_g = clip_grad_value_(net_g.parameters(), None)
         scaler.step(optim_g)
         scaler.update()
-        # logger.info(f'====> Step: 3 {batch_idx}')
         if rank == 0:
             if global_step % hps.train.log_interval == 0:
                 lr = optim_g.param_groups[0]['lr']
@@ -339,6 +341,8 @@ def evaluate(hps, generator, eval_loader, writer_eval):
             emo = emo[:1]
             break
         y_hat, attn, mask, *_ = generator.module.infer(x, x_lengths, speakers, emo, max_len=1000)
+        # y_hat, attn, mask, *_ = generator.infer(x, x_lengths, speakers, emo, max_len=1000) # for non DistributedDataParallel object
+        
         y_hat_lengths = mask.sum([1, 2]).long() * hps.data.hop_length
 
         mel = spec_to_mel(

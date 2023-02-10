@@ -3,10 +3,10 @@ from utils.hparams import HParams
 hparams = HParams(
         ### Signal Processing (used in both synthesizer and vocoder)
         sample_rate = 16000,
-        n_fft = 800,
+        n_fft = 1024, # filter_length
         num_mels = 80,
-        hop_size = 200,                             # Tacotron uses 12.5 ms frame shift (set to sample_rate * 0.0125)
-        win_size = 800,                             # Tacotron uses 50 ms frame length (set to sample_rate * 0.050)
+        hop_size = 256,                             # Tacotron uses 12.5 ms frame shift (set to sample_rate * 0.0125)
+        win_size = 1024,                             # Tacotron uses 50 ms frame length (set to sample_rate * 0.050)
         fmin = 55,
         min_level_db = -100,
         ref_level_db = 20,
@@ -67,7 +67,7 @@ hparams = HParams(
         use_lws = False,                            # "Fast spectrogram phase recovery using local weighted sums"
         symmetric_mels = True,                      # Sets mel range to [-max_abs_value, max_abs_value] if True,
                                                     #               and [0, max_abs_value] if False
-        trim_silence = True,                        # Use with sample_rate of 16000 for best results
+        trim_silence = False,                        # Use with sample_rate of 16000 for best results
 
         ### SV2TTS
         speaker_embedding_size = 256,               # Dimension for the speaker embedding

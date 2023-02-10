@@ -20,8 +20,6 @@ device = 'cuda' if torch.cuda.is_available() else "cpu"
 model_name = 'audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim'
 processor = Wav2Vec2Processor.from_pretrained(model_name)
 model = EmotionExtractorModel.from_pretrained(model_name).to(device)
-embs = []
-wavnames = []
 
 def extract_emo(
     x: np.ndarray,
@@ -48,8 +46,6 @@ class PinyinConverter(NeutralToneWith5Mixin, DefaultConverter):
 pinyin = Pinyin(PinyinConverter()).pinyin
 
 
-
-
 def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str, 
                       skip_existing: bool, hparams, emotion_extract: bool):
     ## FOR REFERENCE:
@@ -67,9 +63,8 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
     # Skip existing utterances if needed
     mel_fpath = out_dir.joinpath("mels", "mel-%s.npy" % basename)
     wav_fpath = out_dir.joinpath("audio", "audio-%s.npy" % basename)
-    emo_fpath = out_dir.joinpath("emo", "emo-%s.npy" % basename)
-    skip_emo_extract = not emotion_extract or (skip_existing and emo_fpath.exists())
-    if skip_existing and mel_fpath.exists() and wav_fpath.exists() and skip_emo_extract:
+    
+    if skip_existing and mel_fpath.exists() and wav_fpath.exists():
         return None
 
     # Trim silence
@@ -91,18 +86,14 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
     np.save(mel_fpath, mel_spectrogram.T, allow_pickle=False)
     np.save(wav_fpath, wav, allow_pickle=False)
 
-    if not skip_emo_extract:
-        emo = extract_emo(np.expand_dims(wav, 0), hparams.sample_rate, True)
-        np.save(emo_fpath, emo, allow_pickle=False)
-
     # Return a tuple describing this training example
-    return wav_fpath.name, mel_fpath.name, "embed-%s.npy" % basename, len(wav), mel_frames, text
+    return wav_fpath.name, mel_fpath.name, "embed-%s.npy" % basename, wav, mel_frames, text
  
 
 def _split_on_silences(wav_fpath, words, hparams):
     # Load the audio waveform
     wav, _ = librosa.load(wav_fpath, sr= hparams.sample_rate)
-    wav = librosa.effects.trim(wav, top_db= 40, frame_length=2048, hop_length=512)[0]
+    wav = librosa.effects.trim(wav, top_db= 40, frame_length=2048, hop_length=1024)[0]
     if hparams.rescale:
         wav = wav / np.abs(wav).max() * hparams.rescaling_max
     # denoise, we may not need it here.
@@ -132,6 +123,15 @@ def preprocess_general(speaker_dir, out_dir: Path, skip_existing: bool, hparams,
                 continue
             sub_basename = "%s_%02d" % (wav_fpath.name, 0)
             wav, text = _split_on_silences(wav_fpath, words, hparams)
-            metadata.append(_process_utterance(wav, text, out_dir, sub_basename, 
-                                                skip_existing, hparams, emotion_extract))
+            result = _process_utterance(wav, text, out_dir, sub_basename, 
+                                                skip_existing, hparams, emotion_extract)
+            if result is None:
+                continue
+            wav_fpath_name, mel_fpath_name, embed_fpath_name, wav, mel_frames, text = result
+            emo_fpath = out_dir.joinpath("emo", "emo-%s.npy" % sub_basename)
+            skip_emo_extract = not emotion_extract or (skip_existing and emo_fpath.exists())
+            if not skip_emo_extract and wav is not None:
+                emo = extract_emo(np.expand_dims(wav, 0), hparams.sample_rate, True)
+                np.save(emo_fpath, emo.squeeze(0), allow_pickle=False)
+            metadata.append([wav_fpath_name, mel_fpath_name, embed_fpath_name, len(wav), mel_frames, text])
     return [m for m in metadata if m is not None]

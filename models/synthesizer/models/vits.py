@@ -2,12 +2,12 @@ import math
 import torch
 from torch import nn
 from torch.nn import functional as F
+from loguru import logger
 
 from .sublayer.vits_modules import *
 import monotonic_align
 
-from .base import Base
-from torch.nn import Conv1d, ConvTranspose1d, AvgPool1d, Conv2d
+from torch.nn import Conv1d, ConvTranspose1d, Conv2d
 from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
 from utils.util import init_weights, get_padding, sequence_mask, rand_slice_segments, generate_path
 
@@ -386,7 +386,7 @@ class MultiPeriodDiscriminator(torch.nn.Module):
 
         return y_d_rs, y_d_gs, fmap_rs, fmap_gs
 
-class Vits(Base):
+class Vits(nn.Module):
   """
   Synthesizer of Vits
   """
@@ -408,13 +408,12 @@ class Vits(Base):
     upsample_rates, 
     upsample_initial_channel, 
     upsample_kernel_sizes,
-    stop_threshold,
     n_speakers=0,
     gin_channels=0,
     use_sdp=True,
     **kwargs):
 
-    super().__init__(stop_threshold)
+    super().__init__()
     self.n_vocab = n_vocab
     self.spec_channels = spec_channels
     self.inter_channels = inter_channels
@@ -457,7 +456,7 @@ class Vits(Base):
       self.emb_g = nn.Embedding(n_speakers, gin_channels)
 
   def forward(self, x, x_lengths, y, y_lengths, sid=None, emo=None):
-
+    # logger.info(f'====> Forward: 1.1.0')
     x, m_p, logs_p, x_mask = self.enc_p(x, x_lengths, emo)
     if self.n_speakers > 0:
       g = self.emb_g(sid).unsqueeze(-1) # [b, h, 1]
@@ -466,7 +465,7 @@ class Vits(Base):
 
     z, m_q, logs_q, y_mask = self.enc_q(y, y_lengths, g=g)
     z_p = self.flow(z, y_mask, g=g)
-
+    # logger.info(f'====> Forward: 1.1.1')
     with torch.no_grad():
       # negative cross-entropy
       s_p_sq_r = torch.exp(-2 * logs_p) # [b, d, t]
@@ -475,10 +474,11 @@ class Vits(Base):
       neg_cent3 = torch.matmul(z_p.transpose(1, 2), (m_p * s_p_sq_r)) # [b, t_t, d] x [b, d, t_s] = [b, t_t, t_s]
       neg_cent4 = torch.sum(-0.5 * (m_p ** 2) * s_p_sq_r, [1], keepdim=True) # [b, 1, t_s]
       neg_cent = neg_cent1 + neg_cent2 + neg_cent3 + neg_cent4
-
+      #logger.info(f'====> Forward: 1.1.1.1')
       attn_mask = torch.unsqueeze(x_mask, 2) * torch.unsqueeze(y_mask, -1)
       attn = monotonic_align.maximum_path(neg_cent, attn_mask.squeeze(1)).unsqueeze(1).detach()
 
+    # logger.info(f'====> Forward: 1.1.2')
     w = attn.sum(2)
     if self.use_sdp:
       l_length = self.dp(x, x_mask, w, g=g)
@@ -487,7 +487,6 @@ class Vits(Base):
       logw_ = torch.log(w + 1e-6) * x_mask
       logw = self.dp(x, x_mask, g=g)
       l_length = torch.sum((logw - logw_)**2, [1,2]) / torch.sum(x_mask) # for averaging 
-
     # expand prior
     m_p = torch.matmul(attn.squeeze(1), m_p.transpose(1, 2)).transpose(1, 2)
     logs_p = torch.matmul(attn.squeeze(1), logs_p.transpose(1, 2)).transpose(1, 2)
@@ -497,7 +496,9 @@ class Vits(Base):
     return o, l_length, attn, ids_slice, x_mask, y_mask, (z, z_p, m_p, logs_p, m_q, logs_q)
 
   def infer(self, x, x_lengths, sid=None, emo=None, noise_scale=1, length_scale=1, noise_scale_w=1., max_len=None):
+    # logger.info(f'====> Infer: 1.1.0')
     x, m_p, logs_p, x_mask = self.enc_p(x, x_lengths,emo)
+    # logger.info(f'====> Infer: 1.1.1')
     if self.n_speakers > 0:
       g = self.emb_g(sid).unsqueeze(-1) # [b, h, 1]
     else:
@@ -514,11 +515,14 @@ class Vits(Base):
     attn_mask = torch.unsqueeze(x_mask, 2) * torch.unsqueeze(y_mask, -1)
     attn = generate_path(w_ceil, attn_mask)
 
+    # logger.info(f'====> Infer: 1.1.2')
     m_p = torch.matmul(attn.squeeze(1), m_p.transpose(1, 2)).transpose(1, 2) # [b, t', t], [b, t, d] -> [b, d, t']
     logs_p = torch.matmul(attn.squeeze(1), logs_p.transpose(1, 2)).transpose(1, 2) # [b, t', t], [b, t, d] -> [b, d, t']
 
     z_p = m_p + torch.randn_like(m_p) * torch.exp(logs_p) * noise_scale
     z = self.flow(z_p, y_mask, g=g, reverse=True)
     o = self.dec((z * y_mask)[:,:,:max_len], g=g)
+    
+    # logger.info(f'====> Infer: 1.1.3')
     return o, attn, y_mask, (z, z_p, m_p, logs_p)
 
