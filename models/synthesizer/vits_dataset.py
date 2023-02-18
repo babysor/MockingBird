@@ -1,10 +1,11 @@
 import os
 import random
 import numpy as np
+import torch.nn.functional as F
 import torch
 import torch.utils.data
 
-from utils.audio_utils import spectrogram1, load_wav_to_torch, spectrogram
+from utils.audio_utils import load_wav_to_torch, spectrogram
 from utils.util import intersperse
 from models.synthesizer.utils.text import text_to_sequence
 
@@ -51,21 +52,10 @@ class VitsDataset(torch.utils.data.Dataset):
         lengths = []
         
         # for audiopath, sid, text in self.audio_metadata:
-        sid = 0
-        spk_to_sid = {}
-        for wav_fpath, mel_fpath, embed_path, wav_length, mel_frames, text in self.audio_metadata:
+        for wav_fpath, mel_fpath, embed_path, wav_length, mel_frames, text, spkid in self.audio_metadata:
             if self.min_text_len <= len(text) and len(text) <= self.max_text_len:
-                # TODO: for magic data only
-                speaker_name = wav_fpath.split("_")[1]
-                # # TODO: for ai data only
-                # speaker_name = wav_fpath.split("-")[1][6:9]
-                if speaker_name not in spk_to_sid:
-                    sid += 1
-                    spk_to_sid[speaker_name] = sid
-                
-                audio_metadata_new.append([wav_fpath, mel_fpath, embed_path, wav_length, mel_frames, text, spk_to_sid[speaker_name]])
+                audio_metadata_new.append([wav_fpath, mel_fpath, embed_path, wav_length, mel_frames, text, spkid])
                 lengths.append(os.path.getsize(f'{self.datasets_root}{os.sep}audio{os.sep}{wav_fpath}') // (2 * self.hop_length))
-        print("found sid:%d", sid)
         self.audio_metadata = audio_metadata_new
         self.lengths = lengths
 
@@ -74,50 +64,31 @@ class VitsDataset(torch.utils.data.Dataset):
         wav_fpath, text, sid = audio_metadata[0], audio_metadata[5], audio_metadata[6]
         text = self.get_text(text)
 
-        # TODO: add original audio data root for loading
-        file_name = wav_fpath.split("_00")[0].split('-')[1]
-        spec, wav = self.get_audio(f'{self.datasets_root}{os.sep}..{os.sep}..{os.sep}magicdata{os.sep}train{os.sep}{"_".join(file_name.split("_")[:2])}{os.sep}{file_name}')
-
-        # spec, wav = self.get_audio(f'{self.datasets_root}{os.sep}audio{os.sep}{wav_fpath}')
+        spec, wav = self.get_audio(f'{self.datasets_root}{os.sep}audio{os.sep}{wav_fpath}')
         sid = self.get_sid(sid)
         emo = torch.FloatTensor(np.load(f'{self.datasets_root}{os.sep}emo{os.sep}{wav_fpath.replace("audio", "emo")}'))
         return (text, spec, wav, sid, emo)
 
     def get_audio(self, filename):
-        audio, sampling_rate = load_wav_to_torch(filename)
-        if sampling_rate != self.sampling_rate:
-            raise ValueError("{} {} SR doesn't match target {} SR".format(
-                sampling_rate, self.sampling_rate))
-        audio_norm = audio / self.max_wav_value
-        audio_norm = audio_norm.unsqueeze(0)
-        spec = spectrogram(audio_norm, self.filter_length, self.hop_length, self.win_length,
-            center=False)
+        # Load preprocessed wav npy instead of reading from wav file
+        audio = torch.FloatTensor(np.load(filename))
+        audio_norm = audio.unsqueeze(0)
+
+        spec_filename = filename.replace(".wav", ".spec")
+        if os.path.exists(spec_filename):
+            spec = torch.load(spec_filename)
+        else:
+            spec = spectrogram(audio_norm, self.filter_length,self.hop_length, self.win_length,
+                center=False)
+            torch.save(spec, spec_filename)
         spec = torch.squeeze(spec, 0)
         return spec, audio_norm
-
-        # print("Loading", filename)
-        # # audio = torch.FloatTensor(np.load(filename).astype(np.float32)) 
-        # audio = audio.unsqueeze(0)
-        # audio_norm = audio / self.max_wav_value
-        # audio_norm = audio_norm.unsqueeze(0)
-        # # spec_filename = filename.replace(".wav", ".spec.pt")
-        # # if os.path.exists(spec_filename):
-        # #     spec = torch.load(spec_filename)
-        # # else:
-        # #     spec = spectrogram(audio, self.filter_length,self.hop_length, self.win_length,
-        # #         center=False)
-        # #     spec = torch.squeeze(spec, 0)
-        # #     torch.save(spec, spec_filename)
-        # spec = spectrogram(audio, self.filter_length, self.hop_length, self.win_length,
-        #     center=False)
-        # spec = torch.squeeze(spec, 0)
-        # return spec, audio
 
     def get_text(self, text):
         if self.cleaned_text:
             text_norm = text_to_sequence(text, self.text_cleaners)
         if self.add_blank:
-            text_norm = intersperse(text_norm, 0)
+            text_norm = intersperse(text_norm, 0) # 在所有文本数值序列中的元素前后都补充一个0 - 不适用于中文
         text_norm = torch.LongTensor(text_norm)
         return text_norm
 
@@ -188,7 +159,7 @@ class VitsDatasetCollate():
             emo[i, :] = row[4]
 
         if self.return_ids:
-            return text_padded, text_lengths, spec_padded, spec_lengths, wav_padded, wav_lengths, sid, ids_sorted_decreasing
+            return text_padded, text_lengths, spec_padded, spec_lengths, wav_padded, wav_lengths, sid, ids_sorted_decreasing, emo
         return text_padded, text_lengths, spec_padded, spec_lengths, wav_padded, wav_lengths, sid, emo
 
 

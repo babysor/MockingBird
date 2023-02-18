@@ -13,7 +13,11 @@ import torch
 from transformers import Wav2Vec2Processor
 from .models.wav2emo import EmotionExtractorModel
 
-SAMPLE_RATE = 16000
+class PinyinConverter(NeutralToneWith5Mixin, DefaultConverter):
+    pass
+
+pinyin = Pinyin(PinyinConverter()).pinyin
+
 
 # load model from hub 
 device = 'cuda' if torch.cuda.is_available() else "cpu"
@@ -40,14 +44,8 @@ def extract_emo(
 
     return y
 
-class PinyinConverter(NeutralToneWith5Mixin, DefaultConverter):
-    pass
-
-pinyin = Pinyin(PinyinConverter()).pinyin
-
-
 def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str, 
-                      skip_existing: bool, hparams, emotion_extract: bool):
+                      skip_existing: bool, hparams, encoder_model_fpath):
     ## FOR REFERENCE:
     # For you not to lose your head if you ever wish to change things here or implement your own
     # synthesizer.
@@ -69,6 +67,8 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
 
     # Trim silence
     if hparams.trim_silence:
+        if not encoder.is_loaded():
+            encoder.load_model(encoder_model_fpath)
         wav = encoder.preprocess_wav(wav, normalize=False, trim_silence=True)
     
     # Skip utterances that are too short
@@ -109,7 +109,7 @@ def _split_on_silences(wav_fpath, words, hparams):
 
     return wav, res
 
-def preprocess_general(speaker_dir, out_dir: Path, skip_existing: bool, hparams, dict_info, no_alignments: bool, emotion_extract: bool):
+def preprocess_general(speaker_dir, out_dir: Path, skip_existing: bool, hparams, dict_info, no_alignments: bool, encoder_model_fpath: Path):
     metadata = []
     extensions = ["*.wav", "*.flac", "*.mp3"]
     for extension in extensions:
@@ -124,14 +124,9 @@ def preprocess_general(speaker_dir, out_dir: Path, skip_existing: bool, hparams,
             sub_basename = "%s_%02d" % (wav_fpath.name, 0)
             wav, text = _split_on_silences(wav_fpath, words, hparams)
             result = _process_utterance(wav, text, out_dir, sub_basename, 
-                                                skip_existing, hparams, emotion_extract)
+                                                skip_existing, hparams, encoder_model_fpath)
             if result is None:
                 continue
             wav_fpath_name, mel_fpath_name, embed_fpath_name, wav, mel_frames, text = result
-            emo_fpath = out_dir.joinpath("emo", "emo-%s.npy" % sub_basename)
-            skip_emo_extract = not emotion_extract or (skip_existing and emo_fpath.exists())
-            if not skip_emo_extract and wav is not None:
-                emo = extract_emo(np.expand_dims(wav, 0), hparams.sample_rate, True)
-                np.save(emo_fpath, emo.squeeze(0), allow_pickle=False)
             metadata.append([wav_fpath_name, mel_fpath_name, embed_fpath_name, len(wav), mel_frames, text])
     return [m for m in metadata if m is not None]

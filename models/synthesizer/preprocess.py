@@ -6,7 +6,7 @@ from pathlib import Path
 from tqdm import tqdm
 import numpy as np
 from models.encoder import inference as encoder
-from models.synthesizer.preprocess_audio import preprocess_general
+from models.synthesizer.preprocess_audio import preprocess_general, extract_emo
 from models.synthesizer.preprocess_transcript import preprocess_transcript_aishell3, preprocess_transcript_magicdata
 
 data_info = {
@@ -41,7 +41,7 @@ data_info = {
 
 def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
                            skip_existing: bool, hparams, no_alignments: bool, 
-                           dataset: str, emotion_extract = False):
+                           dataset: str, emotion_extract = False, encoder_model_fpath=None):
     dataset_info = data_info[dataset]
     # Gather the input directories
     dataset_root = datasets_root.joinpath(dataset)
@@ -77,7 +77,7 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
     speaker_dirs = list(chain.from_iterable(input_dir.glob("*") for input_dir in input_dirs))
     
     func = partial(dataset_info["speak_func"], out_dir=out_dir, skip_existing=skip_existing, 
-                   hparams=hparams, dict_info=dict_info, no_alignments=no_alignments, emotion_extract=emotion_extract)
+                   hparams=hparams, dict_info=dict_info, no_alignments=no_alignments, encoder_model_fpath=encoder_model_fpath)
     job = Pool(n_processes).imap(func, speaker_dirs)
     
     for speaker_metadata in tqdm(job, dataset, len(speaker_dirs), unit="speakers"):
@@ -110,6 +110,13 @@ def embed_utterance(fpaths, encoder_model_fpath):
     embed = encoder.embed_utterance(wav)
     np.save(embed_fpath, embed, allow_pickle=False)
     
+def _emo_extract_from_utterance(fpaths, hparams, skip_existing=False):
+    if skip_existing and fpaths.exists():
+        return
+    wav_fpath, emo_fpath = fpaths
+    wav = np.load(wav_fpath)
+    emo = extract_emo(np.expand_dims(wav, 0), hparams.sample_rate, True)
+    np.save(emo_fpath, emo.squeeze(0), allow_pickle=False)
  
 def create_embeddings(synthesizer_root: Path, encoder_model_fpath: Path, n_processes: int):
     wav_dir = synthesizer_root.joinpath("audio")
@@ -128,3 +135,21 @@ def create_embeddings(synthesizer_root: Path, encoder_model_fpath: Path, n_proce
     func = partial(embed_utterance, encoder_model_fpath=encoder_model_fpath)
     job = Pool(n_processes).imap(func, fpaths)
     list(tqdm(job, "Embedding", len(fpaths), unit="utterances"))
+
+def create_emo(synthesizer_root: Path, n_processes: int, skip_existing: bool, hparams):
+    wav_dir = synthesizer_root.joinpath("audio")
+    metadata_fpath = synthesizer_root.joinpath("train.txt")
+    assert wav_dir.exists() and metadata_fpath.exists()
+    emo_dir = synthesizer_root.joinpath("emo")
+    emo_dir.mkdir(exist_ok=True)
+    
+    # Gather the input wave filepath and the target output embed filepath
+    with metadata_fpath.open("r", encoding="utf-8") as metadata_file:
+        metadata = [line.split("|") for line in metadata_file]
+        fpaths = [(wav_dir.joinpath(m[0]), emo_dir.joinpath(m[0].replace("audio-", "emo-"))) for m in metadata]
+        
+    # TODO: improve on the multiprocessing, it's terrible. Disk I/O is the bottleneck here.
+    # Embed the utterances in separate threads
+    func = partial(_emo_extract_from_utterance, hparams=hparams, skip_existing=skip_existing)
+    job = Pool(n_processes).imap(func, fpaths)
+    list(tqdm(job, "Emo", len(fpaths), unit="utterances"))

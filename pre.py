@@ -1,4 +1,4 @@
-from models.synthesizer.preprocess import create_embeddings, preprocess_dataset
+from models.synthesizer.preprocess import create_embeddings, preprocess_dataset, create_emo
 from models.synthesizer.hparams import hparams
 from pathlib import Path
 import argparse
@@ -64,7 +64,7 @@ if __name__ == "__main__":
                 "noise removal and is recommended. Please install and try again. If installation fails, "
                 "use --no_trim to disable this error message.")
     encoder_model_fpath = args.encoder_model_fpath
-    del args.no_trim, args.encoder_model_fpath
+    del args.no_trim
    
     args.hparams = hparams.parse(args.hparams)
     n_processes_embed = args.n_processes_embed
@@ -73,3 +73,5 @@ if __name__ == "__main__":
     
     create_embeddings(synthesizer_root=args.out_dir, n_processes=n_processes_embed, encoder_model_fpath=encoder_model_fpath)
     
+    if args.emotion_extract:
+        create_emo(synthesizer_root=args.out_dir, n_processes=n_processes_embed, skip_existing=args.skip_existing, hparams=args.hparams)

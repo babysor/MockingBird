@@ -53,7 +53,7 @@
       "request": "launch",
       "program": "train.py",
       "console": "integratedTerminal",
-      "args": ["--type", "synth", "..\\audiodata\\SV2TTS\\synthesizer"]
+      "args": ["--type", "vits"]
     },
     {
       "name": "Python: PPG Convert",
