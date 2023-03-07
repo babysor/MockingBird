@@ -29,6 +29,7 @@
 ## Quick Start
 
 ### 1. Install Requirements
+#### 1.1 General Setup
 > Follow the original repo to test if you got all environment ready.
 **Python 3.7 or higher ** is needed to run the toolbox.
 
@@ -37,8 +38,64 @@
 * Install [ffmpeg](https://ffmpeg.org/download.html#get-packages).
 * Run `pip install -r requirements.txt` to install the remaining necessary packages.
 * Install webrtcvad `pip install webrtcvad-wheels`(If you need)
-> Note that we are using the pretrained encoder/vocoder but synthesizer since the original model is incompatible with the Chinese symbols. It means the demo_cli is not working at this moment.
+
+#### 1.2 Setup with a M1 Mac
+> The following steps are a workaround to directly use the original `demo_toolbox.py`without the changing of codes.
+> 
+  >  Since the major issue comes with the PyQt5 packages used in `demo_toolbox.py` not compatible with M1 chips, were one to attempt on training models with the M1 chip, either that person can forgo `demo_toolbox.py`, or one can try the `web.py` in the project.
+
+##### 1.2.1 Install `PyQt5`, with [ref](https://stackoverflow.com/a/68038451/20455983) here.
+  * Create and open a Rosetta Terminal, with [ref](https://dev.to/courier/tips-and-tricks-to-setup-your-apple-m1-for-development-547g) here.
+  * Use system Python to create a virtual environment for the project
+    ```
+    /usr/bin/python3 -m venv /PathToMockingBird/venv
+    source /PathToMockingBird/venv/bin/activate
+    ```
+  * Upgrade pip and install `PyQt5`
+    ```
+    pip install --upgrade pip
+    pip install pyqt5
+    ```
+##### 1.2.2 Install `pyworld` and `ctc-segmentation`
+  
+> Both packages seem to be unique to this project and are not seen in the original [Real-Time Voice Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) project. When installing with `pip install`, both packages lack wheels so the program tries to directly compile from c code and could not find `Python.h`.
+
+  * Install `pyworld`
+      * `brew install python` `Python.h` can come with Python installed by brew
+      * `export CPLUS_INCLUDE_PATH=/opt/homebrew/Frameworks/Python.framework/Headers` The filepath of brew-installed `Python.h` is unique to M1 MacOS and listed above. One needs to manually add the path to the environment variables.
+      * `pip install pyworld` that should do.
+    
+
+  * Install`ctc-segmentation`
+    > Same method does not apply to `ctc-segmentation`, and one needs to compile it from the source code on [github](https://github.com/lumaku/ctc-segmentation). 
+    * `git clone https://github.com/lumaku/ctc-segmentation.git` 
+    * `cd ctc-segmentation` 
+    * `source /PathToMockingBird/venv/bin/activate` If the virtual environment hasn't been deployed, activate it.
+    * `cythonize -3 ctc_segmentation/ctc_segmentation_dyn.pyx` 
+    * `/usr/bin/arch -x86_64 python setup.py build` Build with x86 architecture.
+    * `/usr/bin/arch -x86_64 python setup.py install --optimize=1 --skip-build`Install with x86 architecture.
+
+##### 1.2.3 Other dependencies
+  * `/usr/bin/arch -x86_64 pip install torch torchvision torchaudio` Pip installing `PyTorch` as an example, articulate that it's installed with x86 architecture
+  * `pip install ffmpeg`  Install ffmpeg
+  * `pip install -r requirements.txt` Install other requirements.
+  
+##### 1.2.4 Run the Inference Time (with Toolbox)
+  > To run the project on x86 architecture. [ref](https://youtrack.jetbrains.com/issue/PY-46290/Allow-running-Python-under-Rosetta-2-in-PyCharm-for-Apple-Silicon).
+  * `vim /PathToMockingBird/venv/bin/pythonM1` Create an executable file `pythonM1` to condition python interpreter at `/PathToMockingBird/venv/bin`.
+  * Write in the following content:
+    ```
+    #!/usr/bin/env zsh
+    mydir=${0:a:h}
+    /usr/bin/arch -x86_64 $mydir/python "$@"
+    ```
+  * `chmod +x pythonM1` Set the file as executable.
+  * If using PyCharm IDE, configure project interpreter to `pythonM1`([steps here](https://www.jetbrains.com/help/pycharm/configuring-python-interpreter.html#add-existing-interpreter)), if using command line python, run `/PathToMockingBird/venv/bin/pythonM1 demo_toolbox.py`
+
+
 ### 2. Prepare your models
+> Note that we are using the pretrained encoder/vocoder but not synthesizer, since the original model is incompatible with the Chinese symbols. It means the demo_cli is not working at this moment, so additional synthesizer models are required.
+
 You can either train your models or use existing ones:
 
 #### 2.1 Train encoder with your dataset (Optional)
