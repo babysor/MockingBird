@@ -1,8 +1,10 @@
 import os
 import sys
 import typer
+from pyngrok import ngrok
 
 cli = typer.Typer()
+
 
 @cli.command()
 def launch(port: int = typer.Option(2023, "--port", "-p")) -> None:
@@ -15,7 +17,14 @@ def launch(port: int = typer.Option(2023, "--port", "-p")) -> None:
     sys.path.append(os.getcwd())
 
     from control.mkgui.base.ui.streamlit_ui import launch_ui
+
     launch_ui(port)
+
+    # Setup a tunnel to the streamlit port 2023
+
+    public_url = ngrok.connect(port="2023")
+    print(public_url)
+    
 
 if __name__ == "__main__":
     cli()
