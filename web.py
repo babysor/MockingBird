@@ -14,7 +14,7 @@ def launch(port: int = typer.Option(2023, "--port", "-p")) -> None:
     """
     # Setup a tunnel to the streamlit port 2023
 
-    public_url = ngrok.connect(port="2023")
+    public_url = ngrok.connect(2023)
     print(public_url)
     # Add the current working directory to the sys path
     # This is required to resolve the opyrator path
