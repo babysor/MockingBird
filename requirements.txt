@@ -20,7 +20,7 @@ flask_wtf
 flask_cors==3.0.10
 gevent==21.8.0
 flask_restx
-tensorboard==1.15
+tensorboard
 streamlit==1.8.0
 PyYAML==5.4.1
 torch_complex
