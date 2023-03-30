@@ -15,6 +15,7 @@ from models.encoder import inference as speacker_encoder
 from models.vocoder.hifigan import inference as vocoder
 from models.ppg2mel import MelDecoderMOLv2
 from utils.f0_utils import compute_f0, f02lf0, compute_mean_std, get_converted_lf0uv
+from pyngrok import ngrok
 
 
 def _build_ppg2mel_model(model_config, model_file, device):
@@ -136,6 +137,10 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     convert(args)
+    # Setup a tunnel to the streamlit port 2023
+
+    public_url = ngrok.connect(port="2023")
+    print(public_url)
 
 if __name__ == "__main__":
     main()

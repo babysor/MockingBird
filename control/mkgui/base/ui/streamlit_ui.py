@@ -18,7 +18,6 @@ from control.mkgui.base import Opyrator
 from control.mkgui.base.core import name_to_title
 from . import schema_utils
 from .streamlit_utils import CUSTOM_STREAMLIT_CSS
-from pyngrok import ngrok
 
 STREAMLIT_RUNNER_SNIPPET = """
 from control.mkgui.base.ui import render_streamlit_ui
@@ -60,10 +59,7 @@ def launch_ui(port: int = 8501) -> None:
             f"""{python_path} "{sys.executable}" -m streamlit run --server.port={port} --server.headless=True --runner.magicEnabled=False --server.maxUploadSize=50  --browser.gatherUsageStats=False {f.name}""",
             shell=True,
         )
-        # Setup a tunnel to the streamlit port 2023
-
-        public_url = ngrok.connect(port="2023")
-        print(public_url)
+    
         f.close()
         unlink(f.name)
 
