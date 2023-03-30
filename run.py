@@ -134,6 +134,7 @@ def get_parser():
     return parser
 
 def main():
+    print('debug start')
     parser = get_parser()
     args = parser.parse_args()
     convert(args)
