@@ -104,29 +104,58 @@ def _split_on_silences(wav_fpath, words, hparams):
         wav = logmmse.denoise(wav, profile, eta=0)
 
     resp = pinyin(words, style=Style.TONE3)
-    res = [v[0] for v in resp if v[0].strip()]
+    res = filter(lambda v : not v.isspace(),map(lambda v: v[0],resp)) 
     res = " ".join(res)
 
     return wav, res
 
 def preprocess_general(speaker_dir, out_dir: Path, skip_existing: bool, hparams, dict_info, no_alignments: bool, encoder_model_fpath: Path):
     metadata = []
-    extensions = ["*.wav", "*.flac", "*.mp3"]
-    for extension in extensions:
-        wav_fpath_list = speaker_dir.glob(extension)
-        # Iterate over each wav
-        for wav_fpath in wav_fpath_list:
-            words = dict_info.get(wav_fpath.name.split(".")[0])
-            words = dict_info.get(wav_fpath.name) if not words else words # try with extension 
-            if not words:
-                print("no wordS")
-                continue
-            sub_basename = "%s_%02d" % (wav_fpath.name, 0)
-            wav, text = _split_on_silences(wav_fpath, words, hparams)
-            result = _process_utterance(wav, text, out_dir, sub_basename, 
-                                                skip_existing, hparams, encoder_model_fpath)
-            if result is None:
-                continue
-            wav_fpath_name, mel_fpath_name, embed_fpath_name, wav, mel_frames, text = result
-            metadata.append([wav_fpath_name, mel_fpath_name, embed_fpath_name, len(wav), mel_frames, text])
-    return [m for m in metadata if m is not None]
+    extensions = ("*.wav", "*.flac", "*.mp3")
+    if skip_existing:
+        for extension in extensions:
+            wav_fpath_list = speaker_dir.glob(extension)
+            # Iterate over each wav
+            for wav_fpath in wav_fpath_list:
+                words = dict_info.get(wav_fpath.name.split(".")[0])
+                if not words:
+                    words = dict_info.get(wav_fpath.name) # try with extension 
+                    if not words:
+                        print("no wordS")
+                        continue
+                sub_basename = "%s_%02d" % (wav_fpath.name, 0)
+                
+                mel_fpath = out_dir.joinpath("mels", f"mel-{sub_basename}.npy")
+                wav_fpath_ = out_dir.joinpath("audio", f"audio-{sub_basename}.npy")
+                
+                if mel_fpath.exists() and wav_fpath_.exists():
+                    continue
+
+                wav, text = _split_on_silences(wav_fpath, words, hparams)
+                result = _process_utterance(wav, text, out_dir, sub_basename, 
+                                                    False, hparams, encoder_model_fpath) # accelarate
+                if result is None:
+                    continue
+                wav_fpath_name, mel_fpath_name, embed_fpath_name, wav, mel_frames, text = result
+                metadata.append ((wav_fpath_name, mel_fpath_name, embed_fpath_name, len(wav), mel_frames, text))
+    else:
+        for extension in extensions:
+            wav_fpath_list = speaker_dir.glob(extension)
+            # Iterate over each wav
+            for wav_fpath in wav_fpath_list:
+                words = dict_info.get(wav_fpath.name.split(".")[0])
+                if not words:
+                    words = dict_info.get(wav_fpath.name) # try with extension 
+                    if not words:
+                        print("no wordS")
+                        continue
+                sub_basename = "%s_%02d" % (wav_fpath.name, 0)
+
+                wav, text = _split_on_silences(wav_fpath, words, hparams)
+                result = _process_utterance(wav, text, out_dir, sub_basename, 
+                                                    False, hparams, encoder_model_fpath)
+                if result is None:
+                    continue
+                wav_fpath_name, mel_fpath_name, embed_fpath_name, wav, mel_frames, text = result
+                metadata.append ((wav_fpath_name, mel_fpath_name, embed_fpath_name, len(wav), mel_frames, text))
+    return metadata

@@ -50,7 +50,7 @@ def linear_to_mel(spectrogram):
 
 
 def build_mel_basis():
-    return librosa.filters.mel(hp.sample_rate, hp.n_fft, n_mels=hp.num_mels, fmin=hp.fmin)
+    return librosa.filters.mel(sr = hp.sample_rate, n_fft = hp.n_fft, n_mels=hp.num_mels, fmin=hp.fmin)
 
 
 def normalize(S):

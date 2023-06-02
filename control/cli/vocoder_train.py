@@ -78,7 +78,7 @@ if __name__ == "__main__":
         else:
             train_hifigan(0, args, h)
     elif args.vocoder_type == "fregan":
-        with open('vocoder/fregan/config.json') as f:
+        with Path('vocoder/fregan/config.json').open() as f:
             json_config = json.load(f)
         h = AttrDict(json_config)
         if h.num_gpus > 1:

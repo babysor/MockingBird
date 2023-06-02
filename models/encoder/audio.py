@@ -39,7 +39,7 @@ def preprocess_wav(fpath_or_wav: Union[str, Path, np.ndarray],
     
     # Resample the wav if needed
     if source_sr is not None and source_sr != sampling_rate:
-        wav = librosa.resample(wav, source_sr, sampling_rate)
+        wav = librosa.resample(wav, orig_sr = source_sr, target_sr = sampling_rate)
         
     # Apply the preprocessing: normalize volume and shorten long silences 
     if normalize:
@@ -99,7 +99,7 @@ def trim_long_silences(wav):
         return ret[width - 1:] / width
     
     audio_mask = moving_average(voice_flags, vad_moving_average_width)
-    audio_mask = np.round(audio_mask).astype(np.bool)
+    audio_mask = np.round(audio_mask).astype(bool)
     
     # Dilate the voiced regions
     audio_mask = binary_dilation(audio_mask, np.ones(vad_max_silence_length + 1))

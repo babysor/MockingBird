@@ -39,6 +39,16 @@
 * Run `pip install -r requirements.txt` to install the remaining necessary packages.
 * Install webrtcvad `pip install webrtcvad-wheels`(If you need)
 
+or
+- install dependencies with `conda` or `mamba`
+
+  ```conda env create -n env_name -f env.yml```
+
+  ```mamba env create -n env_name -f env.yml```
+
+  will create a virtual environment where necessary dependencies are installed. Switch to the new environment by `conda activate env_name` and enjoy it.
+  > env.yml only includes the necessary dependencies to run the project，temporarily without monotonic-align. You can check the official website to install the GPU version of pytorch.
+
 #### 1.2 Setup with a M1 Mac
 > The following steps are a workaround to directly use the original `demo_toolbox.py`without the changing of codes.
 > 

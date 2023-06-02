@@ -21,7 +21,7 @@ colormap = np.array([
     [33, 0, 127],
     [0, 0, 0],
     [183, 183, 183],
-], dtype=np.float) / 255 
+], dtype=float) / 255 
 
 
 class Visualizations:

@@ -78,12 +78,12 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
     
     func = partial(dataset_info["speak_func"], out_dir=out_dir, skip_existing=skip_existing, 
                    hparams=hparams, dict_info=dict_info, no_alignments=no_alignments, encoder_model_fpath=encoder_model_fpath)
-    job = Pool(n_processes).imap(func, speaker_dirs)
+    job = Pool(n_processes).imap_unordered(func, speaker_dirs)
     
     for speaker_metadata in tqdm(job, dataset, len(speaker_dirs), unit="speakers"):
         if speaker_metadata is not None:
             for metadatum in speaker_metadata:
-                metadata_file.write("|".join(str(x) for x in metadatum) + "\n")
+                metadata_file.write("|".join(map(str,metadatum)) + "\n")
     metadata_file.close()
 
     # Verify the contents of the metadata file
@@ -134,7 +134,7 @@ def create_embeddings(synthesizer_root: Path, encoder_model_fpath: Path, n_proce
     # Embed the utterances in separate threads
     func = partial(embed_utterance, encoder_model_fpath=encoder_model_fpath)
     job = Pool(n_processes).imap(func, fpaths)
-    list(tqdm(job, "Embedding", len(fpaths), unit="utterances"))
+    tuple(tqdm(job, "Embedding", len(fpaths), unit="utterances"))
 
 def create_emo(synthesizer_root: Path, n_processes: int, skip_existing: bool, hparams):
     wav_dir = synthesizer_root.joinpath("audio")
@@ -152,4 +152,4 @@ def create_emo(synthesizer_root: Path, n_processes: int, skip_existing: bool, hp
     # Embed the utterances in separate threads
     func = partial(_emo_extract_from_utterance, hparams=hparams, skip_existing=skip_existing)
     job = Pool(n_processes).imap(func, fpaths)
-    list(tqdm(job, "Emo", len(fpaths), unit="utterances"))
+    tuple(tqdm(job, "Emo", len(fpaths), unit="utterances"))
