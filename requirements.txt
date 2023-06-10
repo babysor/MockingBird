@@ -1,9 +1,8 @@
 umap-learn
 visdom
-librosa==0.8.1
+librosa
 matplotlib>=3.3.0
-numpy==1.19.3; platform_system == "Windows"
-numpy==1.19.4; platform_system != "Windows"
+numpy
 scipy>=1.0.0
 tqdm
 sounddevice
@@ -13,22 +12,22 @@ inflect
 PyQt5
 multiprocess
 numba
-webrtcvad; platform_system != "Windows"
+webrtcvad
 pypinyin
 flask
 flask_wtf
-flask_cors==3.0.10
-gevent==21.8.0
+flask_cors
+gevent
 flask_restx
-tensorboard==1.15
-streamlit==1.8.0
-PyYAML==5.4.1
+tensorboard
+streamlit
+PyYAML
 torch_complex
 espnet
 PyWavelets
 monotonic-align==0.0.3
-transformers==4.26.0
+transformers
 fastapi
 loguru
 typer[all]
-click==8.0.4
+click

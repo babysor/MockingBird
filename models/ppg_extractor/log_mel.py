@@ -31,14 +31,13 @@ class LogMel(torch.nn.Module):
         fs: int = 16000,
         n_fft: int = 512,
         n_mels: int = 80,
-        fmin: float = None,
+        fmin: float = 0,
         fmax: float = None,
         htk: bool = False,
         norm=1,
     ):
         super().__init__()
 
-        fmin = 0 if fmin is None else fmin
         fmax = fs / 2 if fmax is None else fmax
         _mel_options = dict(
             sr=fs, n_fft=n_fft, n_mels=n_mels, fmin=fmin, fmax=fmax, htk=htk, norm=norm

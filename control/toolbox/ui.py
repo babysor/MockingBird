@@ -33,7 +33,7 @@ colormap = np.array([
     [0, 0, 0],
     [183, 183, 183],
     [76, 255, 0],
-], dtype=np.float) / 255 
+], dtype=float) / 255 
 
 default_text = \
     "欢迎使用工具箱, 现已支持中文输入！"
@@ -402,8 +402,8 @@ class UI(QDialog):
         self.app.processEvents()
 
     def set_loading(self, value, maximum=1):
-        self.loading_bar.setValue(value * 100)
-        self.loading_bar.setMaximum(maximum * 100)
+        self.loading_bar.setValue(int(value * 100))
+        self.loading_bar.setMaximum(int(maximum * 100))
         self.loading_bar.setTextVisible(value != 0)
         self.app.processEvents()
 

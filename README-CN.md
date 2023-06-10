@@ -44,6 +44,16 @@
 * 运行`pip install -r requirements.txt` 来安装剩余的必要包。
 * 安装 webrtcvad `pip install webrtcvad-wheels`。
 
+或者
+- 用`conda` 或者 `mamba` 安装依赖
+
+  ```conda env create -n env_name -f env.yml```
+
+  ```mamba env create -n env_name -f env.yml```
+
+  会创建新环境安装必须的依赖. 之后用 `conda activate env_name` 切换环境就完成了.
+  > env.yml只包含了运行时必要的依赖，暂时不包括monotonic-align，如果想要装GPU版本的pytorch可以查看官网教程。
+
 #### 1.2 M1芯片Mac环境配置（Inference Time)
 > 以下环境按x86-64搭建，使用原生的`demo_toolbox.py`，可作为在不改代码情况下快速使用的workaround。
 > 
