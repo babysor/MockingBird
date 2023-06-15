@@ -18,19 +18,6 @@
 
 🌍 **Webserver Ready** 可伺服你的训练结果，供远程调用
 
-### 进行中的工作
-*  GUI/客户端大升级与合并
-
-- [x] 初始化框架 `./mkgui` （基于streamlit + fastapi）和 [技术设计](https://vaj2fgg8yn.feishu.cn/docs/doccnvotLWylBub8VJIjKzoEaee)
-
-- [x] 增加 Voice Cloning and Conversion的演示页面
-
-- [x] 增加Voice Conversion的预处理preprocessing 和训练 training 页面 
-
-- [ ] 增加其他的的预处理preprocessing 和训练 training 页面 
-
-* 模型后端基于ESPnet2升级
-
 
 ## 开始
 ### 1. 安装要求
@@ -56,7 +43,7 @@
 
 #### 1.2 M1芯片Mac环境配置（Inference Time)
 > 以下环境按x86-64搭建，使用原生的`demo_toolbox.py`，可作为在不改代码情况下快速使用的workaround。
-> 
+>
   >  如需使用M1芯片训练，因`demo_toolbox.py`依赖的`PyQt5`不支持M1，则应按需修改代码，或者尝试使用`web.py`。
 
 * 安装`PyQt5`，参考[这个链接](https://stackoverflow.com/a/68038451/20455983)
@@ -81,11 +68,11 @@
   * 安装`ctc-segmentation`
     > 因上述方法没有成功，选择从[github](https://github.com/lumaku/ctc-segmentation) clone源码手动编译
     * `git clone https://github.com/lumaku/ctc-segmentation.git` 克隆到任意位置
-    * `cd ctc-segmentation` 
+    * `cd ctc-segmentation`
     * `source /PathToMockingBird/venv/bin/activate` 假设一开始未开启，打开MockingBird项目的虚拟环境
-    * `cythonize -3 ctc_segmentation/ctc_segmentation_dyn.pyx` 
+    * `cythonize -3 ctc_segmentation/ctc_segmentation_dyn.pyx`
     * `/usr/bin/arch -x86_64 python setup.py build` 要注意明确用x86-64架构编译
-    * `/usr/bin/arch -x86_64 python setup.py install --optimize=1 --skip-build`用x86-64架构安装 
+    * `/usr/bin/arch -x86_64 python setup.py install --optimize=1 --skip-build`用x86-64架构安装
 
 * 安装其他依赖
     * `/usr/bin/arch -x86_64 pip install torch torchvision torchaudio` 这里用pip安装`PyTorch`，明确架构是x86
@@ -93,7 +80,7 @@
     * `pip install -r requirements.txt`
 
 * 运行
-  > 参考[这个链接](https://youtrack.jetbrains.com/issue/PY-46290/Allow-running-Python-under-Rosetta-2-in-PyCharm-for-Apple-Silicon) 
+  > 参考[这个链接](https://youtrack.jetbrains.com/issue/PY-46290/Allow-running-Python-under-Rosetta-2-in-PyCharm-for-Apple-Silicon)
   ，让项目跑在x86架构环境上
   * `vim /PathToMockingBird/venv/bin/pythonM1`
   * 写入以下代码
@@ -176,7 +163,7 @@
 想像柯南拿着变声器然后发出毛利小五郎的声音吗？本项目现基于PPG-VC，引入额外两个模块（PPG extractor + PPG2Mel）, 可以实现变声功能。（文档不全，尤其是训练部分，正在努力补充中）
 #### 4.0 准备环境
 * 确保项目以上环境已经安装ok，运行`pip install espnet` 来安装剩余的必要包。
-* 下载以下模型 链接：https://pan.baidu.com/s/1bl_x_DHJSAUyN2fma-Q_Wg 
+* 下载以下模型 链接：https://pan.baidu.com/s/1bl_x_DHJSAUyN2fma-Q_Wg
 提取码：gh41
   * 24K采样率专用的vocoder（hifigan）到 *vocoder\saved_models\xxx*
   * 预训练的ppg特征encoder(ppg_extractor)到 *ppg_extractor\saved_models\xxx*
@@ -294,4 +281,3 @@ voc_pad =2
 ![attention_step_20500_sample_1](https://user-images.githubusercontent.com/7423248/128587252-f669f05a-f411-4811-8784-222156ea5e9d.png)
 
 ![step-135500-mel-spectrogram_sample_1](https://user-images.githubusercontent.com/7423248/128587255-4945faa0-5517-46ea-b173-928eff999330.png)
-
