@@ -18,14 +18,6 @@
 
 ### [DEMO VIDEO](https://www.bilibili.com/video/BV17Q4y1B7mY/)
 
-### Ongoing Works(Helps Needed)
-* Major upgrade on GUI/Client and unifying web and toolbox
-[X] Init framework `./mkgui` and [tech design](https://vaj2fgg8yn.feishu.cn/docs/doccnvotLWylBub8VJIjKzoEaee)
-[X] Add demo part of Voice Cloning and Conversion
-[X] Add preprocessing and training for Voice Conversion
-[ ] Add preprocessing and training for Encoder/Synthesizer/Vocoder
-* Major upgrade on model backend based on ESPnet2(not yet started)
-
 ## Quick Start
 
 ### 1. Install Requirements
@@ -51,7 +43,7 @@ or
 
 #### 1.2 Setup with a M1 Mac
 > The following steps are a workaround to directly use the original `demo_toolbox.py`without the changing of codes.
-> 
+>
   >  Since the major issue comes with the PyQt5 packages used in `demo_toolbox.py` not compatible with M1 chips, were one to attempt on training models with the M1 chip, either that person can forgo `demo_toolbox.py`, or one can try the `web.py` in the project.
 
 ##### 1.2.1 Install `PyQt5`, with [ref](https://stackoverflow.com/a/68038451/20455983) here.
@@ -67,21 +59,21 @@ or
     pip install pyqt5
     ```
 ##### 1.2.2 Install `pyworld` and `ctc-segmentation`
-  
+
 > Both packages seem to be unique to this project and are not seen in the original [Real-Time Voice Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) project. When installing with `pip install`, both packages lack wheels so the program tries to directly compile from c code and could not find `Python.h`.
 
   * Install `pyworld`
       * `brew install python` `Python.h` can come with Python installed by brew
       * `export CPLUS_INCLUDE_PATH=/opt/homebrew/Frameworks/Python.framework/Headers` The filepath of brew-installed `Python.h` is unique to M1 MacOS and listed above. One needs to manually add the path to the environment variables.
       * `pip install pyworld` that should do.
-    
+
 
   * Install`ctc-segmentation`
-    > Same method does not apply to `ctc-segmentation`, and one needs to compile it from the source code on [github](https://github.com/lumaku/ctc-segmentation). 
-    * `git clone https://github.com/lumaku/ctc-segmentation.git` 
-    * `cd ctc-segmentation` 
+    > Same method does not apply to `ctc-segmentation`, and one needs to compile it from the source code on [github](https://github.com/lumaku/ctc-segmentation).
+    * `git clone https://github.com/lumaku/ctc-segmentation.git`
+    * `cd ctc-segmentation`
     * `source /PathToMockingBird/venv/bin/activate` If the virtual environment hasn't been deployed, activate it.
-    * `cythonize -3 ctc_segmentation/ctc_segmentation_dyn.pyx` 
+    * `cythonize -3 ctc_segmentation/ctc_segmentation_dyn.pyx`
     * `/usr/bin/arch -x86_64 python setup.py build` Build with x86 architecture.
     * `/usr/bin/arch -x86_64 python setup.py install --optimize=1 --skip-build`Install with x86 architecture.
 
@@ -89,7 +81,7 @@ or
   * `/usr/bin/arch -x86_64 pip install torch torchvision torchaudio` Pip installing `PyTorch` as an example, articulate that it's installed with x86 architecture
   * `pip install ffmpeg`  Install ffmpeg
   * `pip install -r requirements.txt` Install other requirements.
-  
+
 ##### 1.2.4 Run the Inference Time (with Toolbox)
   > To run the project on x86 architecture. [ref](https://youtrack.jetbrains.com/issue/PY-46290/Allow-running-Python-under-Rosetta-2-in-PyCharm-for-Apple-Silicon).
   * `vim /PathToMockingBird/venv/bin/pythonM1` Create an executable file `pythonM1` to condition python interpreter at `/PathToMockingBird/venv/bin`.
