@@ -18,20 +18,6 @@
 
 🌍 **Webserver Ready** 可伺服你的训练结果，供远程调用
 
-### 进行中的工作
-*  GUI/客户端大升级与合并
-
-- [x] 初始化框架 `./mkgui` （基于streamlit + fastapi）和 [技术设计](https://vaj2fgg8yn.feishu.cn/docs/doccnvotLWylBub8VJIjKzoEaee)
-
-- [x] 增加 Voice Cloning and Conversion的演示页面
-
-- [x] 增加Voice Conversion的预处理preprocessing 和训练 training 页面 
-
-- [ ] 增加其他的的预处理preprocessing 和训练 training 页面 
-
-* 模型后端基于ESPnet2升级
-
-
 ## 开始
 ### 1. 安装要求
 #### 1.1 通用配置
