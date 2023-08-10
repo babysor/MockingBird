@@ -115,7 +115,7 @@ You can either train your models or use existing ones:
 Allowing parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata, aishell3, data_aishell, etc.If this parameter is not passed, the default dataset will be aidatatang_200zh.
 
 * Train the synthesizer:
-`python synthesizer_train.py mandarin <datasets_root>/SV2TTS/synthesizer`
+`python train.py --type=synth mandarin <datasets_root>/SV2TTS/synthesizer`
 
 * Go to next step when you see attention line show and loss meet your need in training folder *synthesizer/saved_models/*.
 
