@@ -113,7 +113,7 @@
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
 * 训练合成器：
-`python synthesizer_train.py mandarin <datasets_root>/SV2TTS/synthesizer`
+`python ./control/cli/synthesizer_train.py mandarin <datasets_root>/SV2TTS/synthesizer`
 
 * 当您在训练文件夹 *synthesizer/saved_models/* 中看到注意线显示和损失满足您的需要时，请转到`启动程序`一步。
 
@@ -135,14 +135,14 @@
 
 
 * 训练wavernn声码器:
-`python vocoder_train.py <trainid> <datasets_root>`
+`python ./control/cli/vocoder_train.py <trainid> <datasets_root>`
 > `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
 
 * 训练hifigan声码器:
-`python vocoder_train.py <trainid> <datasets_root> hifigan`
+`python ./control/cli/vocoder_train.py <trainid> <datasets_root> hifigan`
 > `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
 * 训练fregan声码器:
-`python vocoder_train.py <trainid> <datasets_root> --config config.json fregan`
+`python ./control/cli/vocoder_train.py <trainid> <datasets_root> --config config.json fregan`
 > `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
 * 将GAN声码器的训练切换为多GPU模式：修改GAN文件夹下.json文件中的"num_gpus"参数
 ### 3. 启动程序或工具箱
@@ -173,14 +173,14 @@
 
 * 下载aidatatang_200zh数据集并解压：确保您可以访问 *train* 文件夹中的所有音频文件（如.wav）
 * 进行音频和梅尔频谱图预处理：
-`python pre4ppg.py <datasets_root> -d {dataset} -n {number}`
+`python ./control/cli/pre4ppg.py <datasets_root> -d {dataset} -n {number}`
 可传入参数：
 * `-d {dataset}` 指定数据集，支持 aidatatang_200zh, 不传默认为aidatatang_200zh
 * `-n {number}` 指定并行数，CPU 11700k在8的情况下，需要运行12到18小时！待优化
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
 * 训练合成器, 注意在上一步先下载好`ppg2mel.yaml`, 修改里面的地址指向预训练好的文件夹：
-`python ppg2mel_train.py --config .\ppg2mel\saved_models\ppg2mel.yaml --oneshotvc `
+`python ./control/cli/ppg2mel_train.py --config .\ppg2mel\saved_models\ppg2mel.yaml --oneshotvc `
 * 如果想要继续上一次的训练，可以通过`--load .\ppg2mel\saved_models\<old_pt_file>` 参数指定一个预训练模型文件。
 
 #### 4.2 启动工具箱VC模式
