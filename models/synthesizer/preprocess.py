@@ -99,7 +99,9 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
     print("Max mel frames length: %d" % max(int(m[4]) for m in metadata))
     print("Max audio timesteps length: %d" % max(int(m[3]) for m in metadata))
 
-def embed_utterance(fpaths, encoder_model_fpath):
+def embed_utterance(fpaths: str, encoder_model_fpath: str, skip_existing: bool):
+    if skip_existing and fpaths.exists():
+        return
     if not encoder.is_loaded():
         encoder.load_model(encoder_model_fpath)
 
@@ -118,7 +120,7 @@ def _emo_extract_from_utterance(fpaths, hparams, skip_existing=False):
     emo = extract_emo(np.expand_dims(wav, 0), hparams.sample_rate, True)
     np.save(emo_fpath, emo.squeeze(0), allow_pickle=False)
  
-def create_embeddings(synthesizer_root: Path, encoder_model_fpath: Path, n_processes: int):
+def create_embeddings(synthesizer_root: Path, encoder_model_fpath: Path, n_processes: int, skip_existing: bool):
     wav_dir = synthesizer_root.joinpath("audio")
     metadata_fpath = synthesizer_root.joinpath("train.txt")
     assert wav_dir.exists() and metadata_fpath.exists()
@@ -132,7 +134,7 @@ def create_embeddings(synthesizer_root: Path, encoder_model_fpath: Path, n_proce
         
     # TODO: improve on the multiprocessing, it's terrible. Disk I/O is the bottleneck here.
     # Embed the utterances in separate threads
-    func = partial(embed_utterance, encoder_model_fpath=encoder_model_fpath)
+    func = partial(embed_utterance, encoder_model_fpath=encoder_model_fpath, skip_existing=skip_existing)
     job = Pool(n_processes).imap(func, fpaths)
     tuple(tqdm(job, "Embedding", len(fpaths), unit="utterances"))
 
