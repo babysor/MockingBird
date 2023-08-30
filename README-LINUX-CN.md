@@ -157,8 +157,8 @@ python pre.py    <datasets_root> \
 #### 2.3.3 synthesizer模型训练：
 超参数文件路径：`models/synthesizer/hparams.py`，需将`MockingBird/control/cli/synthesizer_train.py`移成`MockingBird/synthesizer_train.py`结构。
 ```shell
-python synthesizer_train.py <name> <datasets_path> 
-                            -m <out_dir>
+python synthesizer_train.py <name> <datasets_path> \
+                                -m <out_dir>
 ```
 其中 `<name>` 是训练产生文件的名称，可自行修改。
 
@@ -170,7 +170,7 @@ python synthesizer_train.py <name> <datasets_path>
 vocoder模型对生成效果影响不大，已预置3款。
 #### 2.4.1 数据预处理
 ```shell
-python vocoder_preprocess.py <datasets_root> 
+python vocoder_preprocess.py <datasets_root> \
                           -m <synthesizer_model_path>
 ```
 
@@ -184,11 +184,12 @@ python vocoder_train.py <name> <datasets_root>
 ```
 #### 2.4.3 hifigan声码器训练:
 ```
-python vocoder_train.py <trainid> <datasets_root> hifigan
+python vocoder_train.py <name> <datasets_root> hifigan
 ```
 #### 2.4.4 fregan声码器训练:
 ```
-python vocoder_train.py <trainid> <datasets_root> --config config.json fregan
+python vocoder_train.py <name> <datasets_root> \
+                        --config config.json fregan
 ```
 将GAN声码器的训练切换为多GPU模式：修改`GAN`文件夹下`.json`文件中的`num_gpus`参数。
 
