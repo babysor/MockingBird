@@ -20,7 +20,7 @@
 ### 1.1 建议环境
 - Ubuntu 18.04 
 - Cuda 11.7 && CuDNN 8.5.0 
-- Python 3.8 以上 
+- Python 3.8 或 3.9 
 - Pytorch 2.0.1 <post cuda-11.7>
 ### 1.2 环境配置
 ```shell
