@@ -40,27 +40,8 @@ pip install webrtcvad-wheels
 
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
 ```
-### 1.3 项目文件结构信息
 
-MockingBird
-    ├── academicodec
-    ├── utils.py      # common parts of various models
-    ├── modules       # common parts of various models
-    ├── ...
-    ├── quantization  # common parts of various models
-    └── models  # parts that are not shared by various models
-.. 
-├── evaluation_metric
-├── examples
-│    ├── SoundStream*
-│    ├── EnCodec*
-│    └── HiFi-Codec*
-│      ├── start.sh
-│      ├── ...
-│      └── test.sh
-└── README.md   
-
-### 1.4 模型准备
+### 1.3 模型准备
 > 当实在没有设备或者不想慢慢调试，可以使用社区贡献的模型(欢迎持续分享):
 
 | 作者 | 下载链接 | 效果预览 | 信息 |
@@ -70,7 +51,7 @@ MockingBird
 |@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing [百度盘链接](https://pan.baidu.com/s/1vSYXO4wsLyjnF3Unl-Xoxg) 提取码：1024  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps 台湾口音需切换到tag v0.0.1使用
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/ | 150k steps 注意：根据[issue](https://github.com/babysor/MockingBird/issues/37)修复 并切换到tag v0.0.1使用
 
-### 1.5 文件结构准备
+### 1.4 文件结构准备
 文件结构准备如下所示，算法将自动遍历synthesizer下的.pt模型文件。
 ``` 
 #  以第一个 pretrained-11-7-21_75k.pt 为例
@@ -80,7 +61,7 @@ MockingBird
             └── synthesizer 
                      └── pretrained-11-7-21_75k.pt
 ```
-### 1.6 运行
+### 1.5 运行
 ```
 python web.py 
 ```
