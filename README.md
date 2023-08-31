@@ -3,7 +3,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
 
-> English | [中文](README-CN.md)
+> English | [中文](README-CN.md)| [中文Linux](README-LINUX-CN.md)
 
 ## Features
 🌍 **Chinese** supported mandarin and tested with multiple datasets: aidatatang_200zh, magicdata, aishell3, data_aishell, and etc.
