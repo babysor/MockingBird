@@ -71,7 +71,7 @@ if __name__ == "__main__":
     del args.n_processes_embed
     preprocess_dataset(**vars(args))
     
-    create_embeddings(synthesizer_root=args.out_dir, n_processes=n_processes_embed, encoder_model_fpath=encoder_model_fpath)
+    create_embeddings(synthesizer_root=args.out_dir, n_processes=n_processes_embed, encoder_model_fpath=encoder_model_fpath, skip_existing=args.skip_existing)
     
     if args.emotion_extract:
         create_emo(synthesizer_root=args.out_dir, n_processes=n_processes_embed, skip_existing=args.skip_existing, hparams=args.hparams)
