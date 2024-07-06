@@ -25,7 +25,7 @@ PyYAML
 torch_complex
 espnet
 PyWavelets
-monotonic-align==0.0.3
+monotonic-align==1.0.0
 transformers
 fastapi
 loguru
