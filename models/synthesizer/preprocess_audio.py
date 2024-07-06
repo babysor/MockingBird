@@ -116,14 +116,13 @@ def preprocess_general(speaker_dir, out_dir: Path, skip_existing: bool, hparams,
                     print(f"No word found in dict_info for {wav_fpath.name}, skip it")
                     continue
             sub_basename = "%s_%02d" % (wav_fpath.name, 0)
-            mel_fpath = out_dir.joinpath("mels", f"mel-{sub_basename}.npy")
-            wav_fpath = out_dir.joinpath("audio", f"audio-{sub_basename}.npy")
+            mel_fpath_out = out_dir.joinpath("mels", f"mel-{sub_basename}.npy")
+            wav_fpath_out = out_dir.joinpath("audio", f"audio-{sub_basename}.npy")
             
-            if skip_existing and mel_fpath.exists() and wav_fpath.exists():
+            if skip_existing and mel_fpath_out.exists() and wav_fpath_out.exists():
                 continue
             wav, text = _split_on_silences(wav_fpath, words, hparams)
-            result = _process_utterance(wav, text, out_dir, sub_basename, 
-                                                False, hparams, encoder_model_fpath) # accelarate
+            result = _process_utterance(wav, text, out_dir, sub_basename, mel_fpath_out, wav_fpath_out, hparams, encoder_model_fpath)
             if result is None:
                 continue
             wav_fpath_name, mel_fpath_name, embed_fpath_name, wav, mel_frames, text = result
