@@ -18,17 +18,10 @@
 
 🌍 **Webserver Ready** 可伺服你的训练结果，供远程调用
 
-### 进行中的工作
-*  GUI/客户端大升级与合并
-[X] 初始化框架 `./mkgui` （基于streamlit + fastapi）和 [技术设计](https://vaj2fgg8yn.feishu.cn/docs/doccnvotLWylBub8VJIjKzoEaee)
-[X] 增加 Voice Cloning and Conversion的演示页面
-[X] 增加Voice Conversion的预处理preprocessing 和训练 training 页面 
-[ ] 增加其他的的预处理preprocessing 和训练 training 页面 
-* 模型后端基于ESPnet2升级
-
 
 ## 开始
 ### 1. 安装要求
+#### 1.1 通用配置
 > 按照原始存储库测试您是否已准备好所有环境。
 运行工具箱(demo_toolbox.py)需要 **Python 3.7 或更高版本** 。
 
@@ -36,7 +29,69 @@
 > 如果在用 pip 方式安装的时候出现 `ERROR: Could not find a version that satisfies the requirement torch==1.9.0+cu102 (from versions: 0.1.2, 0.1.2.post1, 0.1.2.post2)` 这个错误可能是 python 版本过低，3.9 可以安装成功
 * 安装 [ffmpeg](https://ffmpeg.org/download.html#get-packages)。
 * 运行`pip install -r requirements.txt` 来安装剩余的必要包。
+> 这里的环境建议使用 `Repo Tag 0.0.1` `Pytorch1.9.0 with Torchvision0.10.0 and cudatoolkit10.2` `requirements.txt` `webrtcvad-wheels` 因为 `requiremants.txt` 是在几个月前导出的，所以不适配新版本
 * 安装 webrtcvad `pip install webrtcvad-wheels`。
+
+或者
+- 用`conda` 或者 `mamba` 安装依赖
+
+  ```conda env create -n env_name -f env.yml```
+
+  ```mamba env create -n env_name -f env.yml```
+
+  会创建新环境安装必须的依赖. 之后用 `conda activate env_name` 切换环境就完成了.
+  > env.yml只包含了运行时必要的依赖，暂时不包括monotonic-align，如果想要装GPU版本的pytorch可以查看官网教程。
+
+#### 1.2 M1芯片Mac环境配置（Inference Time)
+> 以下环境按x86-64搭建，使用原生的`demo_toolbox.py`，可作为在不改代码情况下快速使用的workaround。
+>
+  >  如需使用M1芯片训练，因`demo_toolbox.py`依赖的`PyQt5`不支持M1，则应按需修改代码，或者尝试使用`web.py`。
+
+* 安装`PyQt5`，参考[这个链接](https://stackoverflow.com/a/68038451/20455983)
+  * 用Rosetta打开Terminal，参考[这个链接](https://dev.to/courier/tips-and-tricks-to-setup-your-apple-m1-for-development-547g)
+  * 用系统Python创建项目虚拟环境
+    ```
+    /usr/bin/python3 -m venv /PathToMockingBird/venv
+    source /PathToMockingBird/venv/bin/activate
+    ```
+  * 升级pip并安装`PyQt5`
+    ```
+    pip install --upgrade pip
+    pip install pyqt5
+    ```
+* 安装`pyworld`和`ctc-segmentation`
+  > 这里两个文件直接`pip install`的时候找不到wheel，尝试从c里build时找不到`Python.h`报错
+  * 安装`pyworld`
+    * `brew install python` 通过brew安装python时会自动安装`Python.h`
+    * `export CPLUS_INCLUDE_PATH=/opt/homebrew/Frameworks/Python.framework/Headers` 对于M1，brew安装`Python.h`到上述路径。把路径添加到环境变量里
+    * `pip install pyworld`
+
+  * 安装`ctc-segmentation`
+    > 因上述方法没有成功，选择从[github](https://github.com/lumaku/ctc-segmentation) clone源码手动编译
+    * `git clone https://github.com/lumaku/ctc-segmentation.git` 克隆到任意位置
+    * `cd ctc-segmentation`
+    * `source /PathToMockingBird/venv/bin/activate` 假设一开始未开启，打开MockingBird项目的虚拟环境
+    * `cythonize -3 ctc_segmentation/ctc_segmentation_dyn.pyx`
+    * `/usr/bin/arch -x86_64 python setup.py build` 要注意明确用x86-64架构编译
+    * `/usr/bin/arch -x86_64 python setup.py install --optimize=1 --skip-build`用x86-64架构安装
+
+* 安装其他依赖
+    * `/usr/bin/arch -x86_64 pip install torch torchvision torchaudio` 这里用pip安装`PyTorch`，明确架构是x86
+    * `pip install ffmpeg`  安装ffmpeg
+    * `pip install -r requirements.txt`
+
+* 运行
+  > 参考[这个链接](https://youtrack.jetbrains.com/issue/PY-46290/Allow-running-Python-under-Rosetta-2-in-PyCharm-for-Apple-Silicon)
+  ，让项目跑在x86架构环境上
+  * `vim /PathToMockingBird/venv/bin/pythonM1`
+  * 写入以下代码
+    ```
+    #!/usr/bin/env zsh
+    mydir=${0:a:h}
+    /usr/bin/arch -x86_64 $mydir/python "$@"
+    ```
+  * `chmod +x pythonM1` 设为可执行文件
+  * 如果使用PyCharm，则把Interpreter指向`pythonM1`，否则也可命令行运行`/PathToMockingBird/venv/bin/pythonM1 demo_toolbox.py`
 
 ### 2. 准备预训练模型
 考虑训练您自己专属的模型或者下载社区他人训练好的模型:
@@ -59,7 +114,7 @@
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
 * 训练合成器：
-`python synthesizer_train.py mandarin <datasets_root>/SV2TTS/synthesizer`
+`python ./control/cli/synthesizer_train.py mandarin <datasets_root>/SV2TTS/synthesizer`
 
 * 当您在训练文件夹 *synthesizer/saved_models/* 中看到注意线显示和损失满足您的需要时，请转到`启动程序`一步。
 
@@ -70,7 +125,7 @@
 | --- | ----------- | ----- | ----- |
 | 作者 | https://pan.baidu.com/s/1iONvRxmkI-t1nHqxKytY3g  [百度盘链接](https://pan.baidu.com/s/1iONvRxmkI-t1nHqxKytY3g) 4j5d |  | 75k steps 用3个开源数据集混合训练
 | 作者 | https://pan.baidu.com/s/1fMh9IlgKJlL2PIiRTYDUvw  [百度盘链接](https://pan.baidu.com/s/1fMh9IlgKJlL2PIiRTYDUvw) 提取码：om7f |  | 25k steps 用3个开源数据集混合训练, 切换到tag v0.0.1使用
-|@FawenYo | https://drive.google.com/file/d/1H-YGOUHpmqKxJ9FRc6vAjPuqQki24UbC/view?usp=sharing [百度盘链接](https://pan.baidu.com/s/1vSYXO4wsLyjnF3Unl-Xoxg) 提取码：1024  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps 台湾口音需切换到tag v0.0.1使用
+|@FawenYo | https://yisiou-my.sharepoint.com/:u:/g/personal/lawrence_cheng_fawenyo_onmicrosoft_com/EWFWDHzee-NNg9TWdKckCc4BC7bK2j9cCbOWn0-_tK0nOg?e=n0gGgC  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps 台湾口音需切换到tag v0.0.1使用
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ 提取码：2021 | https://www.bilibili.com/video/BV1uh411B7AD/ | 150k steps 注意：根据[issue](https://github.com/babysor/MockingBird/issues/37)修复 并切换到tag v0.0.1使用
 
 #### 2.4训练声码器 (可选)
@@ -81,14 +136,14 @@
 
 
 * 训练wavernn声码器:
-`python vocoder_train.py <trainid> <datasets_root>`
+`python ./control/cli/vocoder_train.py <trainid> <datasets_root>`
 > `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
 
 * 训练hifigan声码器:
-`python vocoder_train.py <trainid> <datasets_root> hifigan`
+`python ./control/cli/vocoder_train.py <trainid> <datasets_root> hifigan`
 > `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
 * 训练fregan声码器:
-`python vocoder_train.py <trainid> <datasets_root> --config config.json fregan`
+`python ./control/cli/vocoder_train.py <trainid> <datasets_root> --config config.json fregan`
 > `<trainid>`替换为你想要的标识，同一标识再次训练时会延续原模型
 * 将GAN声码器的训练切换为多GPU模式：修改GAN文件夹下.json文件中的"num_gpus"参数
 ### 3. 启动程序或工具箱
@@ -109,7 +164,7 @@
 想像柯南拿着变声器然后发出毛利小五郎的声音吗？本项目现基于PPG-VC，引入额外两个模块（PPG extractor + PPG2Mel）, 可以实现变声功能。（文档不全，尤其是训练部分，正在努力补充中）
 #### 4.0 准备环境
 * 确保项目以上环境已经安装ok，运行`pip install espnet` 来安装剩余的必要包。
-* 下载以下模型 链接：https://pan.baidu.com/s/1bl_x_DHJSAUyN2fma-Q_Wg 
+* 下载以下模型 链接：https://pan.baidu.com/s/1bl_x_DHJSAUyN2fma-Q_Wg
 提取码：gh41
   * 24K采样率专用的vocoder（hifigan）到 *vocoder\saved_models\xxx*
   * 预训练的ppg特征encoder(ppg_extractor)到 *ppg_extractor\saved_models\xxx*
@@ -119,14 +174,14 @@
 
 * 下载aidatatang_200zh数据集并解压：确保您可以访问 *train* 文件夹中的所有音频文件（如.wav）
 * 进行音频和梅尔频谱图预处理：
-`python pre4ppg.py <datasets_root> -d {dataset} -n {number}`
+`python ./control/cli/pre4ppg.py <datasets_root> -d {dataset} -n {number}`
 可传入参数：
 * `-d {dataset}` 指定数据集，支持 aidatatang_200zh, 不传默认为aidatatang_200zh
 * `-n {number}` 指定并行数，CPU 11700k在8的情况下，需要运行12到18小时！待优化
 > 假如你下载的 `aidatatang_200zh`文件放在D盘，`train`文件路径为 `D:\data\aidatatang_200zh\corpus\train` , 你的`datasets_root`就是 `D:\data\`
 
 * 训练合成器, 注意在上一步先下载好`ppg2mel.yaml`, 修改里面的地址指向预训练好的文件夹：
-`python ppg2mel_train.py --config .\ppg2mel\saved_models\ppg2mel.yaml --oneshotvc `
+`python ./control/cli/ppg2mel_train.py --config .\ppg2mel\saved_models\ppg2mel.yaml --oneshotvc `
 * 如果想要继续上一次的训练，可以通过`--load .\ppg2mel\saved_models\<old_pt_file>` 参数指定一个预训练模型文件。
 
 #### 4.2 启动工具箱VC模式
@@ -227,4 +282,3 @@ voc_pad =2
 ![attention_step_20500_sample_1](https://user-images.githubusercontent.com/7423248/128587252-f669f05a-f411-4811-8784-222156ea5e9d.png)
 
 ![step-135500-mel-spectrogram_sample_1](https://user-images.githubusercontent.com/7423248/128587255-4945faa0-5517-46ea-b173-928eff999330.png)
-

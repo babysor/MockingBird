@@ -1,6 +1,6 @@
 umap-learn
 visdom
-librosa==0.8.1
+librosa
 matplotlib>=3.3.0
 numpy==1.19.3; platform_system == "Windows"
 numpy==1.20.3; platform_system != "Windows"
@@ -17,12 +17,12 @@ webrtcvad; platform_system != "Windows"
 pypinyin==0.44.0
 flask
 flask_wtf
-flask_cors==3.0.10
-gevent==21.8.0
+flask_cors
+gevent
 flask_restx
 tensorboard
-streamlit==1.8.0
-PyYAML==5.4.1
+streamlit
+PyYAML
 torch_complex
 espnet
 PyWavelets
@@ -30,3 +30,5 @@ fastapi
 loguru
 click==8.0.4
 typer
+monotonic-align==1.0.0
+transformers

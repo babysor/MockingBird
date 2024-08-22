@@ -15,7 +15,8 @@
       "name": "Python: Vocoder Preprocess",
       "type": "python",
       "request": "launch",
-      "program": "vocoder_preprocess.py",
+      "program": "control\\cli\\vocoder_preprocess.py",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "args": ["..\\audiodata"]
     },
@@ -23,7 +24,8 @@
       "name": "Python: Vocoder Train",
       "type": "python",
       "request": "launch",
-      "program": "vocoder_train.py",
+      "program": "control\\cli\\vocoder_train.py",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "args": ["dev", "..\\audiodata"]
     },
@@ -32,6 +34,7 @@
       "type": "python",
       "request": "launch",
       "program": "demo_toolbox.py",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "args": ["-d","..\\audiodata"]
     },
@@ -40,6 +43,7 @@
       "type": "python",
       "request": "launch",
       "program": "demo_toolbox.py",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "args": ["-d","..\\audiodata","-vc"]
     },
@@ -47,9 +51,9 @@
       "name": "Python: Synth Train",
       "type": "python",
       "request": "launch",
-      "program": "synthesizer_train.py",
+      "program": "train.py",
       "console": "integratedTerminal",
-      "args": ["my_run", "..\\"]
+      "args": ["--type", "vits"]
     },
     {
       "name": "Python: PPG Convert",
@@ -60,6 +64,14 @@
       "args": ["-c", ".\\ppg2mel\\saved_models\\seq2seq_mol_ppg2mel_vctk_libri_oneshotvc_r4_normMel_v2.yaml",
         "-m", ".\\ppg2mel\\saved_models\\best_loss_step_304000.pth", "--wav_dir", ".\\wavs\\input", "--ref_wav_path", ".\\wavs\\pkq.mp3", "-o", ".\\wavs\\output\\"
       ]
-    }
+    },
+    {
+      "name": "Python: Vits Train",
+      "type": "python",
+      "request": "launch",
+      "program": "train.py",
+      "console": "integratedTerminal",
+      "args": ["--type", "vits"]
+    },
   ]
 }

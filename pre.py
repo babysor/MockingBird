@@ -1,21 +1,17 @@
-from synthesizer.preprocess import create_embeddings
-from utils.argutils import print_args
-from pathlib import Path
-import argparse
-
-from synthesizer.preprocess import preprocess_dataset
-from synthesizer.hparams import hparams
-from utils.argutils import print_args
+from models.synthesizer.preprocess import create_embeddings, preprocess_dataset, create_emo
+from models.synthesizer.hparams import hparams
 from pathlib import Path
 import argparse
 
 recognized_datasets = [
     "aidatatang_200zh",
+    "aidatatang_200zh_s",
     "magicdata",
     "aishell3",
     "data_aishell"
 ]
 
+#TODO: add for emotional data 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Preprocesses audio files from datasets, encodes them as mel spectrograms "
@@ -42,11 +38,13 @@ if __name__ == "__main__":
         (these are used to split long audio files into sub-utterances.)")
     parser.add_argument("-d", "--dataset", type=str, default="aidatatang_200zh", help=\
         "Name of the dataset to process, allowing values: magicdata, aidatatang_200zh, aishell3, data_aishell.")
-    parser.add_argument("-e", "--encoder_model_fpath", type=Path, default="encoder/saved_models/pretrained.pt", help=\
+    parser.add_argument("-e", "--encoder_model_fpath", type=Path, default="data/ckpt/encoder/pretrained.pt", help=\
         "Path your trained encoder model.")
     parser.add_argument("-ne", "--n_processes_embed", type=int, default=1, help=\
         "Number of processes in parallel.An encoder is created for each, so you may need to lower "
         "this value on GPUs with low memory. Set it to 1 if CUDA is unhappy")
+    parser.add_argument("-ee","--emotion_extract", action="store_true", help=\
+        "Preprocess audio to extract emotional numpy (for emotional vits).")
     args = parser.parse_args()
 
     # Process the arguments
@@ -66,11 +64,14 @@ if __name__ == "__main__":
                 "noise removal and is recommended. Please install and try again. If installation fails, "
                 "use --no_trim to disable this error message.")
     encoder_model_fpath = args.encoder_model_fpath
-    del args.no_trim, args.encoder_model_fpath
+    del args.no_trim
    
     args.hparams = hparams.parse(args.hparams)
     n_processes_embed = args.n_processes_embed
     del args.n_processes_embed
     preprocess_dataset(**vars(args))
     
-    create_embeddings(synthesizer_root=args.out_dir, n_processes=n_processes_embed, encoder_model_fpath=encoder_model_fpath)    
+    create_embeddings(synthesizer_root=args.out_dir, n_processes=n_processes_embed, encoder_model_fpath=encoder_model_fpath, skip_existing=args.skip_existing)
+    
+    if args.emotion_extract:
+        create_emo(synthesizer_root=args.out_dir, n_processes=n_processes_embed, skip_existing=args.skip_existing, hparams=args.hparams)
