@@ -1,4 +1,4 @@
-> 🚧 While I no longer actively update this repo, you can find me continuously pushing this tech forward to good side and open-source. Join me at [https://discord.gg/wrAGwSH5](https://discord.gg/FSHgCtEndn) .
+> 🚧 While I no longer actively update this repo, you can find me continuously pushing this tech forward to good side and open-source. Join me at [https://discord.gg/wrAGwSH5](https://discord.gg/FSHgCtEndn).
 >
 ![mockingbird](https://user-images.githubusercontent.com/12797292/131216767-6eb251d6-14fc-4951-8324-2722f0cd4c63.jpg)
 
@@ -31,7 +31,7 @@
 > If you get an `ERROR: Could not find a version that satisfies the requirement torch==1.9.0+cu102 (from versions: 0.1.2, 0.1.2.post1, 0.1.2.post2 )` This error is probably due to a low version of python, try using 3.9 and it will install successfully
 * Install [ffmpeg](https://ffmpeg.org/download.html#get-packages).
 * Run `pip install -r requirements.txt` to install the remaining necessary packages.
-> The recommended environment here is `Repo Tag 0.0.1` `Pytorch1.9.0 with Torchvision0.10.0 and cudatoolkit10.2` `requirements.txt` `webrtcvad-wheels` because `requiremants. txt` was exported a few months ago, so it doesn't work with newer versions
+> The recommended environment here is `Repo Tag 0.0.1` `Pytorch1.9.0 with Torchvision0.10.0 and cudatoolkit10.2` `requirements.txt` `webrtcvad-wheels` because `requirements. txt` was exported a few months ago, so it doesn't work with newer versions
 * Install webrtcvad `pip install webrtcvad-wheels`(If you need)
 
 or
