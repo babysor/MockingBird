@@ -129,7 +129,7 @@ Allowing parameter `--dataset {dataset}` to support aidatatang_200zh, magicdata,
 | --- | ----------- | ----- |----- |
 | @author | https://pan.baidu.com/s/1iONvRxmkI-t1nHqxKytY3g  [Baidu](https://pan.baidu.com/s/1iONvRxmkI-t1nHqxKytY3g) 4j5d  |  | 75k steps trained by multiple datasets
 | @author | https://pan.baidu.com/s/1fMh9IlgKJlL2PIiRTYDUvw  [Baidu](https://pan.baidu.com/s/1fMh9IlgKJlL2PIiRTYDUvw) code：om7f  |  | 25k steps trained by multiple datasets, only works under version 0.0.1
-|@FawenYo | https://yisiou-my.sharepoint.com/:u:/g/personal/lawrence_cheng_fawenyo_onmicrosoft_com/EWFWDHzee-NNg9TWdKckCc4BC7bK2j9cCbOWn0-_tK0nOg?e=n0gGgC  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps with local accent of Taiwan, only works under version 0.0.1
+|@FawenYo | https://fawenyo-my.sharepoint.com/:u:/g/personal/lawrence_cheng_ms_fawenyo_pp_ua/EWFWDHzee-NNg9TWdKckCc4BC7bK2j9cCbOWn0-_tK0nOg?e=GkA7ox  | [input](https://github.com/babysor/MockingBird/wiki/audio/self_test.mp3) [output](https://github.com/babysor/MockingBird/wiki/audio/export.wav) | 200k steps with local accent of Taiwan, only works under version 0.0.1
 |@miven| https://pan.baidu.com/s/1PI-hM3sn5wbeChRryX-RCQ code: 2021 https://www.aliyundrive.com/s/AwPsbo8mcSP code: z2m0 | https://www.bilibili.com/video/BV1uh411B7AD/ | only works under version 0.0.1
 
 #### 2.4 Train vocoder (Optional)
