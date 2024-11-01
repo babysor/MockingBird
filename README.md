@@ -1,4 +1,4 @@
-> 🚧 While I no longer actively update this repo, you can find me continuously pushing this tech forward to good side and open-source. Join me at [https://discord.gg/wrAGwSH5](https://discord.gg/FSHgCtEndn).
+> 🚧 While I no longer actively update this repo, you can find me continuously pushing this tech forward to good side and open-source. Join me at [MaskGCT](https://github.com/open-mmlab/Amphion/tree/main/models/tts/maskgct). I'm also building an optimized and cloud hosted version: https://noiz.ai/
 >
 ![mockingbird](https://user-images.githubusercontent.com/12797292/131216767-6eb251d6-14fc-4951-8324-2722f0cd4c63.jpg)
 
