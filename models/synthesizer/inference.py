@@ -11,7 +11,7 @@ import numpy as np
 import librosa
 from utils import logmmse
 from pypinyin import lazy_pinyin, Style
-
+from utils.util import get_device
 class Synthesizer:
     sample_rate = hparams.sample_rate
     hparams = hparams
@@ -27,10 +27,7 @@ class Synthesizer:
         self.verbose = verbose
  
         # Check for GPU
-        if torch.cuda.is_available():
-            self.device = torch.device("cuda")
-        else:
-            self.device = torch.device("cpu")
+        self.device = torch.device(get_device())
         if self.verbose:
             print("Synthesizer using device:", self.device)
         

@@ -3,6 +3,7 @@ from models.encoder.model import SpeakerEncoder
 from models.encoder.audio import preprocess_wav   # We want to expose this function from here
 from matplotlib import cm
 from models.encoder import audio
+from utils.util import get_device
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,7 +27,7 @@ def load_model(weights_fpath: Path, device=None):
     #   was saved on. Worth investigating.
     global _model, _device
     if device is None:
-        _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        _device = torch.device(get_device(device))
     elif isinstance(device, str):
         _device = torch.device(device)
     _model = SpeakerEncoder(_device, torch.device("cpu"))
@@ -40,7 +41,7 @@ def set_model(model, device=None):
     global _model, _device
     _model = model
     if device is None:
-        _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        _device = torch.device(get_device(device))
     _device = device
     _model.to(device)
 

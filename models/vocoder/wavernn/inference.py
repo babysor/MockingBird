@@ -1,5 +1,6 @@
 from models.vocoder.wavernn.models.fatchord_version import WaveRNN
 from models.vocoder.wavernn import hparams as hp
+from utils.util import get_device
 import torch
 
 
@@ -25,11 +26,7 @@ def load_model(weights_fpath, verbose=True):
         mode=hp.voc_mode
     )
 
-    if torch.cuda.is_available():
-        _model = _model.cuda()
-        _device = torch.device('cuda')
-    else:
-        _device = torch.device('cpu')
+    _device = torch.device(get_device())
     
     if verbose:
         print("Loading model weights at %s" % weights_fpath)

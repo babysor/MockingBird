@@ -1,3 +1,4 @@
+import importlib.util
 import matplotlib
 from torch.nn import functional as F
 
@@ -144,3 +145,31 @@ def clip_grad_value_(parameters, clip_value, norm_type=2):
       p.grad.data.clamp_(min=-clip_value, max=clip_value)
   total_norm = total_norm ** (1. / norm_type)
   return total_norm
+
+
+def get_device(preferred_device: str = None) -> str:
+    """
+    Determines the available compute device for PyTorch operations.
+    
+    First checks for Habana HPU availability, then CUDA GPU, falling back to CPU if neither is available.
+    
+    Args:
+        preferred_device (str): The preferred device to use. Can be "hpu", "cuda", or "cpu".
+        
+    Returns:
+        torch.device: Device object - either torch.device("hpu"), torch.device("cuda"), or torch.device("cpu")
+    """
+    if preferred_device == "hpu" or preferred_device is None:
+      if importlib.util.find_spec("habana_frameworks"):
+        from habana_frameworks.torch.library_loader import load_habana_module
+        load_habana_module()
+        if torch.hpu.is_available():
+          return "hpu"
+        else:
+          print("HPU is not available, using CPU")
+          return "cpu"
+    if (preferred_device == "cuda" or preferred_device is None) and torch.cuda.is_available():
+      return "cuda"
+    if preferred_device == "cpu" or preferred_device is None:
+      return "cpu"
+    raise ValueError(f"Invalid device: {preferred_device}")

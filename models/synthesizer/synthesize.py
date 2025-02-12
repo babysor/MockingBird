@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader
 from models.synthesizer.synthesizer_dataset import SynthesizerDataset, collate_synthesizer
 from models.synthesizer.models.tacotron import Tacotron
 from models.synthesizer.utils.symbols import symbols
+from utils.util import get_device
 import numpy as np
 from pathlib import Path
 from tqdm import tqdm
@@ -16,8 +17,8 @@ def run_synthesis(in_dir, out_dir, model_dir, hparams):
     print(str(hparams))
 
     # Check for GPU
-    if torch.cuda.is_available():
-        device = torch.device("cuda")
+    device = torch.device(get_device())
+    if str(device) in ["cuda", "hpu"]:
         if hparams.synthesis_batch_size % torch.cuda.device_count() != 0:
             raise ValueError("`hparams.synthesis_batch_size` must be evenly divisible by n_gpus!")
     else:

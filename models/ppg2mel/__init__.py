@@ -14,8 +14,9 @@ from .utils.abs_model import AbsMelDecoder
 from .rnn_decoder_mol import Decoder
 from .utils.cnn_postnet import Postnet
 from .utils.vc_utils import get_mask_from_lengths
-
+from utils.util import get_device
 from utils.hparams import HpsYaml
+
 
 class MelDecoderMOLv2(AbsMelDecoder):
     """Use an encoder to preprocess ppg."""
@@ -197,7 +198,7 @@ def load_model(model_file, device=None):
     if len(model_config_fpaths) == 0:
         raise "No model yaml config found for convertor"
     if device is None:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device(get_device())
 
     model_config = HpsYaml(model_config_fpaths[0])
     ppg2mel_model = MelDecoderMOLv2(
