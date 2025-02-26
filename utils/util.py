@@ -157,7 +157,7 @@ def get_device(preferred_device: str = None) -> str:
         preferred_device (str): The preferred device to use. Can be "hpu", "cuda", or "cpu".
         
     Returns:
-        torch.device: Device object - either torch.device("hpu"), torch.device("cuda"), or torch.device("cpu")
+        str: The device to use for PyTorch operations.
     """
     if preferred_device == "hpu" or preferred_device is None:
       if importlib.util.find_spec("habana_frameworks"):

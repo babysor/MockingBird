@@ -26,10 +26,8 @@ def load_model(weights_fpath: Path, device=None):
     # TODO: I think the slow loading of the encoder might have something to do with the device it
     #   was saved on. Worth investigating.
     global _model, _device
-    if device is None:
-        _device = torch.device(get_device(device))
-    elif isinstance(device, str):
-        _device = torch.device(device)
+    
+    _device = torch.device(get_device(device))
     _model = SpeakerEncoder(_device, torch.device("cpu"))
     checkpoint = torch.load(weights_fpath, torch.device("cpu"))
     _model.load_state_dict(checkpoint["model_state"])

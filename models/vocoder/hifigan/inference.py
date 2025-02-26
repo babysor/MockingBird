@@ -21,7 +21,7 @@ def load_checkpoint(filepath, device):
     return checkpoint_dict
 
 
-def load_model(weights_fpath, config_fpath=None, verbose=True):
+def load_model(weights_fpath, config_fpath=None, verbose=True, device: str = None):
     global generator, _device, output_sample_rate
 
     if verbose:
@@ -40,8 +40,9 @@ def load_model(weights_fpath, config_fpath=None, verbose=True):
     output_sample_rate = h.sampling_rate
     torch.manual_seed(h.seed)
 
-    _device = torch.device(get_device())
-
+    _device = torch.device(get_device(device))
+    if verbose:
+        print("Vocoder using device:", _device)
     generator = Generator(h).to(_device)
     state_dict_g = load_checkpoint(
         weights_fpath, torch.device("cpu")
