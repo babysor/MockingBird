@@ -161,7 +161,7 @@ def get_device(preferred_device: str = None) -> str:
     """
     if preferred_device == "hpu" or preferred_device is None:
       if importlib.util.find_spec("habana_frameworks"):
-        from habana_frameworks.torch.library_loader import load_habana_module
+        from habana_frameworks.torch.utils.library_loader import load_habana_module
         load_habana_module()
         if torch.hpu.is_available():
           return "hpu"

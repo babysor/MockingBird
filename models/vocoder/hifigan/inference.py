@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import habana_frameworks.torch
 import os
 import json
 import torch
@@ -43,10 +44,10 @@ def load_model(weights_fpath, config_fpath=None, verbose=True):
 
     generator = Generator(h).to(_device)
     state_dict_g = load_checkpoint(
-        weights_fpath, _device
+        weights_fpath, torch.device("cpu")
     )
     generator.load_state_dict(state_dict_g['generator'])
-    generator.eval()
+    generator.eval().to(_device)
     generator.remove_weight_norm()
 
 

@@ -1,3 +1,4 @@
+import habana_frameworks.torch
 from models.synthesizer.inference import Synthesizer
 from models.encoder import inference as encoder
 from models.vocoder.hifigan import inference as gan_vocoder
@@ -108,9 +109,9 @@ if (len(sys.argv)>=3):
     output = cn2an.transform(my_txt, "an2cn")
     print(output)
     generate_wav(
-    Path("encoder/saved_models/pretrained.pt"),
-    Path("synthesizer/saved_models/mandarin.pt"),
-    Path("vocoder/saved_models/pretrained/g_hifigan.pt"), wav_file_name, output, txt_file_name
+    Path("data/ckpt/encoder/pretrained.pt"),
+    Path("data/ckpt/synthesizer/pretrained/mandarin.pt"),
+    Path("data/ckpt/vocoder/pretrained/g_hifigan.pt"), wav_file_name, output, txt_file_name
     )
 
 else:

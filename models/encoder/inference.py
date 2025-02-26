@@ -31,9 +31,9 @@ def load_model(weights_fpath: Path, device=None):
     elif isinstance(device, str):
         _device = torch.device(device)
     _model = SpeakerEncoder(_device, torch.device("cpu"))
-    checkpoint = torch.load(weights_fpath, _device)
+    checkpoint = torch.load(weights_fpath, torch.device("cpu"))
     _model.load_state_dict(checkpoint["model_state"])
-    _model.eval()
+    _model.eval().to(_device)
     print("Loaded encoder \"%s\" trained to step %d" % (weights_fpath.name, checkpoint["step"]))
     return _model
     

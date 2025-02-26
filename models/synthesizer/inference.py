@@ -1,3 +1,4 @@
+import habana_frameworks.torch
 import torch
 from models.synthesizer import audio
 from models.synthesizer.hparams import hparams
@@ -63,8 +64,8 @@ class Synthesizer:
                                stop_threshold=hparams.tts_stop_threshold,
                                speaker_embedding_size=hparams.speaker_embedding_size).to(self.device)
 
-        self._model.load(self.model_fpath, self.device)
-        self._model.eval()
+        self._model.load(self.model_fpath, torch.device("cpu"))
+        self._model.eval().to(self.device)
 
         if self.verbose:
             print("Loaded synthesizer \"%s\" trained to step %d" % (self.model_fpath.name, self._model.state_dict()["step"]))
