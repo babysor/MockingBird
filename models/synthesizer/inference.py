@@ -1,4 +1,3 @@
-import habana_frameworks.torch
 import torch
 from models.synthesizer import audio
 from models.synthesizer.hparams import hparams

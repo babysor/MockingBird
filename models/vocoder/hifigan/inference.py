@@ -1,6 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import habana_frameworks.torch
 import os
 import json
 import torch
