@@ -31,4 +31,4 @@ ENV DATASET_MIRROR=default FORCE_RETRAIN=false TRAIN_DATASETS=aidatatang_200zh\ 
 
 EXPOSE 8080
 
-ENTRYPOINT [ "/workspace/docker-entrypoint.sh" ]
+CMD ["python", "gen_voice.py", "encoder/saved_models/pretrained.pt", "synthesizer/saved_models/mandarin.pt", "vocoder/saved_models/pretrained/g_hifigan.pt", "data/input.txt", "output.wav", "output.txt"]
