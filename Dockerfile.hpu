@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-COPY . /workspace/mockingbird
-WORKDIR /workspace/mockingbird
+COPY . /workspace
+WORKDIR /workspace
 
 # Copy requirements
 COPY requirements.txt /workspace/requirements.txt
@@ -23,3 +23,12 @@ COPY requirements.txt /workspace/requirements.txt
 # Install Python packages
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt \
+    && pip install webrtcvad-wheels
+
+VOLUME [ "/datasets", "/workspace/synthesizer/saved_models/" ]
+
+ENV DATASET_MIRROR=default FORCE_RETRAIN=false TRAIN_DATASETS=aidatatang_200zh\ magicdata\ aishell3\ data_aishell TRAIN_SKIP_EXISTING=true
+
+EXPOSE 8080
+
+ENTRYPOINT [ "/workspace/docker-entrypoint.sh" ]
