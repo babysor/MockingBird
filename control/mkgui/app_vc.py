@@ -15,6 +15,7 @@ from control.mkgui.base.components.types import FileContent
 from models.encoder import inference as speacker_encoder
 from models.synthesizer.inference import Synthesizer
 from models.vocoder.hifigan import inference as gan_vocoder
+from utils.util import get_device
 
 # Constants
 AUDIO_SAMPLES_DIR = f'data{os.sep}samples{os.sep}'
@@ -140,7 +141,7 @@ def convert(input: Input) -> Output:
     min_len = min(ppg.shape[1], len(lf0_uv))
     ppg = ppg[:, :min_len]
     lf0_uv = lf0_uv[:min_len]
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device(get_device())
     _, mel_pred, att_ws = convertor.inference(
         ppg,
         logf0_uv=torch.from_numpy(lf0_uv).unsqueeze(0).float().to(device),
