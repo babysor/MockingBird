@@ -6,7 +6,7 @@ import yaml
 from .frontend import DefaultFrontend
 from .utterance_mvn import UtteranceMVN
 from .encoder.conformer_encoder import ConformerEncoder
-
+from utils.util import get_device
 _model = None # type: PPGModel
 _device = None
 
@@ -76,7 +76,7 @@ def load_model(model_file, device=None):
     global _model, _device
     
     if device is None:
-        _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        _device = torch.device(get_device(device))
     else:
         _device = device
     # search a config file

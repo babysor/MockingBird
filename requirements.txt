@@ -3,7 +3,7 @@ visdom
 librosa
 matplotlib>=3.3.0
 numpy==1.19.3; platform_system == "Windows"
-numpy==1.20.3; platform_system != "Windows"
+numpy>=1.21.0; platform_system != "Windows"
 scipy>=1.0.0
 tqdm
 sounddevice

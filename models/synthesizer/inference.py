@@ -11,12 +11,12 @@ import numpy as np
 import librosa
 from utils import logmmse
 from pypinyin import lazy_pinyin, Style
-
+from utils.util import get_device
 class Synthesizer:
     sample_rate = hparams.sample_rate
     hparams = hparams
     
-    def __init__(self, model_fpath: Path, verbose=True):
+    def __init__(self, model_fpath: Path, verbose=True, device: str = None):
         """
         The model isn't instantiated and loaded in memory until needed or until load() is called.
         
@@ -25,12 +25,8 @@ class Synthesizer:
         """
         self.model_fpath = model_fpath
         self.verbose = verbose
- 
-        # Check for GPU
-        if torch.cuda.is_available():
-            self.device = torch.device("cuda")
-        else:
-            self.device = torch.device("cpu")
+
+        self.device = torch.device(get_device(device))
         if self.verbose:
             print("Synthesizer using device:", self.device)
         
@@ -66,8 +62,8 @@ class Synthesizer:
                                stop_threshold=hparams.tts_stop_threshold,
                                speaker_embedding_size=hparams.speaker_embedding_size).to(self.device)
 
-        self._model.load(self.model_fpath, self.device)
-        self._model.eval()
+        self._model.load(self.model_fpath, torch.device("cpu"))
+        self._model.eval().to(self.device)
 
         if self.verbose:
             print("Loaded synthesizer \"%s\" trained to step %d" % (self.model_fpath.name, self._model.state_dict()["step"]))

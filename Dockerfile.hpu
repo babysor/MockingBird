@@ -1,0 +1,34 @@
+# Use the official Gaudi Docker image with PyTorch
+FROM vault.habana.ai/gaudi-docker/1.18.0/ubuntu22.04/habanalabs/pytorch-installer-2.4.0:latest
+
+# Set environment variables for Habana
+ENV HABANA_VISIBLE_DEVICES=all
+ENV OMPI_MCA_btl_vader_single_copy_mechanism=none
+ENV PT_HPU_LAZY_ACC_PAR_MODE=0
+ENV PT_HPU_ENABLE_LAZY_COLLECTIVES=1
+
+# Set timezone to UTC and install essential packages
+ENV DEBIAN_FRONTEND="noninteractive" TZ=Etc/UTC
+RUN apt-get update && apt-get install -y \
+    tzdata \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY . /workspace
+WORKDIR /workspace
+
+# Copy requirements
+COPY requirements.txt /workspace/requirements.txt
+
+# Install Python packages
+RUN pip install --upgrade pip \
+    && pip install -r requirements.txt \
+    && pip install webrtcvad-wheels
+
+VOLUME [ "/datasets", "/workspace/synthesizer/saved_models/" ]
+
+ENV DATASET_MIRROR=default FORCE_RETRAIN=false TRAIN_DATASETS=aidatatang_200zh\ magicdata\ aishell3\ data_aishell TRAIN_SKIP_EXISTING=true
+
+EXPOSE 8080
+
+CMD ["python", "gen_voice.py", "encoder/saved_models/pretrained.pt", "synthesizer/saved_models/mandarin.pt", "vocoder/saved_models/pretrained/g_hifigan.pt", "data/input.txt", "output.wav", "output.txt"]
