@@ -1,7 +1,7 @@
 > 🚧 While I no longer actively update this repo, you can find me continuously pushing this tech forward to good side and open-source. I'm also building an optimized and cloud hosted version: https://noiz.ai/ and it's free but not ready for commersial use now.
 >
 ![mockingbird](https://user-images.githubusercontent.com/12797292/131216767-6eb251d6-14fc-4951-8324-2722f0cd4c63.jpg)
-
+<a href="https://trendshift.io/repositories/3869" target="_blank"><img src="https://trendshift.io/api/badge/repositories/3869" alt="babysor%2FMockingBird | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
 
