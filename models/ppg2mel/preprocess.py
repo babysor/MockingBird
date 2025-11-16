@@ -12,7 +12,7 @@ import encoder.inference as Encoder
 from models.encoder.audio import preprocess_wav
 from models.encoder import audio
 from utils.f0_utils import compute_f0
-
+from utils.util import get_device
 from torch.multiprocessing import Pool, cpu_count
 from functools import partial
 
@@ -90,7 +90,7 @@ def preprocess_dataset(datasets_root, dataset, out_dir, n_processes, ppg_encoder
     if n_processes is None:
         n_processes = cpu_count()
     
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device(get_device())
     func = partial(preprocess_one, out_dir=out_dir, ppg_model_local=ppg_model_local, encoder_model_local=encoder_model_local, device=device)
     job = Pool(n_processes).imap(func, wav_file_list)
     list(tqdm(job, "Preprocessing", len(wav_file_list), unit="wav"))

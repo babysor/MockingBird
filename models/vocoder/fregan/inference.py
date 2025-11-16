@@ -5,7 +5,7 @@ import json
 import torch
 from utils.util import AttrDict
 from models.vocoder.fregan.generator import FreGAN
-
+from utils.util import get_device
 generator = None       # type: FreGAN
 output_sample_rate = None
 _device = None
@@ -38,11 +38,7 @@ def load_model(weights_fpath, config_fpath=None, verbose=True):
     output_sample_rate = h.sampling_rate
     torch.manual_seed(h.seed)
 
-    if torch.cuda.is_available():
-        # _model = _model.cuda()
-        _device = torch.device('cuda')
-    else:
-        _device = torch.device('cpu')
+    _device = torch.device(get_device())
 
     generator = FreGAN(h).to(_device)
     state_dict_g = load_checkpoint(

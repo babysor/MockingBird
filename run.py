@@ -15,6 +15,7 @@ from models.encoder import inference as speacker_encoder
 from models.vocoder.hifigan import inference as vocoder
 from models.ppg2mel import MelDecoderMOLv2
 from utils.f0_utils import compute_f0, f02lf0, compute_mean_std, get_converted_lf0uv
+from utils.util import get_device
 
 
 def _build_ppg2mel_model(model_config, model_file, device):
@@ -29,7 +30,7 @@ def _build_ppg2mel_model(model_config, model_file, device):
 
 @torch.no_grad()
 def convert(args):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device(get_device())
     output_dir = args.output_dir
     os.makedirs(output_dir, exist_ok=True)
 
