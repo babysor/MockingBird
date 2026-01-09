@@ -12,7 +12,7 @@ from pypinyin.core import Pinyin
 import torch
 from transformers import Wav2Vec2Processor
 from .models.wav2emo import EmotionExtractorModel
-
+from utils.util import get_device
 class PinyinConverter(NeutralToneWith5Mixin, DefaultConverter):
     pass
 
@@ -20,7 +20,7 @@ pinyin = Pinyin(PinyinConverter()).pinyin
 
 
 # load model from hub 
-device = 'cuda' if torch.cuda.is_available() else "cpu"
+device = get_device()
 model_name = 'audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim'
 processor = Wav2Vec2Processor.from_pretrained(model_name)
 model = EmotionExtractorModel.from_pretrained(model_name).to(device)

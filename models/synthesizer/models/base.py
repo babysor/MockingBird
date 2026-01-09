@@ -52,7 +52,12 @@ class Base(nn.Module):
             state = checkpoint["model_state"]
         else:
             state = checkpoint["model"]
-        self.load_state_dict(state, strict=False)
+        
+        model_state = self.state_dict()
+        filtered_state_dict = {k: v for k, v in state.items() 
+            if k in model_state and model_state[k].size() == v.size()}
+        state.update(filtered_state_dict)
+        self.load_state_dict(filtered_state_dict, strict=False)
 
         if "optimizer_state" in checkpoint and optimizer is not None:
             optimizer.load_state_dict(checkpoint["optimizer_state"])

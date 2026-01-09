@@ -7,6 +7,7 @@ from models.vocoder.fregan import inference as fgan_vocoder
 from pathlib import Path
 from time import perf_counter as timer
 from control.toolbox.utterance import Utterance
+from utils.util import get_device
 import numpy as np
 import traceback
 import sys
@@ -369,7 +370,7 @@ class Toolbox:
         if not self.extractor is None:
             ppg = self.extractor.extract_from_wav(src_wav)
         
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device(get_device())
         ref_wav = self.ui.selected_utterance.wav
         # Import necessary dependency of Voice Conversion
         from utils.f0_utils import compute_f0, f02lf0, compute_mean_std, get_converted_lf0uv   

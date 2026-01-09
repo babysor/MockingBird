@@ -3,6 +3,7 @@ from models.encoder.model import SpeakerEncoder
 from models.encoder.audio import preprocess_wav   # We want to expose this function from here
 from matplotlib import cm
 from models.encoder import audio
+from utils.util import get_device
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,14 +26,12 @@ def load_model(weights_fpath: Path, device=None):
     # TODO: I think the slow loading of the encoder might have something to do with the device it
     #   was saved on. Worth investigating.
     global _model, _device
-    if device is None:
-        _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    elif isinstance(device, str):
-        _device = torch.device(device)
+    
+    _device = torch.device(get_device(device))
     _model = SpeakerEncoder(_device, torch.device("cpu"))
-    checkpoint = torch.load(weights_fpath, _device)
+    checkpoint = torch.load(weights_fpath, torch.device("cpu"))
     _model.load_state_dict(checkpoint["model_state"])
-    _model.eval()
+    _model.eval().to(_device)
     print("Loaded encoder \"%s\" trained to step %d" % (weights_fpath.name, checkpoint["step"]))
     return _model
     
@@ -40,7 +39,7 @@ def set_model(model, device=None):
     global _model, _device
     _model = model
     if device is None:
-        _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        _device = torch.device(get_device(device))
     _device = device
     _model.to(device)
 
