@@ -1,3 +1,4 @@
+import habana_frameworks.torch
 from models.synthesizer.inference import Synthesizer
 from models.encoder import inference as encoder
 from models.vocoder.hifigan import inference as gan_vocoder
