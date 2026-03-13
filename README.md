@@ -170,7 +170,7 @@ you may need to install cn2an by "pip install cn2an" for better digital number r
 |[1703.10135](https://arxiv.org/pdf/1703.10135.pdf) | Tacotron (synthesizer) | Tacotron: Towards End-to-End Speech Synthesis | [fatchord/WaveRNN](https://github.com/fatchord/WaveRNN)
 |[1710.10467](https://arxiv.org/pdf/1710.10467.pdf) | GE2E (encoder)| Generalized End-To-End Loss for Speaker Verification | This repo |
 
-## F Q&A
+## Frequently asked Q&A
 #### 1.Where can I download the dataset?
 | Dataset | Original Source | Alternative Sources |
 | --- | ----------- | ---------------|
